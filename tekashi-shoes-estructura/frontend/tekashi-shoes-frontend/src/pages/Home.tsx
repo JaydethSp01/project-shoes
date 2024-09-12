@@ -1,0 +1,139 @@
+import logo from "../../public/logo.png";
+import IMG1 from "../../public/img-1.png";
+import IMG2 from "../../public/img2.png";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+
+const Home = () => {
+  return (
+    <div className="container home-page">
+      <header className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a className="navbar-brand" href="#">
+          <img src={logo} alt="Tekashi Shoes Logo" className="logo-img" />
+        </a>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ml-auto">
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+                Home
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+                About Us
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+                Contact
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+                Login
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" href="#">
+                Help
+              </a>
+            </li>
+          </ul>
+        </div>
+      </header>
+
+      <div className="row mt-4">
+        <div className="col-md-2">
+          <ul className="list-group">
+            <li className="list-group-item">Tenis</li>
+            <li className="list-group-item">Zapatillas</li>
+            <li className="list-group-item">Tacones</li>
+            <li className="list-group-item">Botas</li>
+            <li className="list-group-item">Mocasines</li>
+          </ul>
+        </div>
+
+        <div className="col-md-7">
+          <div className="featured-product">
+            <img src={IMG1} alt="Featured" className="img-fluid featured-img" />
+          </div>
+        </div>
+
+        <div className="col-md-3">
+          <div className="news-card">
+            <a href="https://example.com/news-sneakers">
+              <img src={IMG2} alt="Ad" className="img-fluid news-img" />
+              <div className="news-info">
+                <h3>Encuentra tu tenis perfecto</h3>
+                <p>Buscador de Calzado</p>
+                <button className="btn btn-outline-light btn-explore">
+                  Explorar
+                </button>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div className="row mt-4">
+        <div className="col-md-12">
+          <button className="btn btn-primary w-100 mb-4">More products</button>
+          <div className="product-list">
+            <div className="product-item d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex">
+                <img
+                  src="https://cdn.flightclub.com/750/TEMPLATE/343558/1.jpg"
+                  alt="adidas Campus 2 KoRn Follow The Leader"
+                  className="img-fluid product-img"
+                />
+                <div className="ml-3">
+                  <h5>adidas Campus 2 KoRn Follow The Leader</h5>
+                  <p>US$ 112</p>
+                </div>
+              </div>
+              <div className="product-actions">
+                <button className="btn btn-edit">
+                  <FaEdit />
+                </button>
+                <button className="btn btn-delete">
+                  <FaTrashAlt />
+                </button>
+              </div>
+            </div>
+
+            <div className="product-item d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex">
+                <img
+                  src="https://cdn.flightclub.com/750/TEMPLATE/346945/1.jpg"
+                  alt="Jordan 4 Retro Military Blue (2024)"
+                  className="img-fluid product-img"
+                />
+                <div className="ml-3">
+                  <h5>Jordan 4 Retro Military Blue (2024)</h5>
+                  <p>US$ 158</p>
+                </div>
+              </div>
+              <div className="product-actions">
+                <button className="btn btn-edit">
+                  <FaEdit />
+                </button>
+                <button className="btn btn-delete">
+                  <FaTrashAlt />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
