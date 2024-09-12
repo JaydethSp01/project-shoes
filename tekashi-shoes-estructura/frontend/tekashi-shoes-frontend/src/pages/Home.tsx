@@ -2,8 +2,20 @@ import logo from "../../public/logo.png";
 import IMG1 from "../../public/img-1.png";
 import IMG2 from "../../public/img2.png";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import ProductForm from "../componets/ProductForm";
+import { useProductForm } from "../hooks/useProductForm";
 
 const Home = () => {
+  const {
+    isEditing,
+    selectedProduct,
+    showModal,
+    handleAddProduct,
+    handleEditProduct,
+    handleSubmit,
+    handleCloseModal,
+  } = useProductForm();
+
   return (
     <div className="container home-page">
       <header className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -68,7 +80,7 @@ const Home = () => {
 
         <div className="col-md-3">
           <div className="news-card">
-            <a href="https://example.com/news-sneakers">
+            <a href="https://www.adidas.co/">
               <img src={IMG2} alt="Ad" className="img-fluid news-img" />
               <div className="news-info">
                 <h3>Encuentra tu tenis perfecto</h3>
@@ -84,7 +96,32 @@ const Home = () => {
 
       <div className="row mt-4">
         <div className="col-md-12">
-          <button className="btn btn-primary w-100 mb-4">More products</button>
+          <button
+            className="btn btn-primary w-100 mb-4"
+            onClick={handleAddProduct}
+          >
+            Agregar más productos
+          </button>
+
+          {/* Mostrar formulario como modal si showModal es true */}
+          {showModal && (
+            <ProductForm
+              selectedProduct={
+                selectedProduct || {
+                  id_producto: 0,
+                  tipo_producto: 0,
+                  marca: "",
+                  color: "",
+                  precio: 0,
+                  stock: 0,
+                }
+              }
+              onSubmit={handleSubmit}
+              isEditing={isEditing}
+              onClose={handleCloseModal} // Permitir cerrar el modal
+            />
+          )}
+
           <div className="product-list">
             <div className="product-item d-flex justify-content-between align-items-center mb-3">
               <div className="d-flex">
@@ -99,7 +136,19 @@ const Home = () => {
                 </div>
               </div>
               <div className="product-actions">
-                <button className="btn btn-edit">
+                <button
+                  className="btn btn-edit"
+                  onClick={() =>
+                    handleEditProduct({
+                      id_producto: 1,
+                      tipo_producto: 1,
+                      marca: "adidas",
+                      color: "negro",
+                      precio: 112,
+                      stock: 5,
+                    })
+                  }
+                >
                   <FaEdit />
                 </button>
                 <button className="btn btn-delete">
@@ -121,7 +170,19 @@ const Home = () => {
                 </div>
               </div>
               <div className="product-actions">
-                <button className="btn btn-edit">
+                <button
+                  className="btn btn-edit"
+                  onClick={() =>
+                    handleEditProduct({
+                      id_producto: 2,
+                      tipo_producto: 2,
+                      marca: "Jordan",
+                      color: "azul",
+                      precio: 158,
+                      stock: 10,
+                    })
+                  }
+                >
                   <FaEdit />
                 </button>
                 <button className="btn btn-delete">
