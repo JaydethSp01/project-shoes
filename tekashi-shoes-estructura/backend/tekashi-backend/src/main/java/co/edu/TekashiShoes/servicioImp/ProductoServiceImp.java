@@ -19,34 +19,34 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class ProductoServiceImp implements ProductoServicio {
-    private ProductoRepositorio productoRepositorio;
-
-    public ProductoServiceImp(ProductoRepositorio productoRepositorio) {
-        this.productoRepositorio = productoRepositorio;
+    private ProductoRepositorio repositorio;
+    
+    public ProductoServiceImp(ProductoRepositorio repositorio) {
+        this.repositorio = repositorio;
     }
-
-    @Override
-    public List<Producto> listarProductos() throws SQLException {
-        return productoRepositorio.obtenerTodos();
-    }
-
-    @Override
-    public Producto obtenerProductoPorId(int id) throws SQLException {
-        return productoRepositorio.obtenerPorId(id);
-    }
-
+    
     @Override
     public void agregarProducto(Producto producto) throws SQLException {
-        productoRepositorio.guardar(producto);
+        repositorio.insertarProducto(producto);
+    }
+    
+     @Override
+    public List<Producto> listarProductos() throws SQLException {
+        return repositorio.listarProductos();
     }
 
-    @Override
     public void actualizarProducto(int id, Producto producto) throws SQLException {
-        productoRepositorio.actualizar(id, producto);
+        repositorio.actualizarProducto(id, producto);
     }
 
-    @Override
     public void eliminarProducto(int id) throws SQLException {
-        productoRepositorio.eliminar(id);
+        repositorio.eliminarProducto(id);
     }
+    
+    @Override
+    public Producto obtenerProductoPorId(int id) throws SQLException{
+        return repositorio.ListarPorId(id);
+    }
+    
+    
 }
