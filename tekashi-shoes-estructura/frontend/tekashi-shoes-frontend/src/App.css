@@ -230,9 +230,9 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 90%;
   max-width: 500px;
+  max-height: 80vh;
   padding: 15px;
-  position: relative;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 /* Encabezado del modal */

@@ -44,8 +44,37 @@ public class ServidorHttp {
     }
 }
 
+// Controlador base con lógica compartida
+abstract class BaseControlador implements HttpHandler {
+    protected Gson gson = new Gson();
+
+    protected void manejarOptions(HttpExchange intercambio) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+        enviarRespuesta(intercambio, 204, "");
+    }
+
+    protected void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
+        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
+        try (OutputStream os = intercambio.getResponseBody()) {
+            os.write(mensaje.getBytes());
+        }
+    }
+
+    protected void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
+        intercambio.getResponseHeaders().add("Content-Type", "application/json");
+        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
+        try (OutputStream os = intercambio.getResponseBody()) {
+            os.write(mensaje.getBytes());
+        }
+    }
+}
+
+
 // Controlador de Productos
-class ProductoControlador implements HttpHandler {
+class ProductoControlador extends BaseControlador {
     private ProductoServiceImp productoServicio;
     private Gson gson;
 
@@ -92,19 +121,13 @@ class ProductoControlador implements HttpHandler {
         }
     }
 
-    private void manejarOptions(HttpExchange intercambio) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-        enviarRespuesta(intercambio, 204, "");
-    }
+    
 
     private void manejarGet(HttpExchange intercambio) throws IOException {
         try {
             List<Producto> productos = productoServicio.listarProductos();
             String respuestaJson = gson.toJson(productos);
             intercambio.getResponseHeaders().add("Content-Type", "application/json");
-            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             enviarRespuesta(intercambio, 200, respuestaJson);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -123,7 +146,6 @@ class ProductoControlador implements HttpHandler {
                 if (producto != null) {
                     String respuestaJson = gson.toJson(producto);
                     intercambio.getResponseHeaders().add("Content-Type", "application/json");
-                    intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
                     enviarRespuesta(intercambio, 200, respuestaJson);
                 } else {
                     enviarError(intercambio, 404, "Producto no encontrado");
@@ -145,7 +167,6 @@ class ProductoControlador implements HttpHandler {
         try {
             Producto producto = gson.fromJson(cuerpo, Producto.class);
             productoServicio.agregarProducto(producto);
-            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             String jsonResponse = gson.toJson(Collections.singletonMap("message", "Producto creado"));
             enviarRespuesta(intercambio, 201, jsonResponse);
         } catch (SQLException e) {
@@ -165,7 +186,6 @@ class ProductoControlador implements HttpHandler {
         try {
             Producto producto = gson.fromJson(cuerpo, Producto.class);
             productoServicio.actualizarProducto(id, producto);
-            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             String jsonResponse = gson.toJson(Collections.singletonMap("message", "Producto actualizado"));
             enviarRespuesta(intercambio, 200, jsonResponse);
         } catch (SQLException e) {
@@ -180,32 +200,17 @@ class ProductoControlador implements HttpHandler {
 
         try {
             productoServicio.eliminarProducto(id);
-            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             String jsonResponse = gson.toJson(Collections.singletonMap("message", "Producto eliminado"));
             enviarRespuesta(intercambio, 204, jsonResponse);
         } catch (SQLException e) {
             e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
-    }
-
-    private void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        OutputStream os = intercambio.getResponseBody();
-        os.write(mensaje.getBytes());
-        os.close();
-    }
-
-    private void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        OutputStream os = intercambio.getResponseBody();
-        os.write(mensaje.getBytes());
-        os.close();
-    }
+    } 
 }
 
 // Controlador de TipoProducto
-class TipoProductoControlador implements HttpHandler {
+class TipoProductoControlador extends BaseControlador {
     private TipoProductoServicioImp tipoProductoServicio;
     private Gson gson;
 
@@ -238,12 +243,6 @@ class TipoProductoControlador implements HttpHandler {
         }
     }
 
-    private void manejarOptions(HttpExchange intercambio) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-        enviarRespuesta(intercambio, 204, "");
-    }
-
     private void manejarGet(HttpExchange intercambio) throws IOException {
         try {
             List<TipoProducto> tiposProducto = tipoProductoServicio.listarTiposProducto();
@@ -256,25 +255,11 @@ class TipoProductoControlador implements HttpHandler {
         }
     }
 
-    private void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        OutputStream os = intercambio.getResponseBody();
-        os.write(mensaje.getBytes());
-        os.close();
-    }
-
-    private void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        OutputStream os = intercambio.getResponseBody();
-        os.write(mensaje.getBytes());
-        os.close();
-    }
+    
 }
 
 // Controlador de Imagenes
-class ImagenControlador implements HttpHandler {
+class ImagenControlador extends BaseControlador {
     private ImagenServicioImp imagenServicio;
     private Gson gson;
 
@@ -313,11 +298,7 @@ class ImagenControlador implements HttpHandler {
         }
     }
 
-    private void manejarOptions(HttpExchange intercambio) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-        enviarRespuesta(intercambio, 204, "");
-    }
+    
 
       private void manejarGet(HttpExchange intercambio) throws IOException {
     try {
@@ -376,19 +357,4 @@ class ImagenControlador implements HttpHandler {
         }
     }
 
-    private void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        OutputStream os = intercambio.getResponseBody();
-        os.write(mensaje.getBytes());
-        os.close();
-    }
-
-    private void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        OutputStream os = intercambio.getResponseBody();
-        os.write(mensaje.getBytes());
-        os.close();
-    }
 }

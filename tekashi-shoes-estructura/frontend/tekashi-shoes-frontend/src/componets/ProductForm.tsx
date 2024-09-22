@@ -53,7 +53,7 @@ const ProductForm = ({
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
-        setBase64Image(reader.result as string); // Guardar la imagen en Base64
+        setBase64Image(reader.result as string);
       };
     }
   };
@@ -95,7 +95,6 @@ const ProductForm = ({
               name="tipoProductoId"
               value={product.tipoProductoId}
               onChange={handleChange}
-              required
             >
               <option value="">Seleccionar tipo de producto</option>
               {tiposProducto.map((tipo) => (
@@ -115,7 +114,6 @@ const ProductForm = ({
               name="marca"
               value={product.marca}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -128,7 +126,6 @@ const ProductForm = ({
               name="color"
               value={product.color}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -141,7 +138,6 @@ const ProductForm = ({
               name="precio"
               value={product.precio}
               onChange={handleChange}
-              required
             />
           </div>
 
@@ -154,7 +150,6 @@ const ProductForm = ({
               name="stock"
               value={product.stock}
               onChange={handleChange}
-              required
             />
           </div>
 

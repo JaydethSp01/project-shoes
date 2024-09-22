@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import ProductForm from "../componets/ProductForm";
 import { useProductForm } from "../hooks/useProductForm";
-import { ConexionApiBackend } from "../services/ConexionApiBackend";
-import { Product, Imagen } from "../modelos/productTypes";
 
 const Home = () => {
   const {
@@ -14,54 +12,11 @@ const Home = () => {
     handleEditProduct,
     handleSubmit,
     handleCloseModal,
+    products,
+    images,
+    handleDeleteProduct,
+    handleFilterByType,
   } = useProductForm();
-
-  const [products, setProducts] = useState<Product[]>([]);
-  const [images, setImages] = useState<{ [key: number]: string }>({}); // Almacena imágenes por imagenId
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const fetchedProducts = await ConexionApiBackend.obtenerProductos();
-        setProducts(fetchedProducts);
-
-        // Obtener imágenes para cada producto
-        const imagePromises = fetchedProducts.map(async (product: Product) => {
-          if (product.imagenId) {
-            const fetchedImage: Imagen =
-              await ConexionApiBackend.obtenerImagenes(product.imagenId);
-            return { id: product.imagenId, base64: fetchedImage.imagenBase64 };
-          }
-          return null;
-        });
-
-        const fetchedImages = await Promise.all(imagePromises);
-        console.log(fetchedImages);
-
-        const imageMap = fetchedImages.reduce((acc, img) => {
-          if (img) {
-            acc[img.id] = img.base64;
-          }
-          return acc;
-        }, {} as { [key: number]: string });
-
-        setImages(imageMap);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  const handleDeleteProduct = async (id: number) => {
-    try {
-      await ConexionApiBackend.eliminarProducto(id);
-      setProducts(products.filter((product) => product.idProducto !== id));
-    } catch (error) {
-      console.error("Error deleting product:", error);
-    }
-  };
 
   return (
     <div className="container home-page">
@@ -111,11 +66,42 @@ const Home = () => {
       <div className="row mt-4">
         <div className="col-md-2">
           <ul className="list-group">
-            <li className="list-group-item">Tenis</li>
-            <li className="list-group-item">Zapatillas</li>
-            <li className="list-group-item">Tacones</li>
-            <li className="list-group-item">Botas</li>
-            <li className="list-group-item">Mocasines</li>
+            <li
+              className="list-group-item"
+              onClick={() => handleFilterByType(1)} // ID para Tenis
+            >
+              Tenis
+            </li>
+            <li
+              className="list-group-item"
+              onClick={() => handleFilterByType(2)} // ID para Zapatillas
+            >
+              Zapatillas
+            </li>
+            <li
+              className="list-group-item"
+              onClick={() => handleFilterByType(3)} // ID para Tacones
+            >
+              Tacones
+            </li>
+            <li
+              className="list-group-item"
+              onClick={() => handleFilterByType(4)} // ID para Botas
+            >
+              Botas
+            </li>
+            <li
+              className="list-group-item"
+              onClick={() => handleFilterByType(5)} // ID para Mocasines
+            >
+              Mocasines
+            </li>
+            <li
+              className="list-group-item"
+              onClick={() => handleFilterByType(null)} // Mostrar todos
+            >
+              Mostrar Todos
+            </li>
           </ul>
         </div>
 
@@ -170,54 +156,55 @@ const Home = () => {
               }
               onSubmit={async (product, base64Image) => {
                 await handleSubmit(product, base64Image);
-                const updatedProducts =
-                  await ConexionApiBackend.obtenerProductos();
-                setProducts(updatedProducts);
               }}
               onClose={handleCloseModal}
             />
           )}
 
           <div className="product-list">
-            {products.map((product) => (
-              <div
-                key={product.idProducto}
-                className="product-item d-flex justify-content-between align-items-center mb-3"
-              >
-                <div className="d-flex">
-                  <img
-                    src={
-                      images[product.imagenId]
-                        ? `${images[product.imagenId]}`
-                        : "/path/to/error-image.png"
-                    }
-                    alt={product.marca}
-                    className="img-fluid product-img"
-                    onError={(e) => {
-                      e.currentTarget.src = "/path/to/error-image.png";
-                    }} // Carga una imagen de error si falla
-                  />
-                  <div className="ml-3">
-                    <h5>{product.marca}</h5>
-                    <p>US$ {product.precio}</p>
+            {products.length > 0 ? (
+              products.map((product) => (
+                <div
+                  key={product.idProducto}
+                  className="product-item d-flex justify-content-between align-items-center mb-3"
+                >
+                  <div className="d-flex">
+                    <img
+                      src={
+                        images[product.imagenId]
+                          ? `${images[product.imagenId]}`
+                          : "/path/to/error-image.png"
+                      }
+                      alt={product.marca}
+                      className="img-fluid product-img"
+                      onError={(e) => {
+                        e.currentTarget.src = "/path/to/error-image.png";
+                      }} // Carga una imagen de error si falla
+                    />
+                    <div className="ml-3">
+                      <h5>{product.marca}</h5>
+                      <p>US$ {product.precio}</p>
+                    </div>
+                  </div>
+                  <div className="product-actions">
+                    <button
+                      className="btn btn-edit"
+                      onClick={() => handleEditProduct(product)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="btn btn-delete"
+                      onClick={() => handleDeleteProduct(product.idProducto)}
+                    >
+                      <FaTrashAlt />
+                    </button>
                   </div>
                 </div>
-                <div className="product-actions">
-                  <button
-                    className="btn btn-edit"
-                    onClick={() => handleEditProduct(product)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="btn btn-delete"
-                    onClick={() => handleDeleteProduct(product.idProducto)}
-                  >
-                    <FaTrashAlt />
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p>No hay productos disponibles.</p>
+            )}
           </div>
         </div>
       </div>
