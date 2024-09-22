@@ -97,15 +97,8 @@ public class ProductoRepositorio {
         }
     }
 
-    // CRUD para TipoProducto
+    // CRUD(solo get) para TipoProducto
 
-    public void insertarTipoProducto(TipoProducto tipoProducto) throws SQLException {
-        String sql = "INSERT INTO tipo_producto (nombre) VALUES (?)";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, tipoProducto.getNombre());
-            stmt.executeUpdate();
-        }
-    }
 
     public List<TipoProducto> listarTiposProducto() throws SQLException {
         String sql = "SELECT * FROM tipo_producto";
@@ -121,46 +114,47 @@ public class ProductoRepositorio {
         return tiposProducto;
     }
 
-    public void actualizarTipoProducto(int id, TipoProducto tipoProducto) throws SQLException {
-        String sql = "UPDATE tipo_producto SET nombre=? WHERE id_tipo_producto=?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, tipoProducto.getNombre());
-            stmt.setInt(2, id);
-            stmt.executeUpdate();
-        }
-    }
-
-    public void eliminarTipoProducto(int id) throws SQLException {
-        String sql = "DELETE FROM tipo_producto WHERE id_tipo_producto=?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
 
     // CRUD para Imagen
 
-    public void insertarImagen(Imagen imagen) throws SQLException {
-        String sql = "INSERT INTO imagen (imagen) VALUES (?)";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setString(1, imagen.getImagenBase64());
-            stmt.executeUpdate();
-        }
-    }
+    public int insertarImagen(Imagen imagen) throws SQLException {
+    String sql = "INSERT INTO imagen (imagen) VALUES (?)";
+    try (PreparedStatement stmt = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        stmt.setString(1, imagen.getImagenBase64());
+        stmt.executeUpdate();
 
-    public List<Imagen> listarImagenes() throws SQLException {
-        String sql = "SELECT * FROM imagen";
-        List<Imagen> imagenes = new ArrayList<>();
-        try (Statement stmt = conexion.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                imagenes.add(new Imagen(
-                        rs.getInt("id_imagen"),
-                        rs.getString("imagen")
-                ));
+        // Obtener el ID generado
+        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                return generatedKeys.getInt(1); // Retorna el ID
+            } else {
+                throw new SQLException("Error al obtener el ID de la imagen insertada.");
             }
         }
-        return imagenes;
     }
+}
+
+
+    public Imagen obtenerImagen(int id) throws SQLException {
+    Imagen imagen = null;
+    String sql = "SELECT * FROM imagen WHERE id_imagen = ?";
+
+    try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            imagen = new Imagen(
+                rs.getInt("id_imagen"),
+                rs.getString("imagen")
+            );
+        }
+    } catch (SQLException e) {
+        System.err.println("Error al obtener imagen por ID: " + e.getMessage());
+        throw e;
+    }
+    return imagen;
+}
 
     public void actualizarImagen(int id, Imagen imagen) throws SQLException {
         String sql = "UPDATE imagen SET imagen=? WHERE id_imagen=?";

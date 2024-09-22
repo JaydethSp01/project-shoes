@@ -23,12 +23,12 @@ public class ImagenServicioImp implements ImagenServicio {
         this.repositorio = repositorio;
     }
 
-    public void agregarImagen(Imagen imagen) throws SQLException {
-        repositorio.insertarImagen(imagen);
+   public int agregarImagen(Imagen imagen) throws SQLException { // Cambiado a int
+        return repositorio.insertarImagen(imagen); // Retorna el ID
     }
-
-    public List<Imagen> listarImagenes() throws SQLException {
-        return repositorio.listarImagenes();
+   
+    public Imagen  obtenerImagen(int id) throws SQLException {
+        return repositorio. obtenerImagen(id);
     }
 
     public void actualizarImagen(int id, Imagen imagen) throws SQLException {

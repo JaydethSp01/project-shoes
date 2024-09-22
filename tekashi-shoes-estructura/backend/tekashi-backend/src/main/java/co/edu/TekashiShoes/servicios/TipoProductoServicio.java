@@ -15,8 +15,5 @@ import java.util.List;
  */
 
 public interface TipoProductoServicio {
-    void agregarTipoProducto(TipoProducto tipoProducto) throws SQLException;
     List<TipoProducto> listarTiposProducto() throws SQLException;
-    void actualizarTipoProducto(int id, TipoProducto tipoProducto) throws SQLException;
-    void eliminarTipoProducto(int id) throws SQLException;
 }

@@ -1,9 +1,9 @@
-import logo from "../../public/logo.png";
-import IMG1 from "../../public/img-1.png";
-import IMG2 from "../../public/img2.png";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import ProductForm from "../componets/ProductForm";
 import { useProductForm } from "../hooks/useProductForm";
+import { ConexionApiBackend } from "../services/ConexionApiBackend";
+import { Product, Imagen } from "../modelos/productTypes";
 
 const Home = () => {
   const {
@@ -16,11 +16,58 @@ const Home = () => {
     handleCloseModal,
   } = useProductForm();
 
+  const [products, setProducts] = useState<Product[]>([]);
+  const [images, setImages] = useState<{ [key: number]: string }>({}); // Almacena imágenes por imagenId
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const fetchedProducts = await ConexionApiBackend.obtenerProductos();
+        setProducts(fetchedProducts);
+
+        // Obtener imágenes para cada producto
+        const imagePromises = fetchedProducts.map(async (product: Product) => {
+          if (product.imagenId) {
+            const fetchedImage: Imagen =
+              await ConexionApiBackend.obtenerImagenes(product.imagenId);
+            return { id: product.imagenId, base64: fetchedImage.imagenBase64 };
+          }
+          return null;
+        });
+
+        const fetchedImages = await Promise.all(imagePromises);
+        console.log(fetchedImages);
+
+        const imageMap = fetchedImages.reduce((acc, img) => {
+          if (img) {
+            acc[img.id] = img.base64;
+          }
+          return acc;
+        }, {} as { [key: number]: string });
+
+        setImages(imageMap);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleDeleteProduct = async (id: number) => {
+    try {
+      await ConexionApiBackend.eliminarProducto(id);
+      setProducts(products.filter((product) => product.idProducto !== id));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
   return (
     <div className="container home-page">
       <header className="navbar navbar-expand-lg navbar-dark bg-dark">
         <a className="navbar-brand" href="#">
-          <img src={logo} alt="Tekashi Shoes Logo" className="logo-img" />
+          <img src="/logo.png" alt="Tekashi Shoes Logo" className="logo-img" />
         </a>
         <button
           className="navbar-toggler"
@@ -74,14 +121,18 @@ const Home = () => {
 
         <div className="col-md-7">
           <div className="featured-product">
-            <img src={IMG1} alt="Featured" className="img-fluid featured-img" />
+            <img
+              src="/img-1.png"
+              alt="Featured"
+              className="img-fluid featured-img"
+            />
           </div>
         </div>
 
         <div className="col-md-3">
           <div className="news-card">
             <a href="https://www.adidas.co/">
-              <img src={IMG2} alt="Ad" className="img-fluid news-img" />
+              <img src="/img2.png" alt="Ad" className="img-fluid news-img" />
               <div className="news-info">
                 <h3>Encuentra tu tenis perfecto</h3>
                 <p>Buscador de Calzado</p>
@@ -103,93 +154,70 @@ const Home = () => {
             Agregar más productos
           </button>
 
-          {/* Mostrar formulario como modal si showModal es true */}
           {showModal && (
             <ProductForm
+              isEditing={isEditing}
               selectedProduct={
                 selectedProduct || {
-                  id_producto: 0,
-                  tipo_producto: 0,
+                  idProducto: 0,
+                  tipoProductoId: 0,
                   marca: "",
                   color: "",
                   precio: 0,
                   stock: 0,
+                  imagenId: 0,
                 }
               }
-              onSubmit={handleSubmit}
-              isEditing={isEditing}
-              onClose={handleCloseModal} // Permitir cerrar el modal
+              onSubmit={async (product, base64Image) => {
+                await handleSubmit(product, base64Image);
+                const updatedProducts =
+                  await ConexionApiBackend.obtenerProductos();
+                setProducts(updatedProducts);
+              }}
+              onClose={handleCloseModal}
             />
           )}
 
           <div className="product-list">
-            <div className="product-item d-flex justify-content-between align-items-center mb-3">
-              <div className="d-flex">
-                <img
-                  src="https://cdn.flightclub.com/750/TEMPLATE/343558/1.jpg"
-                  alt="adidas Campus 2 KoRn Follow The Leader"
-                  className="img-fluid product-img"
-                />
-                <div className="ml-3">
-                  <h5>adidas Campus 2 KoRn Follow The Leader</h5>
-                  <p>US$ 112</p>
+            {products.map((product) => (
+              <div
+                key={product.idProducto}
+                className="product-item d-flex justify-content-between align-items-center mb-3"
+              >
+                <div className="d-flex">
+                  <img
+                    src={
+                      images[product.imagenId]
+                        ? `${images[product.imagenId]}`
+                        : "/path/to/error-image.png"
+                    }
+                    alt={product.marca}
+                    className="img-fluid product-img"
+                    onError={(e) => {
+                      e.currentTarget.src = "/path/to/error-image.png";
+                    }} // Carga una imagen de error si falla
+                  />
+                  <div className="ml-3">
+                    <h5>{product.marca}</h5>
+                    <p>US$ {product.precio}</p>
+                  </div>
+                </div>
+                <div className="product-actions">
+                  <button
+                    className="btn btn-edit"
+                    onClick={() => handleEditProduct(product)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="btn btn-delete"
+                    onClick={() => handleDeleteProduct(product.idProducto)}
+                  >
+                    <FaTrashAlt />
+                  </button>
                 </div>
               </div>
-              <div className="product-actions">
-                <button
-                  className="btn btn-edit"
-                  onClick={() =>
-                    handleEditProduct({
-                      id_producto: 1,
-                      tipo_producto: 1,
-                      marca: "adidas",
-                      color: "negro",
-                      precio: 112,
-                      stock: 5,
-                    })
-                  }
-                >
-                  <FaEdit />
-                </button>
-                <button className="btn btn-delete">
-                  <FaTrashAlt />
-                </button>
-              </div>
-            </div>
-
-            <div className="product-item d-flex justify-content-between align-items-center mb-3">
-              <div className="d-flex">
-                <img
-                  src="https://cdn.flightclub.com/750/TEMPLATE/346945/1.jpg"
-                  alt="Jordan 4 Retro Military Blue (2024)"
-                  className="img-fluid product-img"
-                />
-                <div className="ml-3">
-                  <h5>Jordan 4 Retro Military Blue (2024)</h5>
-                  <p>US$ 158</p>
-                </div>
-              </div>
-              <div className="product-actions">
-                <button
-                  className="btn btn-edit"
-                  onClick={() =>
-                    handleEditProduct({
-                      id_producto: 2,
-                      tipo_producto: 2,
-                      marca: "Jordan",
-                      color: "azul",
-                      precio: 158,
-                      stock: 10,
-                    })
-                  }
-                >
-                  <FaEdit />
-                </button>
-                <button className="btn btn-delete">
-                  <FaTrashAlt />
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

@@ -16,8 +16,8 @@ import java.util.List;
 
 
 public interface ImagenServicio {
-    void agregarImagen(Imagen imagen) throws SQLException;
-    List<Imagen> listarImagenes() throws SQLException;
+    int agregarImagen(Imagen imagen) throws SQLException;
+    Imagen  obtenerImagen(int id) throws SQLException;
     void actualizarImagen(int id, Imagen imagen) throws SQLException;
     void eliminarImagen(int id) throws SQLException;
     Imagen obtenerImagenPorTipoProducto(int tipoProductoId) throws SQLException;

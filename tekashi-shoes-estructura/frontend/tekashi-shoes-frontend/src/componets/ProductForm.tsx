@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Product } from "../modelos/productTypes";
+import { Product, TipoProducto } from "../modelos/productTypes";
+import { ConexionApiBackend } from "../services/ConexionApiBackend";
 
 interface ProductFormProps {
   isEditing: boolean;
   selectedProduct: Product;
-  onSubmit: (product: Product) => void;
+  onSubmit: (product: Product, base64Image: string) => void;
   onClose: () => void;
 }
 
@@ -15,19 +16,47 @@ const ProductForm = ({
   onClose,
 }: ProductFormProps) => {
   const [product, setProduct] = useState<Product>({
-    id_producto: 0,
-    tipo_producto: 0,
+    idProducto: 0,
+    tipoProductoId: 0,
     marca: "",
     color: "",
     precio: 0,
     stock: 0,
+    imagenId: 0,
   });
 
+  const [tiposProducto, setTiposProducto] = useState<TipoProducto[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [base64Image, setBase64Image] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
+
+  // Cargar tipos de producto al montar el componente
   useEffect(() => {
+    const cargarTiposProducto = async () => {
+      const tipos = await ConexionApiBackend.obtenerTiposProducto();
+      setTiposProducto(tipos);
+    };
+    cargarTiposProducto();
+
     if (isEditing) {
-      setProduct(selectedProduct); // Prellenar el formulario con los datos del producto
+      setProduct(selectedProduct);
+      setFileName("Imagen actual...");
     }
   }, [isEditing, selectedProduct]);
+
+  // Convertir la imagen a Base64
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setSelectedFile(file);
+      setFileName(file.name);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setBase64Image(reader.result as string); // Guardar la imagen en Base64
+      };
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -40,7 +69,10 @@ const ProductForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(product);
+
+    const productToSubmit = { ...product };
+
+    onSubmit(productToSubmit, base64Image);
   };
 
   return (
@@ -60,16 +92,17 @@ const ProductForm = ({
             <select
               className="form-control"
               id="tipo_producto"
-              name="tipo_producto"
-              value={product.tipo_producto}
+              name="tipoProductoId"
+              value={product.tipoProductoId}
               onChange={handleChange}
               required
             >
               <option value="">Seleccionar tipo de producto</option>
-              <option value={1}>Electrónica</option>
-              <option value={2}>Ropa</option>
-              <option value={3}>Alimentos</option>
-              {/* Puedes agregar más opciones */}
+              {tiposProducto.map((tipo) => (
+                <option key={tipo.idTipoProducto} value={tipo.idTipoProducto}>
+                  {tipo.nombre}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -123,6 +156,17 @@ const ProductForm = ({
               onChange={handleChange}
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="image">Imagen</label>
+            <input
+              type="file"
+              className="form-control"
+              id="image"
+              onChange={handleFileChange}
+            />
+            {fileName && <small>Archivo seleccionado: {fileName}</small>}
           </div>
 
           <button type="submit" className="btn btn-primary">

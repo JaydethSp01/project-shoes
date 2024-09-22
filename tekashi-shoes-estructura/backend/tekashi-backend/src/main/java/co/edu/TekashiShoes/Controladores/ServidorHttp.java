@@ -11,6 +11,7 @@ import co.edu.TekashiShoes.dominio.Producto;
 import co.edu.TekashiShoes.dominio.TipoProducto;
 import co.edu.TekashiShoes.dominio.Imagen;
 import com.google.gson.Gson;
+import java.util.Collections;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -61,23 +62,41 @@ class ProductoControlador implements HttpHandler {
     @Override
     public void handle(HttpExchange intercambio) throws IOException {
         String metodo = intercambio.getRequestMethod();
+        String path = intercambio.getRequestURI().getPath();
 
-        switch (metodo) {
-            case "GET":
-                manejarGet(intercambio);
-                break;
-            case "POST":
-                manejarPost(intercambio);
-                break;
-            case "PUT":
-                manejarPut(intercambio);
-                break;
-            case "DELETE":
-                manejarDelete(intercambio);
-                break;
-            default:
-                enviarError(intercambio, 405, "Método no permitido");
+        // Manejar la solicitud de preflight (OPTIONS)
+        if (metodo.equals("OPTIONS")) {
+            manejarOptions(intercambio);
+            return;
         }
+
+        if (metodo.equals("GET") && path.contains("/productoId")) {
+            manejarGetProductoPorId(intercambio);
+        } else {
+            switch (metodo) {
+                case "GET":
+                    manejarGet(intercambio);
+                    break;
+                case "POST":
+                    manejarPost(intercambio);
+                    break;
+                case "PUT":
+                    manejarPut(intercambio);
+                    break;
+                case "DELETE":
+                    manejarDelete(intercambio);
+                    break;
+                default:
+                    enviarError(intercambio, 405, "Método no permitido");
+            }
+        }
+    }
+
+    private void manejarOptions(HttpExchange intercambio) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        enviarRespuesta(intercambio, 204, "");
     }
 
     private void manejarGet(HttpExchange intercambio) throws IOException {
@@ -85,9 +104,36 @@ class ProductoControlador implements HttpHandler {
             List<Producto> productos = productoServicio.listarProductos();
             String respuestaJson = gson.toJson(productos);
             intercambio.getResponseHeaders().add("Content-Type", "application/json");
+            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             enviarRespuesta(intercambio, 200, respuestaJson);
         } catch (SQLException e) {
+            e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
+        }
+    }
+
+    private void manejarGetProductoPorId(HttpExchange intercambio) throws IOException {
+        String query = intercambio.getRequestURI().getQuery();
+        String[] params = query.split("=");
+
+        if (params.length == 2 && params[0].equals("productoId")) {
+            int productoId = Integer.parseInt(params[1]);
+            try {
+                Producto producto = productoServicio.obtenerProductoPorId(productoId);
+                if (producto != null) {
+                    String respuestaJson = gson.toJson(producto);
+                    intercambio.getResponseHeaders().add("Content-Type", "application/json");
+                    intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                    enviarRespuesta(intercambio, 200, respuestaJson);
+                } else {
+                    enviarError(intercambio, 404, "Producto no encontrado");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
+            }
+        } else {
+            enviarError(intercambio, 400, "Solicitud mal formada");
         }
     }
 
@@ -99,8 +145,11 @@ class ProductoControlador implements HttpHandler {
         try {
             Producto producto = gson.fromJson(cuerpo, Producto.class);
             productoServicio.agregarProducto(producto);
-            enviarRespuesta(intercambio, 201, "Producto creado");
+            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            String jsonResponse = gson.toJson(Collections.singletonMap("message", "Producto creado"));
+            enviarRespuesta(intercambio, 201, jsonResponse);
         } catch (SQLException e) {
+            e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
     }
@@ -116,8 +165,11 @@ class ProductoControlador implements HttpHandler {
         try {
             Producto producto = gson.fromJson(cuerpo, Producto.class);
             productoServicio.actualizarProducto(id, producto);
-            enviarRespuesta(intercambio, 200, "Producto actualizado");
+            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            String jsonResponse = gson.toJson(Collections.singletonMap("message", "Producto actualizado"));
+            enviarRespuesta(intercambio, 200, jsonResponse);
         } catch (SQLException e) {
+            e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
     }
@@ -128,8 +180,11 @@ class ProductoControlador implements HttpHandler {
 
         try {
             productoServicio.eliminarProducto(id);
-            enviarRespuesta(intercambio, 204, "Producto eliminado");
+            intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            String jsonResponse = gson.toJson(Collections.singletonMap("message", "Producto eliminado"));
+            enviarRespuesta(intercambio, 204, jsonResponse);
         } catch (SQLException e) {
+            e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
     }
@@ -168,22 +223,25 @@ class TipoProductoControlador implements HttpHandler {
     public void handle(HttpExchange intercambio) throws IOException {
         String metodo = intercambio.getRequestMethod();
 
+        // Manejar la solicitud de preflight (OPTIONS)
+        if (metodo.equals("OPTIONS")) {
+            manejarOptions(intercambio);
+            return;
+        }
+
         switch (metodo) {
             case "GET":
                 manejarGet(intercambio);
                 break;
-            case "POST":
-                manejarPost(intercambio);
-                break;
-            case "PUT":
-                manejarPut(intercambio);
-                break;
-            case "DELETE":
-                manejarDelete(intercambio);
-                break;
             default:
                 enviarError(intercambio, 405, "Método no permitido");
         }
+    }
+
+    private void manejarOptions(HttpExchange intercambio) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+        enviarRespuesta(intercambio, 204, "");
     }
 
     private void manejarGet(HttpExchange intercambio) throws IOException {
@@ -193,54 +251,13 @@ class TipoProductoControlador implements HttpHandler {
             intercambio.getResponseHeaders().add("Content-Type", "application/json");
             enviarRespuesta(intercambio, 200, respuestaJson);
         } catch (SQLException e) {
-            enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
-        }
-    }
-
-    private void manejarPost(HttpExchange intercambio) throws IOException {
-        InputStream is = intercambio.getRequestBody();
-        String cuerpo = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"));
-        is.close();
-
-        try {
-            TipoProducto tipoProducto = gson.fromJson(cuerpo, TipoProducto.class);
-            tipoProductoServicio.agregarTipoProducto(tipoProducto);
-            enviarRespuesta(intercambio, 201, "Tipo de producto creado");
-        } catch (SQLException e) {
-            enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
-        }
-    }
-
-    private void manejarPut(HttpExchange intercambio) throws IOException {
-        String idStr = intercambio.getRequestURI().getPath().split("/")[2];
-        int id = Integer.parseInt(idStr);
-
-        InputStream is = intercambio.getRequestBody();
-        String cuerpo = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"));
-        is.close();
-
-        try {
-            TipoProducto tipoProducto = gson.fromJson(cuerpo, TipoProducto.class);
-            tipoProductoServicio.actualizarTipoProducto(id, tipoProducto);
-            enviarRespuesta(intercambio, 200, "Tipo de producto actualizado");
-        } catch (SQLException e) {
-            enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
-        }
-    }
-
-    private void manejarDelete(HttpExchange intercambio) throws IOException {
-        String idStr = intercambio.getRequestURI().getPath().split("/")[2];
-        int id = Integer.parseInt(idStr);
-
-        try {
-            tipoProductoServicio.eliminarTipoProducto(id);
-            enviarRespuesta(intercambio, 204, "Tipo de producto eliminado");
-        } catch (SQLException e) {
+            e.printStackTrace(); // Log exception details
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
     }
 
     private void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
         intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
         OutputStream os = intercambio.getResponseBody();
         os.write(mensaje.getBytes());
@@ -248,6 +265,7 @@ class TipoProductoControlador implements HttpHandler {
     }
 
     private void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
         intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
         OutputStream os = intercambio.getResponseBody();
         os.write(mensaje.getBytes());
@@ -255,7 +273,7 @@ class TipoProductoControlador implements HttpHandler {
     }
 }
 
-// Controlador de Imágenes
+// Controlador de Imagenes
 class ImagenControlador implements HttpHandler {
     private ImagenServicioImp imagenServicio;
     private Gson gson;
@@ -274,6 +292,12 @@ class ImagenControlador implements HttpHandler {
     public void handle(HttpExchange intercambio) throws IOException {
         String metodo = intercambio.getRequestMethod();
 
+        // Manejar la solicitud de preflight (OPTIONS)
+        if (metodo.equals("OPTIONS")) {
+            manejarOptions(intercambio);
+            return;
+        }
+
         switch (metodo) {
             case "GET":
                 manejarGet(intercambio);
@@ -289,30 +313,54 @@ class ImagenControlador implements HttpHandler {
         }
     }
 
-    private void manejarGet(HttpExchange intercambio) throws IOException {
-        try {
-            List<Imagen> imagenes = imagenServicio.listarImagenes();
-            String respuestaJson = gson.toJson(imagenes);
-            intercambio.getResponseHeaders().add("Content-Type", "application/json");
-            enviarRespuesta(intercambio, 200, respuestaJson);
-        } catch (SQLException e) {
-            enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
-        }
+    private void manejarOptions(HttpExchange intercambio) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+        enviarRespuesta(intercambio, 204, "");
     }
 
-    private void manejarPost(HttpExchange intercambio) throws IOException {
-        InputStream is = intercambio.getRequestBody();
-        String cuerpo = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"));
-        is.close();
-
-        try {
-            Imagen imagen = gson.fromJson(cuerpo, Imagen.class);
-            imagenServicio.agregarImagen(imagen);
-            enviarRespuesta(intercambio, 201, "Imagen creada");
-        } catch (SQLException e) {
-            enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
-        }
+      private void manejarGet(HttpExchange intercambio) throws IOException {
+    try {
+        String uri = intercambio.getRequestURI().toString();
+        String[] partes = uri.split("/"); // Ajusta el delimitador según tu estructura de URL
+        if (partes.length == 3 && partes[2].matches("\\d+")) { // Si hay un ID en la URL
+            int imagenId = Integer.parseInt(partes[2]);
+            Imagen imagen = imagenServicio.obtenerImagen(imagenId);
+            if (imagen != null) {
+                String respuestaJson = gson.toJson(imagen);
+                intercambio.getResponseHeaders().add("Content-Type", "application/json");
+                enviarRespuesta(intercambio, 200, respuestaJson);
+            } else {
+                enviarError(intercambio, 404, "Imagen no encontrada");
+            }
+        } 
+    } catch (SQLException e) {
+        e.printStackTrace(); // Log exception details
+        enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
     }
+}
+
+   private void manejarPost(HttpExchange intercambio) throws IOException {
+    InputStream is = intercambio.getRequestBody();
+    String cuerpo = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"));
+    is.close();
+
+    try {
+        Imagen imagen = gson.fromJson(cuerpo, Imagen.class);
+        
+        // Llama al método que ahora retorna el ID de la imagen
+        int imagenId = imagenServicio.agregarImagen(imagen);
+        
+        // Envía el ID como respuesta
+        enviarRespuesta(intercambio, 201, String.valueOf(imagenId));
+        
+    } catch (SQLException e) {
+        e.printStackTrace(); // Log exception details
+        enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
+    }
+}
+
+
 
     private void manejarDelete(HttpExchange intercambio) throws IOException {
         String idStr = intercambio.getRequestURI().getPath().split("/")[2];
@@ -320,13 +368,16 @@ class ImagenControlador implements HttpHandler {
 
         try {
             imagenServicio.eliminarImagen(id);
-            enviarRespuesta(intercambio, 204, "Imagen eliminada");
+            String jsonResponse = gson.toJson(Collections.singletonMap("message", "Imagen eliminada"));
+            enviarRespuesta(intercambio, 204, jsonResponse);
         } catch (SQLException e) {
+            e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
     }
 
     private void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
         intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
         OutputStream os = intercambio.getResponseBody();
         os.write(mensaje.getBytes());
@@ -334,6 +385,7 @@ class ImagenControlador implements HttpHandler {
     }
 
     private void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
         intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
         OutputStream os = intercambio.getResponseBody();
         os.write(mensaje.getBytes());

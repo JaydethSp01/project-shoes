@@ -11,7 +11,7 @@ package co.edu.TekashiShoes.dominio;
 
 
 public class Imagen {
-    private int idImagen;
+    public int idImagen;
     private String imagenBase64;  // Imagen en formato Base64
 
     public Imagen(int idImagen, String imagenBase64) {
