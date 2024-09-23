@@ -128,7 +128,7 @@ export const useProductForm = () => {
       );
       return false;
     }
-    if (!base64Image) {
+    if (!base64Image && isEditing == false) {
       Swal.fire("Error", "Se debe subir una imagen.", "error");
       return false;
     }

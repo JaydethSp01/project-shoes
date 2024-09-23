@@ -19,15 +19,6 @@ export const ConexionApiBackend = {
     return await response.json();
   },
 
-  // Obtener producto por ID
-  obtenerProductoPorId: async (id: number) => {
-    const response = await fetch(`${BASE_URL}/producto/${id}`);
-    if (!response.ok) {
-      throw new Error("Error al obtener producto por ID");
-    }
-    return await response.json();
-  },
-
   // Obtener productos por tipo de producto
   obtenerProductosPorTipo: async (tipoProductoId: number) => {
     const response = await fetch(

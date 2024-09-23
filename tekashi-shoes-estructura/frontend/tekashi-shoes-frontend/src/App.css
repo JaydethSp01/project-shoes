@@ -312,3 +312,7 @@ body {
   background-color: #002244;
   border-color: #001a33;
 }
+
+.list-group-item:hover {
+  cursor: pointer;
+}

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductoRepositorio {
+    //conexion a la bd
     private Connection conexion;
 
     public ProductoRepositorio() throws SQLException {

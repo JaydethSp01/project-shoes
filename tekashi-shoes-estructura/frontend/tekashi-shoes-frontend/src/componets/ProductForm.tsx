@@ -30,7 +30,6 @@ const ProductForm = ({
   const [base64Image, setBase64Image] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
 
-  // Cargar tipos de producto al montar el componente
   useEffect(() => {
     const cargarTiposProducto = async () => {
       const tipos = await ConexionApiBackend.obtenerTiposProducto();
@@ -40,11 +39,9 @@ const ProductForm = ({
 
     if (isEditing) {
       setProduct(selectedProduct);
-      setFileName("Imagen actual...");
     }
   }, [isEditing, selectedProduct]);
 
-  // Convertir la imagen a Base64
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
@@ -69,9 +66,7 @@ const ProductForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     const productToSubmit = { ...product };
-
     onSubmit(productToSubmit, base64Image);
   };
 
@@ -161,7 +156,11 @@ const ProductForm = ({
               id="image"
               onChange={handleFileChange}
             />
-            {fileName && <small>Archivo seleccionado: {fileName}</small>}
+            {isEditing && (
+              <small className="form-text text-muted">
+                Imagen actual: {selectedProduct.marca}.png
+              </small>
+            )}
           </div>
 
           <button type="submit" className="btn btn-primary">
