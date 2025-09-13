@@ -1,0 +1,46 @@
+nohup: no se tendrá en cuenta la entrada
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.mycompany:tekashi-backend >--------------------
+[INFO] Building tekashi-backend 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- exec:3.1.0:java (default-cli) @ tekashi-backend ---
+Servidor iniciado en http://localhost:8080
+sept 13, 2025 10:46:12 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:46:12 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:46:23 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:46:23 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:46:29 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:46:29 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:58:17 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:58:17 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:58:36 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 10:58:36 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:05:13 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:05:19 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:06:05 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:06:11 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:08:23 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:11:05 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:12:06 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
+sept 13, 2025 11:12:06 A. M. sun.net.httpserver.ExchangeImpl sendResponseHeaders
+ADVERTENCIA: sendResponseHeaders: rCode = 204: forcing contentLen = -1
