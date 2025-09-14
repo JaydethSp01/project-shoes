@@ -12,6 +12,8 @@ import {
 import { Product } from "../modelos/productTypes";
 import { cartService, CartItem } from "../services/CartService";
 import CheckoutForm from "./CheckoutForm";
+import ProductImage from "./ProductImage";
+import "../styles/ShoppingCart.css";
 
 interface ShoppingCartProps {
   products: Product[];
@@ -127,17 +129,12 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 {cartItems.map((item) => (
                   <div key={item.product.idProducto} className="cart-item">
                     <div className="cart-item-image">
-                      <img
-                        src={
-                          images[item.product.imagenId || 0]
-                            ? `${images[item.product.imagenId || 0]}`
-                            : "https://via.placeholder.com/80x80/f8f9fa/6c757d?text=Imagen"
-                        }
+                      <ProductImage
+                        marca={item.product.marca}
+                        imagenId={item.product.imagenId}
+                        images={images}
+                        className="cart-product-image"
                         alt={item.product.marca}
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            "https://via.placeholder.com/80x80/f8f9fa/6c757d?text=Imagen";
-                        }}
                       />
                     </div>
 

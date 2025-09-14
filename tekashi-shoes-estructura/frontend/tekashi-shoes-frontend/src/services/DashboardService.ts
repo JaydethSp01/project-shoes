@@ -61,10 +61,34 @@ class DashboardService {
   // Obtener estadísticas del dashboard
   async getDashboardStats(userId: string): Promise<DashboardStats> {
     try {
-      // En una implementación real, esto vendría del backend
-      // Por ahora simulamos datos
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await fetch(
+        `${this.baseUrl}/dashboard/stats/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          totalPurchases: data.totalPurchases || 0,
+          totalSpent: data.totalSpent || 0,
+          loyaltyPoints: data.loyaltyPoints || 0,
+          userLevel: data.userLevel || "Bronze",
+          nextLevelPoints: data.nextLevelPoints || 100,
+          activeDiscount: data.activeDiscount || "5%",
+          favoriteCategories: data.favoriteCategories || [],
+          recentActivity: data.recentActivity || [],
+        };
+      } else {
+        throw new Error("Error al obtener estadísticas del dashboard");
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      // Fallback a datos simulados
       return {
         totalPurchases: 12,
         totalSpent: 2450000,
@@ -97,18 +121,39 @@ class DashboardService {
           },
         ],
       };
-    } catch (error) {
-      console.error("Error obteniendo estadísticas:", error);
-      throw error;
     }
   }
 
   // Obtener historial de compras
   async getPurchaseHistory(userId: string): Promise<Purchase[]> {
     try {
-      // Simular llamada al backend
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await fetch(
+        `${this.baseUrl}/dashboard/purchases/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
+      if (response.ok) {
+        const data = await response.json();
+        return data.map((purchase: any) => ({
+          id: purchase.id,
+          date: purchase.date,
+          total: purchase.total,
+          status: purchase.status,
+          products: purchase.products || [],
+          tracking: purchase.tracking,
+          invoiceNumber: purchase.invoiceNumber,
+        }));
+      } else {
+        throw new Error("Error al obtener historial de compras");
+      }
+    } catch (error) {
+      console.error("Error obteniendo historial de compras:", error);
+      // Fallback a datos simulados
       return [
         {
           id: 1,
@@ -138,9 +183,6 @@ class DashboardService {
           invoiceNumber: "INV-003-2024",
         },
       ];
-    } catch (error) {
-      console.error("Error obteniendo historial de compras:", error);
-      throw error;
     }
   }
 

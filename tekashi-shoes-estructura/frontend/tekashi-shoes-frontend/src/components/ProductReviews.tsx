@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FaStar, FaUser, FaThumbsUp, FaThumbsDown } from "react-icons/fa";
+import { FaStar, FaUser, FaThumbsUp, FaThumbsDown, FaTimes } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
+import ProductImage from "./ProductImage";
+import "../styles/ProductReviews.css";
 
 interface Review {
   id: string;
@@ -18,12 +20,14 @@ interface ProductReviewsProps {
   product: Product;
   isOpen: boolean;
   onClose: () => void;
+  images?: { [key: number]: string };
 }
 
 const ProductReviews: React.FC<ProductReviewsProps> = ({
   product,
   isOpen,
   onClose,
+  images = {},
 }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({
@@ -187,12 +191,31 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
       <div className="reviews-container" onClick={(e) => e.stopPropagation()}>
         <div className="reviews-header">
           <h3>Reseñas de {product.marca}</h3>
-          <button className="close-btn" onClick={onClose}>
-            ×
+          <button className="reviews-close-btn" onClick={onClose}>
+            <FaTimes />
           </button>
         </div>
 
         <div className="reviews-content">
+          {/* Información del Producto */}
+          <div className="product-info-section">
+            <ProductImage
+              marca={product.marca}
+              imagenId={product.imagenId}
+              images={images}
+              className="product-info-image"
+              alt={product.marca}
+            />
+            <div className="product-info-details">
+              <h4>{product.marca}</h4>
+              <p><strong>Color:</strong> {product.color}</p>
+              <p><strong>Stock:</strong> {product.stock} unidades disponibles</p>
+              <p><strong>ID:</strong> #{product.idProducto}</p>
+              <div className="product-price">
+                ${product.precio.toLocaleString()}
+              </div>
+            </div>
+          </div>
           {/* Resumen de ratings */}
           <div className="rating-summary">
             <div className="rating-overview">

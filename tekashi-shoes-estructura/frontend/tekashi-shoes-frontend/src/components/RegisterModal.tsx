@@ -9,20 +9,23 @@ import {
   FaUserPlus,
   FaPhone,
   FaMapMarkerAlt,
+  FaSignInAlt,
 } from "react-icons/fa";
 import { authService } from "../services/AuthService";
-import "../styles/UserDashboard.css";
+import "../styles/AuthForms.css";
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRegister: () => void;
+  onShowLogin?: () => void;
 }
 
 const RegisterModal: React.FC<RegisterModalProps> = ({
   isOpen,
   onClose,
   onRegister,
+  onShowLogin,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -154,27 +157,27 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="login-overlay">
-      <div className="login-container">
-        <div className="login-header">
-          <div className="login-title">
-            <FaUserPlus className="login-icon" />
+    <div className="auth-overlay">
+      <div className="auth-container">
+        <div className="auth-header">
+          <div className="auth-title">
+            <FaUserPlus className="auth-icon" />
             <h2>Crear Cuenta</h2>
           </div>
-          <button className="login-close-btn" onClick={handleClose}>
+          <button className="auth-close-btn" onClick={handleClose}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="login-content">
-          <form onSubmit={handleSubmit} className="login-form">
+        <div className="auth-content">
+          <form onSubmit={handleSubmit} className="auth-form">
             {error && (
-              <div className="login-error">
+              <div className="auth-error">
                 <span>{error}</span>
               </div>
             )}
             {success && (
-              <div className="login-success">
+              <div className="auth-success">
                 <span>
                   ¡Cuenta creada exitosamente! 🎉
                   <br />
@@ -199,6 +202,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 placeholder="Tu nombre completo"
                 required
                 disabled={isLoading}
+                className="form-input"
               />
             </div>
 
@@ -216,6 +220,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 placeholder="tu@email.com"
                 required
                 disabled={isLoading}
+                className="form-input"
               />
             </div>
 
@@ -232,6 +237,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 onChange={handleInputChange}
                 placeholder="+57 300 123 4567"
                 disabled={isLoading}
+                className="form-input"
               />
             </div>
 
@@ -248,6 +254,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 onChange={handleInputChange}
                 placeholder="Tu dirección de envío"
                 disabled={isLoading}
+                className="form-input"
               />
             </div>
 
@@ -297,6 +304,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
+                  className="form-input"
                 />
                 <button
                   type="button"
@@ -324,6 +332,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
+                  className="form-input"
                 />
                 <button
                   type="button"
@@ -336,7 +345,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               </div>
             </div>
 
-            <button type="submit" className="login-btn" disabled={isLoading}>
+            <button type="submit" className="auth-btn" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="spinner"></div>
@@ -351,12 +360,21 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             </button>
           </form>
 
-          <div className="login-info">
-            <div className="demo-accounts">
-              <h4>¿Ya tienes cuenta?</h4>
-              <p>Inicia sesión con tus credenciales existentes.</p>
+          {onShowLogin && (
+            <div className="auth-switch">
+              <p>¿Ya tienes cuenta?</p>
+              <button
+                className="auth-switch-btn"
+                onClick={() => {
+                  onClose();
+                  onShowLogin();
+                }}
+              >
+                <FaSignInAlt />
+                Iniciar sesión
+              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

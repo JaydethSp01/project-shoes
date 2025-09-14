@@ -68,9 +68,20 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         searchService.getAvailableColors(),
       ]);
 
-      setTiposProducto(tipos);
-      setAvailableBrands(brands.map((b) => b.name));
-      setAvailableColors(colors);
+      // Eliminar duplicados de tipos de producto
+      const uniqueTipos = tipos.filter(
+        (tipo, index, self) =>
+          index === self.findIndex((t) => t.nombre === tipo.nombre)
+      );
+      setTiposProducto(uniqueTipos);
+
+      // Eliminar duplicados de marcas
+      const uniqueBrands = [...new Set(brands.map((b) => b.name))];
+      setAvailableBrands(uniqueBrands);
+
+      // Eliminar duplicados de colores
+      const uniqueColors = [...new Set(colors)];
+      setAvailableColors(uniqueColors);
 
       // Extraer tallas disponibles de los productos
       const sizes = [

@@ -25,6 +25,7 @@ import RealDashboard from "../components/RealDashboard";
 import UserDashboard from "../components/UserDashboard";
 import UserMenu from "../components/UserMenu";
 import ProductImage from "../components/ProductImage";
+import Pagination from "../components/Pagination";
 import { authService, User } from "../services/AuthService";
 import { useState, useEffect } from "react";
 import { Product, TipoProducto } from "../modelos/productTypes";
@@ -39,6 +40,7 @@ import "../styles/ProductFilters.css";
 import "../styles/CheckoutForm.css";
 import "../styles/FavoritesManager.css";
 import "../styles/WishlistManager.css";
+import "../styles/Pagination.css";
 
 const Home = () => {
   // const {
@@ -78,6 +80,10 @@ const Home = () => {
   const [showUserDashboard, setShowUserDashboard] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+
+  // Estados para paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
   // Estados para búsqueda avanzada
   // const [searchResults, setSearchResults] = useState<Product[]>([]);
   // const [totalSearchResults, setTotalSearchResults] = useState(0);
@@ -135,6 +141,7 @@ const Home = () => {
   // Actualizar productos filtrados cuando cambien los productos
   useEffect(() => {
     setFilteredProducts(products);
+    setCurrentPage(1); // Resetear a la primera página cuando cambien los productos
   }, [products]);
 
   // Actualizar contadores del carrito (sin cache)
@@ -170,7 +177,8 @@ const Home = () => {
     const loadUserFavorites = async () => {
       if (currentUser) {
         try {
-          const userFavorites = await ConexionApiBackend.obtenerFavoritosUsuario(currentUser.id);
+          const userFavorites =
+            await ConexionApiBackend.obtenerFavoritosUsuario(currentUser.id);
           const favoriteIds = userFavorites.map((fav: any) => fav.productoId);
           setFavorites(favoriteIds);
         } catch (error) {
@@ -187,11 +195,36 @@ const Home = () => {
   // Función para manejar resultados de búsqueda
   const handleSearchResults = (products: Product[]) => {
     setFilteredProducts(products);
+    setCurrentPage(1); // Resetear a la primera página en búsquedas
     // Scroll to products section
     document
       .querySelector(".products-section")
       ?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Funciones para paginación
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to products section
+    document
+      .querySelector(".products-section")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1); // Resetear a la primera página
+  };
+
+  // Calcular productos para la página actual
+  const getCurrentPageProducts = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  };
+
+  // Calcular total de páginas
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
   // Función para manejar pedido completado
   const handleOrderComplete = (order: {
@@ -246,7 +279,10 @@ const Home = () => {
           ? prev.filter((id) => id !== productId)
           : [...prev, productId]
       );
-      notificationService.favoriteNotification(product.marca, !isCurrentlyFavorite);
+      notificationService.favoriteNotification(
+        product.marca,
+        !isCurrentlyFavorite
+      );
     }
   };
 
@@ -351,8 +387,10 @@ const Home = () => {
                             product.color.toLowerCase().includes(searchTerm)
                         );
                         setFilteredProducts(filtered);
+                        setCurrentPage(1); // Resetear a la primera página
                       } else {
                         setFilteredProducts(products);
+                        setCurrentPage(1); // Resetear a la primera página
                       }
                     }}
                   >
@@ -459,39 +497,47 @@ const Home = () => {
               onClick={() => {
                 setSelectedCategory(null);
                 setFilteredProducts(products);
+                setCurrentPage(1); // Resetear a la primera página
                 console.log("Filtrar todos los productos");
               }}
             >
               Todos
             </button>
-            {tiposProducto.map((tipo) => (
-              <button
-                key={tipo.idTipoProducto}
-                className={`category-btn ${
-                  selectedCategory === tipo.nombre ? "active" : ""
-                }`}
-                onClick={async () => {
-                  setSelectedCategory(tipo.nombre);
-                  console.log("Filtrar por tipo:", tipo.idTipoProducto);
-                  try {
-                    const productosFiltrados =
-                      await ConexionApiBackend.obtenerProductosPorTipo(
-                        tipo.idTipoProducto
+            {/* Eliminar duplicados de tipos de producto */}
+            {tiposProducto
+              .filter(
+                (tipo, index, self) =>
+                  index === self.findIndex((t) => t.nombre === tipo.nombre)
+              )
+              .map((tipo) => (
+                <button
+                  key={tipo.idTipoProducto}
+                  className={`category-btn ${
+                    selectedCategory === tipo.nombre ? "active" : ""
+                  }`}
+                  onClick={async () => {
+                    setSelectedCategory(tipo.nombre);
+                    setCurrentPage(1); // Resetear a la primera página al filtrar
+                    console.log("Filtrar por tipo:", tipo.idTipoProducto);
+                    try {
+                      const productosFiltrados =
+                        await ConexionApiBackend.obtenerProductosPorTipo(
+                          tipo.idTipoProducto
+                        );
+                      setFilteredProducts(productosFiltrados);
+                    } catch (error) {
+                      console.error("Error filtrando productos:", error);
+                      // Fallback: filtrar localmente
+                      const productosFiltrados = products.filter(
+                        (p) => p.tipoProductoId === tipo.idTipoProducto
                       );
-                    setFilteredProducts(productosFiltrados);
-                  } catch (error) {
-                    console.error("Error filtrando productos:", error);
-                    // Fallback: filtrar localmente
-                    const productosFiltrados = products.filter(
-                      (p) => p.tipoProductoId === tipo.idTipoProducto
-                    );
-                    setFilteredProducts(productosFiltrados);
-                  }
-                }}
-              >
-                {tipo.nombre}
-              </button>
-            ))}
+                      setFilteredProducts(productosFiltrados);
+                    }
+                  }}
+                >
+                  {tipo.nombre}
+                </button>
+              ))}
           </div>
         </div>
       </section>
@@ -507,8 +553,8 @@ const Home = () => {
           </div>
 
           <div className="products-grid">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
+            {getCurrentPageProducts().length > 0 ? (
+              getCurrentPageProducts().map((product) => (
                 <div key={product.idProducto} className="product-card">
                   <div className="product-image-container">
                     <ProductImage
@@ -594,6 +640,20 @@ const Home = () => {
               </div>
             )}
           </div>
+
+          {/* Componente de Paginación */}
+          {filteredProducts.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+              totalItems={filteredProducts.length}
+              showItemsPerPage={true}
+              onItemsPerPageChange={handleItemsPerPageChange}
+              itemsPerPageOptions={[12, 24, 48, 96]}
+            />
+          )}
         </div>
       </section>
 
@@ -646,6 +706,7 @@ const Home = () => {
         isOpen={showLogin}
         onClose={() => setShowLogin(false)}
         onLogin={() => setShowLogin(false)}
+        onShowRegister={() => setShowRegister(true)}
       />
 
       {/* Modal de Registro */}
@@ -653,6 +714,7 @@ const Home = () => {
         isOpen={showRegister}
         onClose={() => setShowRegister(false)}
         onRegister={() => setShowRegister(false)}
+        onShowLogin={() => setShowLogin(true)}
       />
 
       {/* Panel de Administración */}
@@ -677,6 +739,7 @@ const Home = () => {
             setShowReviews(false);
             setSelectedProductForReview(null);
           }}
+          images={images}
         />
       )}
 

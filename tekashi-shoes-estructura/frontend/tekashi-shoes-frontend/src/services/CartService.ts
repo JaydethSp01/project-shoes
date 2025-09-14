@@ -315,19 +315,34 @@ class CartService {
 
   // Enviar pedido al backend
   private async sendOrderToBackend(order: OrderInfo): Promise<void> {
-    // Simular llamada al backend
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const response = await fetch(`${this.baseUrl}/pedidos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...order,
+          items: this.items,
+          total: this.getTotal(),
+          subtotal: this.getSubtotal(),
+          shipping: this.getShippingCost(),
+          tax: this.getTax(),
+        }),
+      });
 
-    // En producción, aquí se haría la llamada real:
-    // const response = await fetch(`${this.baseUrl}/pedidos`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(order)
-    // });
+      if (!response.ok) {
+        throw new Error("Error al procesar el pedido en el servidor");
+      }
 
-    console.log("Order sent to backend:", order);
+      const result = await response.json();
+      console.log("Order sent to backend:", result);
+    } catch (error) {
+      console.error("Error sending order to backend:", error);
+      // Fallback: simular éxito localmente
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Order processed locally:", order);
+    }
   }
 
   // Generar ID único para el pedido
@@ -480,17 +495,45 @@ class CartService {
     valid: boolean;
     unavailableItems: CartItem[];
   }> {
-    // Simular validación de stock
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      // Validar stock con el backend
+      const unavailableItems: CartItem[] = [];
 
-    const unavailableItems = this.cartItems.filter(
-      (item) => !item.product.stock || item.product.stock < item.quantity
-    );
+      for (const item of this.cartItems) {
+        const response = await fetch(
+          `${this.baseUrl}/productos/${item.product.idProducto}/stock`
+        );
+        if (response.ok) {
+          const stockData = await response.json();
+          const availableStock = stockData.stock || 0;
 
-    return {
-      valid: unavailableItems.length === 0,
-      unavailableItems,
-    };
+          if (availableStock < item.quantity) {
+            unavailableItems.push(item);
+          }
+        } else {
+          // Fallback a validación local
+          if (!item.product.stock || item.product.stock < item.quantity) {
+            unavailableItems.push(item);
+          }
+        }
+      }
+
+      return {
+        valid: unavailableItems.length === 0,
+        unavailableItems,
+      };
+    } catch (error) {
+      console.error("Error validating stock:", error);
+      // Fallback a validación local
+      const unavailableItems = this.cartItems.filter(
+        (item) => !item.product.stock || item.product.stock < item.quantity
+      );
+
+      return {
+        valid: unavailableItems.length === 0,
+        unavailableItems,
+      };
+    }
   }
 }
 

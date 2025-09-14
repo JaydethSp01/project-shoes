@@ -10,17 +10,20 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import { authService, LoginCredentials } from "../services/AuthService";
+import "../styles/AuthForms.css";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogin: () => void;
+  onShowRegister?: () => void;
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   onClose,
   onLogin,
+  onShowRegister,
 }) => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: "",
@@ -66,22 +69,22 @@ const LoginModal: React.FC<LoginModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="login-overlay">
-      <div className="login-container">
-        <div className="login-header">
-          <div className="login-title">
-            <FaSignInAlt className="login-icon" />
+    <div className="auth-overlay">
+      <div className="auth-container">
+        <div className="auth-header">
+          <div className="auth-title">
+            <FaSignInAlt className="auth-icon" />
             <h2>Iniciar Sesión</h2>
           </div>
-          <button className="login-close-btn" onClick={handleClose}>
+          <button className="auth-close-btn" onClick={handleClose}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="login-content">
-          <form onSubmit={handleSubmit} className="login-form">
+        <div className="auth-content">
+          <form onSubmit={handleSubmit} className="auth-form">
             {error && (
-              <div className="login-error">
+              <div className="auth-error">
                 <span>{error}</span>
               </div>
             )}
@@ -100,6 +103,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 placeholder="tu@email.com"
                 required
                 disabled={isLoading}
+                className="form-input"
               />
             </div>
 
@@ -118,6 +122,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   placeholder="••••••••"
                   required
                   disabled={isLoading}
+                  className="form-input"
                 />
                 <button
                   type="button"
@@ -130,7 +135,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
               </div>
             </div>
 
-            <button type="submit" className="login-btn" disabled={isLoading}>
+            <button type="submit" className="auth-btn" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="spinner"></div>
@@ -145,7 +150,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
             </button>
           </form>
 
-          <div className="login-info">
+          <div className="auth-info">
             <div className="demo-accounts">
               <h4>Cuentas de demostración:</h4>
               <div className="demo-account">
@@ -166,6 +171,21 @@ const LoginModal: React.FC<LoginModalProps> = ({
               </div>
             </div>
           </div>
+
+          {onShowRegister && (
+            <div className="auth-switch">
+              <p>¿No tienes cuenta?</p>
+              <button
+                className="auth-switch-btn"
+                onClick={() => {
+                  onClose();
+                  onShowRegister();
+                }}
+              >
+                Crear cuenta nueva
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
