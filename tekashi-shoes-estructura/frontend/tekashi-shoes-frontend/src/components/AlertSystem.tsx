@@ -27,7 +27,7 @@ const AlertSystem: React.FC = () => {
     // Alertas automáticas importantes
     const importantAlerts: Alert[] = [
       {
-        id: "welcome",
+        id: "welcome-1",
         type: "info",
         title: "¡Bienvenido a Tekashi Shoes!",
         message:
@@ -35,7 +35,7 @@ const AlertSystem: React.FC = () => {
         duration: 5000,
       },
       {
-        id: "shipping",
+        id: "shipping-1",
         type: "success",
         title: "🚚 Envío Gratis",
         message:
@@ -43,7 +43,7 @@ const AlertSystem: React.FC = () => {
         duration: 6000,
       },
       {
-        id: "new-collection",
+        id: "new-collection-1",
         type: "info",
         title: "🔥 Nueva Colección 2025",
         message:

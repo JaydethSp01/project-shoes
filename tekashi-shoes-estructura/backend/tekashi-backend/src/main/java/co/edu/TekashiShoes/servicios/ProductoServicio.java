@@ -17,6 +17,7 @@ import java.util.List;
 
 public interface ProductoServicio {
     List<Producto> listarProductos() throws SQLException;
+    List<Producto> listarProductosPorTipo(int tipoProductoId) throws SQLException;
     Producto obtenerProductoPorId(int id) throws SQLException;
     void agregarProducto(Producto producto) throws SQLException;
     void actualizarProducto(int id, Producto producto) throws SQLException;

@@ -1174,3 +1174,18 @@ html {
     padding: 10px;
   }
 }
+
+/* Advanced Search Button Styles */
+.filters-btn {
+  background: rgba(0, 255, 136, 0.1) !important;
+  color: #00ff88 !important;
+  border: 2px solid rgba(0, 255, 136, 0.3) !important;
+  margin-left: 5px;
+}
+
+.filters-btn:hover {
+  background: rgba(0, 255, 136, 0.2) !important;
+  border-color: #00ff88 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3) !important;
+}

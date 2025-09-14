@@ -1,0 +1,408 @@
+import React, { useState, useEffect } from "react";
+import {
+  FaFilter,
+  FaTimes,
+  FaChevronDown,
+  FaChevronUp,
+  FaSlidersH,
+  FaSearch,
+  FaSort,
+} from "react-icons/fa";
+import { Product, TipoProducto } from "../modelos/productTypes";
+import { ConexionApiBackend } from "../services/ConexionApiBackend";
+import { searchService } from "../services/SearchService";
+
+interface ProductFiltersProps {
+  onFilterChange: (products: Product[]) => void;
+  allProducts: Product[];
+}
+
+interface FilterState {
+  query: string;
+  minPrice: number | "";
+  maxPrice: number | "";
+  tipoProductoId: number | "";
+  marca: string;
+  color: string;
+  talla: string;
+  sortBy: string;
+  inStock: boolean;
+}
+
+const ProductFilters: React.FC<ProductFiltersProps> = ({
+  onFilterChange,
+  allProducts,
+}) => {
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    query: "",
+    minPrice: "",
+    maxPrice: "",
+    tipoProductoId: "",
+    marca: "",
+    color: "",
+    talla: "",
+    sortBy: "",
+    inStock: false,
+  });
+
+  const [tiposProducto, setTiposProducto] = useState<TipoProducto[]>([]);
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    loadFilterOptions();
+  }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [filters, allProducts]);
+
+  const loadFilterOptions = async () => {
+    try {
+      const [tipos, brands, colors] = await Promise.all([
+        ConexionApiBackend.obtenerTiposProducto(),
+        searchService.getPopularBrands(),
+        searchService.getAvailableColors(),
+      ]);
+
+      setTiposProducto(tipos);
+      setAvailableBrands(brands.map((b) => b.name));
+      setAvailableColors(colors);
+
+      // Extraer tallas disponibles de los productos
+      const sizes = [
+        ...new Set(
+          allProducts
+            .map((p) => p.talla)
+            .filter(Boolean)
+            .flatMap((talla) => talla?.split(",") || [])
+            .map((s) => s.trim())
+        ),
+      ].sort();
+      setAvailableSizes(sizes);
+    } catch (error) {
+      console.error("Error loading filter options:", error);
+    }
+  };
+
+  const applyFilters = async () => {
+    setIsLoading(true);
+    try {
+      const searchFilters = {
+        query: filters.query || undefined,
+        minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+        maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+        tipoProductoId: filters.tipoProductoId
+          ? Number(filters.tipoProductoId)
+          : undefined,
+        marca: filters.marca || undefined,
+        color: filters.color || undefined,
+        talla: filters.talla || undefined,
+        sortBy: filters.sortBy || undefined,
+        inStock: filters.inStock || undefined,
+      };
+
+      const result = await searchService.search(searchFilters);
+      onFilterChange(result.products);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+      // Fallback: aplicar filtros localmente
+      let filtered = [...allProducts];
+
+      if (filters.query) {
+        const query = filters.query.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.nombre?.toLowerCase().includes(query) ||
+            p.descripcion?.toLowerCase().includes(query) ||
+            p.marca?.toLowerCase().includes(query)
+        );
+      }
+
+      if (filters.minPrice) {
+        filtered = filtered.filter(
+          (p) => p.precio && p.precio >= Number(filters.minPrice)
+        );
+      }
+
+      if (filters.maxPrice) {
+        filtered = filtered.filter(
+          (p) => p.precio && p.precio <= Number(filters.maxPrice)
+        );
+      }
+
+      if (filters.tipoProductoId) {
+        filtered = filtered.filter(
+          (p) => p.tipoProductoId === Number(filters.tipoProductoId)
+        );
+      }
+
+      if (filters.marca) {
+        filtered = filtered.filter((p) =>
+          p.marca?.toLowerCase().includes(filters.marca.toLowerCase())
+        );
+      }
+
+      if (filters.color) {
+        filtered = filtered.filter((p) =>
+          p.color?.toLowerCase().includes(filters.color.toLowerCase())
+        );
+      }
+
+      if (filters.talla) {
+        filtered = filtered.filter((p) =>
+          p.talla?.toLowerCase().includes(filters.talla.toLowerCase())
+        );
+      }
+
+      if (filters.inStock) {
+        filtered = filtered.filter((p) => p.stock && p.stock > 0);
+      }
+
+      // Aplicar ordenamiento
+      if (filters.sortBy) {
+        switch (filters.sortBy) {
+          case "price_asc":
+            filtered.sort((a, b) => (a.precio || 0) - (b.precio || 0));
+            break;
+          case "price_desc":
+            filtered.sort((a, b) => (b.precio || 0) - (a.precio || 0));
+            break;
+          case "name_asc":
+            filtered.sort((a, b) =>
+              (a.nombre || "").localeCompare(b.nombre || "")
+            );
+            break;
+          case "name_desc":
+            filtered.sort((a, b) =>
+              (b.nombre || "").localeCompare(a.nombre || "")
+            );
+            break;
+          case "newest":
+            filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
+            break;
+        }
+      }
+
+      onFilterChange(filtered);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFilterChange = (key: keyof FilterState, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      query: "",
+      minPrice: "",
+      maxPrice: "",
+      tipoProductoId: "",
+      marca: "",
+      color: "",
+      talla: "",
+      sortBy: "",
+      inStock: false,
+    });
+  };
+
+  const hasActiveFilters = () => {
+    return !!(
+      filters.query ||
+      filters.minPrice ||
+      filters.maxPrice ||
+      filters.tipoProductoId ||
+      filters.marca ||
+      filters.color ||
+      filters.talla ||
+      filters.sortBy ||
+      filters.inStock
+    );
+  };
+
+  const getSortOptions = () => [
+    { value: "", label: "Ordenar por..." },
+    { value: "price_asc", label: "Precio: Menor a Mayor" },
+    { value: "price_desc", label: "Precio: Mayor a Menor" },
+    { value: "name_asc", label: "Nombre: A-Z" },
+    { value: "name_desc", label: "Nombre: Z-A" },
+    { value: "newest", label: "Más Recientes" },
+  ];
+
+  return (
+    <div className="product-filters">
+      {/* Barra de filtros compacta */}
+      <div className="filters-bar">
+        <div className="search-filter">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Buscar productos..."
+            value={filters.query}
+            onChange={(e) => handleFilterChange("query", e.target.value)}
+          />
+        </div>
+
+        <div className="quick-filters">
+          <select
+            value={filters.tipoProductoId}
+            onChange={(e) =>
+              handleFilterChange("tipoProductoId", e.target.value)
+            }
+            className="quick-filter"
+          >
+            <option value="">Todas las categorías</option>
+            {tiposProducto.map((tipo) => (
+              <option key={tipo.idTipoProducto} value={tipo.idTipoProducto}>
+                {tipo.nombre}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={filters.marca}
+            onChange={(e) => handleFilterChange("marca", e.target.value)}
+            className="quick-filter"
+          >
+            <option value="">Todas las marcas</option>
+            {availableBrands.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={filters.sortBy}
+            onChange={(e) => handleFilterChange("sortBy", e.target.value)}
+            className="quick-filter"
+          >
+            {getSortOptions().map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className={`filters-toggle ${hasActiveFilters() ? "active" : ""}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FaSlidersH />
+            Filtros
+            {hasActiveFilters() && <span className="active-dot">●</span>}
+            {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
+        </div>
+      </div>
+
+      {/* Panel de filtros expandido */}
+      {showFilters && (
+        <div className="filters-panel">
+          <div className="filters-grid">
+            {/* Precio */}
+            <div className="filter-group">
+              <label>Rango de Precio</label>
+              <div className="price-range">
+                <input
+                  type="number"
+                  placeholder="Mínimo"
+                  value={filters.minPrice}
+                  onChange={(e) =>
+                    handleFilterChange("minPrice", e.target.value)
+                  }
+                />
+                <span>-</span>
+                <input
+                  type="number"
+                  placeholder="Máximo"
+                  value={filters.maxPrice}
+                  onChange={(e) =>
+                    handleFilterChange("maxPrice", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Color */}
+            <div className="filter-group">
+              <label>Color</label>
+              <select
+                value={filters.color}
+                onChange={(e) => handleFilterChange("color", e.target.value)}
+              >
+                <option value="">Todos los colores</option>
+                {availableColors.map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Talla */}
+            <div className="filter-group">
+              <label>Talla</label>
+              <select
+                value={filters.talla}
+                onChange={(e) => handleFilterChange("talla", e.target.value)}
+              >
+                <option value="">Todas las tallas</option>
+                {availableSizes.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Stock */}
+            <div className="filter-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={filters.inStock}
+                  onChange={(e) =>
+                    handleFilterChange("inStock", e.target.checked)
+                  }
+                />
+                <span className="checkmark"></span>
+                Solo productos en stock
+              </label>
+            </div>
+          </div>
+
+          <div className="filters-actions">
+            <button className="clear-btn" onClick={clearFilters}>
+              <FaTimes />
+              Limpiar Filtros
+            </button>
+            <div className="filter-count">
+              {hasActiveFilters() && (
+                <span className="active-count">
+                  {Object.values(filters).filter(Boolean).length} filtros
+                  activos
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="filters-loading">
+          <div className="loading-spinner"></div>
+          <span>Aplicando filtros...</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProductFilters;

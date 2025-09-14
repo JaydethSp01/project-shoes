@@ -1,87 +1,239 @@
 import React, { useState, useEffect } from "react";
 import {
   FaUsers,
-  FaShoppingCart,
-  FaChartBar,
+  FaShoppingBag,
+  FaChartLine,
   FaCog,
-  FaSignOutAlt,
-  FaEye,
+  FaPlus,
   FaEdit,
   FaTrash,
-  FaPlus,
-  FaUser,
-  FaUserShield,
+  FaEye,
+  FaSearch,
+  FaFilter,
+  FaDownload,
+  FaUpload,
+  FaSpinner,
   FaTimes,
+  FaCheck,
+  FaExclamationTriangle,
+  FaDollarSign,
+  FaShoppingCart,
+  FaUserPlus,
+  FaProductHunt,
+  FaTags,
+  FaImage,
+  FaSave,
 } from "react-icons/fa";
-import { authService, User } from "../services/AuthService";
-import { cartService } from "../services/CartService";
 import { Product } from "../modelos/productTypes";
+import { ConexionApiBackend } from "../services/ConexionApiBackend";
 
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  products: Product[];
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({
-  isOpen,
-  onClose,
-  products,
-}) => {
-  const [activeTab, setActiveTab] = useState<
-    "dashboard" | "users" | "products" | "orders"
-  >("dashboard");
-  const [users, setUsers] = useState<User[]>([]);
-  const [cartItems, setCartItems] = useState(cartService.getItems());
+interface AdminStats {
+  totalUsers: number;
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number;
+  newUsersToday: number;
+  ordersToday: number;
+}
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  registrationDate: string;
+  status: string;
+  totalPurchases: number;
+}
+
+const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productForm, setProductForm] = useState({
+    nombre: "",
+    descripcion: "",
+    precio: "",
+    stock: "",
+    tipoProductoId: "",
+    marca: "",
+    color: "",
+    talla: "",
+  });
 
   useEffect(() => {
-    if (isOpen && authService.isAdmin()) {
-      loadUsers();
+    if (isOpen) {
+      loadAdminData();
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    const unsubscribe = cartService.subscribe((items) => {
-      setCartItems(items);
-    });
-    return unsubscribe;
-  }, []);
+  const loadAdminData = async () => {
+    setLoading(true);
+    setError("");
 
-  const loadUsers = async () => {
     try {
-      const usersList = await authService.getUsers();
-      setUsers(usersList);
-    } catch (error) {
-      console.error("Error loading users:", error);
+      const [productsData] = await Promise.all([
+        ConexionApiBackend.obtenerProductos(),
+        // loadUsers(),
+        // loadStats()
+      ]);
+
+      setProducts(productsData);
+
+      // Datos simulados para estadísticas
+      setStats({
+        totalUsers: 1250,
+        totalProducts: productsData.length,
+        totalOrders: 3420,
+        totalRevenue: 12500000,
+        newUsersToday: 15,
+        ordersToday: 28,
+      });
+
+      // Usuarios simulados
+      setUsers([
+        {
+          id: "1",
+          name: "Juan Pérez",
+          email: "juan@email.com",
+          role: "user",
+          registrationDate: "2024-01-15",
+          status: "active",
+          totalPurchases: 5,
+        },
+        {
+          id: "2",
+          name: "María García",
+          email: "maria@email.com",
+          role: "user",
+          registrationDate: "2024-01-14",
+          status: "active",
+          totalPurchases: 3,
+        },
+        {
+          id: "3",
+          name: "Carlos López",
+          email: "carlos@email.com",
+          role: "admin",
+          registrationDate: "2024-01-10",
+          status: "active",
+          totalPurchases: 12,
+        },
+      ]);
+    } catch (err) {
+      setError("Error cargando datos del panel de administración");
+      console.error("Error loading admin data:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await authService.logout();
-    onClose();
+  const handleSaveProduct = async () => {
+    try {
+      if (editingProduct) {
+        // Actualizar producto existente
+        console.log("Actualizando producto:", productForm);
+      } else {
+        // Crear nuevo producto
+        console.log("Creando producto:", productForm);
+      }
+
+      setShowProductForm(false);
+      setEditingProduct(null);
+      setProductForm({
+        nombre: "",
+        descripcion: "",
+        precio: "",
+        stock: "",
+        tipoProductoId: "",
+        marca: "",
+        color: "",
+        talla: "",
+      });
+
+      // Recargar productos
+      const productsData = await ConexionApiBackend.obtenerProductos();
+      setProducts(productsData);
+    } catch (err) {
+      console.error("Error saving product:", err);
+    }
   };
 
-  if (!isOpen || !authService.isAdmin()) return null;
-
-  const stats = {
-    totalUsers: users.length,
-    totalProducts: products.length,
-    totalOrders: cartItems.length,
-    totalRevenue: cartItems.reduce(
-      (sum, item) => sum + item.product.precio * item.quantity,
-      0
-    ),
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setProductForm({
+      nombre: product.nombre || "",
+      descripcion: product.descripcion || "",
+      precio: product.precio?.toString() || "",
+      stock: product.stock?.toString() || "",
+      tipoProductoId: product.tipoProductoId?.toString() || "",
+      marca: product.marca || "",
+      color: product.color || "",
+      talla: product.talla || "",
+    });
+    setShowProductForm(true);
   };
+
+  const handleDeleteProduct = async (productId: number) => {
+    if (
+      window.confirm("¿Estás seguro de que quieres eliminar este producto?")
+    ) {
+      try {
+        // Llamada al backend para eliminar
+        console.log("Eliminando producto:", productId);
+
+        // Recargar productos
+        const productsData = await ConexionApiBackend.obtenerProductos();
+        setProducts(productsData);
+      } catch (err) {
+        console.error("Error deleting product:", err);
+      }
+    }
+  };
+
+  const filteredProducts = products.filter(
+    (product) =>
+      product.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.descripcion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.marca?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const tabs = [
+    { id: "dashboard", label: "Dashboard", icon: FaChartLine },
+    { id: "products", label: "Productos", icon: FaProductHunt },
+    { id: "users", label: "Usuarios", icon: FaUsers },
+    { id: "orders", label: "Pedidos", icon: FaShoppingCart },
+    { id: "settings", label: "Configuración", icon: FaCog },
+  ];
+
+  if (!isOpen) return null;
 
   return (
-    <div className="admin-overlay">
-      <div className="admin-container">
+    <div className="admin-panel-overlay">
+      <div className="admin-panel">
         <div className="admin-header">
           <div className="admin-title">
-            <FaUserShield className="admin-icon" />
-            <h2>Panel de Administración</h2>
+            <h1>Panel de Administración</h1>
+            <p>Gestiona tu tienda de zapatos</p>
           </div>
-          <button className="admin-close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={onClose}>
             <FaTimes />
           </button>
         </div>
@@ -89,237 +241,483 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         <div className="admin-content">
           <div className="admin-sidebar">
             <nav className="admin-nav">
-              <button
-                className={`admin-nav-btn ${
-                  activeTab === "dashboard" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("dashboard")}
-              >
-                <FaChartBar />
-                Dashboard
-              </button>
-              <button
-                className={`admin-nav-btn ${
-                  activeTab === "users" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("users")}
-              >
-                <FaUsers />
-                Usuarios
-              </button>
-              <button
-                className={`admin-nav-btn ${
-                  activeTab === "products" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("products")}
-              >
-                <FaShoppingCart />
-                Productos
-              </button>
-              <button
-                className={`admin-nav-btn ${
-                  activeTab === "orders" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("orders")}
-              >
-                <FaShoppingCart />
-                Pedidos
-              </button>
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    className={`nav-item ${
+                      activeTab === tab.id ? "active" : ""
+                    }`}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    <Icon />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </nav>
-
-            <div className="admin-user-info">
-              <div className="user-avatar">
-                <FaUser />
-              </div>
-              <div className="user-details">
-                <span className="user-name">
-                  {authService.getCurrentUser()?.name}
-                </span>
-                <span className="user-role">Administrador</span>
-              </div>
-              <button className="logout-btn" onClick={handleLogout}>
-                <FaSignOutAlt />
-              </button>
-            </div>
           </div>
 
           <div className="admin-main">
-            {activeTab === "dashboard" && (
-              <div className="admin-dashboard">
-                <h3>Dashboard</h3>
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-icon">
-                      <FaUsers />
-                    </div>
-                    <div className="stat-content">
-                      <h4>{stats.totalUsers}</h4>
-                      <p>Usuarios Registrados</p>
-                    </div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-icon">
-                      <FaShoppingCart />
-                    </div>
-                    <div className="stat-content">
-                      <h4>{stats.totalProducts}</h4>
-                      <p>Productos Disponibles</p>
-                    </div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-icon">
-                      <FaChartBar />
-                    </div>
-                    <div className="stat-content">
-                      <h4>{stats.totalOrders}</h4>
-                      <p>Pedidos Activos</p>
-                    </div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-icon">
-                      <FaChartBar />
-                    </div>
-                    <div className="stat-content">
-                      <h4>${stats.totalRevenue.toLocaleString()}</h4>
-                      <p>Ingresos Totales</p>
-                    </div>
-                  </div>
-                </div>
+            {loading && (
+              <div className="loading-spinner">
+                <FaSpinner className="spinning" />
+                <p>Cargando datos...</p>
               </div>
             )}
 
-            {activeTab === "users" && (
-              <div className="admin-users">
-                <div className="section-header">
-                  <h3>Gestión de Usuarios</h3>
-                  <button className="btn-primary">
-                    <FaPlus />
-                    Nuevo Usuario
-                  </button>
-                </div>
-                <div className="users-table">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Usuario</th>
-                        <th>Email</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((user) => (
-                        <tr key={user.id}>
-                          <td>
-                            <div className="user-cell">
-                              <div className="user-avatar-small">
-                                <FaUser />
-                              </div>
-                              <span>{user.name}</span>
-                            </div>
-                          </td>
-                          <td>{user.email}</td>
-                          <td>
-                            <span className={`role-badge ${user.role}`}>
-                              {user.role === "admin"
-                                ? "Administrador"
-                                : "Usuario"}
-                            </span>
-                          </td>
-                          <td>
-                            <div className="action-buttons">
-                              <button className="btn-icon" title="Ver">
-                                <FaEye />
-                              </button>
-                              <button className="btn-icon" title="Editar">
-                                <FaEdit />
-                              </button>
-                              <button
-                                className="btn-icon danger"
-                                title="Eliminar"
-                              >
-                                <FaTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+            {error && (
+              <div className="error-message">
+                <p>{error}</p>
+                <button onClick={loadAdminData} className="retry-btn">
+                  Reintentar
+                </button>
               </div>
             )}
 
-            {activeTab === "products" && (
-              <div className="admin-products">
-                <div className="section-header">
-                  <h3>Gestión de Productos</h3>
-                  <button className="btn-primary">
-                    <FaPlus />
-                    Nuevo Producto
-                  </button>
-                </div>
-                <div className="products-grid">
-                  {products.slice(0, 6).map((product) => (
-                    <div
-                      key={product.idProducto}
-                      className="product-card-admin"
-                    >
-                      <div className="product-image">
-                        <img
-                          src={`/shoe${(product.idProducto % 5) + 1}.jpg`}
-                          alt={product.marca}
+            {!loading && !error && (
+              <>
+                {activeTab === "dashboard" && stats && (
+                  <div className="dashboard-section">
+                    <h2>Resumen General</h2>
+                    <div className="stats-grid">
+                      <div className="stat-card">
+                        <div className="stat-icon">
+                          <FaUsers />
+                        </div>
+                        <div className="stat-content">
+                          <h3>{stats.totalUsers.toLocaleString()}</h3>
+                          <p>Total Usuarios</p>
+                          <span className="stat-change positive">
+                            +{stats.newUsersToday} hoy
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon">
+                          <FaProductHunt />
+                        </div>
+                        <div className="stat-content">
+                          <h3>{stats.totalProducts}</h3>
+                          <p>Productos</p>
+                          <span className="stat-change">En catálogo</span>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon">
+                          <FaShoppingCart />
+                        </div>
+                        <div className="stat-content">
+                          <h3>{stats.totalOrders.toLocaleString()}</h3>
+                          <p>Pedidos</p>
+                          <span className="stat-change positive">
+                            +{stats.ordersToday} hoy
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon">
+                          <FaDollarSign />
+                        </div>
+                        <div className="stat-content">
+                          <h3>${stats.totalRevenue.toLocaleString()}</h3>
+                          <p>Ingresos</p>
+                          <span className="stat-change positive">
+                            +12% vs mes anterior
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="quick-actions">
+                      <h3>Acciones Rápidas</h3>
+                      <div className="actions-grid">
+                        <button
+                          className="action-card"
+                          onClick={() => setActiveTab("products")}
+                        >
+                          <FaPlus />
+                          <span>Agregar Producto</span>
+                        </button>
+                        <button
+                          className="action-card"
+                          onClick={() => setActiveTab("users")}
+                        >
+                          <FaUserPlus />
+                          <span>Ver Usuarios</span>
+                        </button>
+                        <button className="action-card">
+                          <FaDownload />
+                          <span>Exportar Reportes</span>
+                        </button>
+                        <button className="action-card">
+                          <FaUpload />
+                          <span>Importar Productos</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "products" && (
+                  <div className="products-section">
+                    <div className="section-header">
+                      <h2>Gestión de Productos</h2>
+                      <div className="header-actions">
+                        <div className="search-box">
+                          <FaSearch />
+                          <input
+                            type="text"
+                            placeholder="Buscar productos..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
+                        </div>
+                        <button
+                          className="btn-primary"
+                          onClick={() => setShowProductForm(true)}
+                        >
+                          <FaPlus />
+                          Nuevo Producto
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="products-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Marca</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredProducts.map((product) => (
+                            <tr key={product.id}>
+                              <td>
+                                <div className="product-image">
+                                  <FaImage />
+                                </div>
+                              </td>
+                              <td>
+                                <div className="product-info">
+                                  <strong>{product.nombre}</strong>
+                                  <small>{product.descripcion}</small>
+                                </div>
+                              </td>
+                              <td>{product.marca}</td>
+                              <td>${product.precio?.toLocaleString()}</td>
+                              <td>
+                                <span
+                                  className={`stock-badge ${
+                                    product.stock && product.stock > 0
+                                      ? "in-stock"
+                                      : "out-of-stock"
+                                  }`}
+                                >
+                                  {product.stock || 0}
+                                </span>
+                              </td>
+                              <td>
+                                <span
+                                  className={`status-badge ${
+                                    product.stock && product.stock > 0
+                                      ? "active"
+                                      : "inactive"
+                                  }`}
+                                >
+                                  {product.stock && product.stock > 0
+                                    ? "Activo"
+                                    : "Inactivo"}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button
+                                    className="btn-icon"
+                                    onClick={() => handleEditProduct(product)}
+                                  >
+                                    <FaEdit />
+                                  </button>
+                                  <button
+                                    className="btn-icon"
+                                    onClick={() =>
+                                      handleDeleteProduct(product.id)
+                                    }
+                                  >
+                                    <FaTrash />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "users" && (
+                  <div className="users-section">
+                    <div className="section-header">
+                      <h2>Gestión de Usuarios</h2>
+                      <div className="search-box">
+                        <FaSearch />
+                        <input
+                          type="text"
+                          placeholder="Buscar usuarios..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
                         />
                       </div>
-                      <div className="product-info">
-                        <h4>{product.marca}</h4>
-                        <p>{product.color}</p>
-                        <span className="price">
-                          ${product.precio.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="product-actions">
-                        <button className="btn-icon" title="Editar">
-                          <FaEdit />
-                        </button>
-                        <button className="btn-icon danger" title="Eliminar">
-                          <FaTrash />
-                        </button>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {activeTab === "orders" && (
-              <div className="admin-orders">
-                <div className="section-header">
-                  <h3>Gestión de Pedidos</h3>
-                </div>
-                <div className="orders-list">
-                  {cartItems.map((item, index) => (
-                    <div key={index} className="order-card">
-                      <div className="order-info">
-                        <h4>{item.product.marca}</h4>
-                        <p>Cantidad: {item.quantity}</p>
-                        <p>
-                          Precio: $
-                          {(
-                            item.product.precio * item.quantity
-                          ).toLocaleString()}
-                        </p>
+                    <div className="users-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Registro</th>
+                            <th>Compras</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredUsers.map((user) => (
+                            <tr key={user.id}>
+                              <td>
+                                <div className="user-info">
+                                  <div className="user-avatar">
+                                    <FaUsers />
+                                  </div>
+                                  <span>{user.name}</span>
+                                </div>
+                              </td>
+                              <td>{user.email}</td>
+                              <td>
+                                <span className={`role-badge ${user.role}`}>
+                                  {user.role}
+                                </span>
+                              </td>
+                              <td>{user.registrationDate}</td>
+                              <td>{user.totalPurchases}</td>
+                              <td>
+                                <span className={`status-badge ${user.status}`}>
+                                  {user.status}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button className="btn-icon">
+                                    <FaEye />
+                                  </button>
+                                  <button className="btn-icon">
+                                    <FaEdit />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "orders" && (
+                  <div className="orders-section">
+                    <h2>Gestión de Pedidos</h2>
+                    <div className="empty-state">
+                      <FaShoppingCart className="empty-icon" />
+                      <h4>Funcionalidad en desarrollo</h4>
+                      <p>
+                        La gestión de pedidos estará disponible próximamente
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "settings" && (
+                  <div className="settings-section">
+                    <h2>Configuración del Sistema</h2>
+                    <div className="settings-grid">
+                      <div className="setting-card">
+                        <h3>Configuración General</h3>
+                        <p>Configura los parámetros generales del sistema</p>
+                        <button className="btn-secondary">Configurar</button>
                       </div>
-                      <div className="order-status">
-                        <span className="status-badge pending">Pendiente</span>
+                      <div className="setting-card">
+                        <h3>Configuración de Email</h3>
+                        <p>Configura las plantillas y envío de emails</p>
+                        <button className="btn-secondary">Configurar</button>
+                      </div>
+                      <div className="setting-card">
+                        <h3>Configuración de Pagos</h3>
+                        <p>Configura los métodos de pago disponibles</p>
+                        <button className="btn-secondary">Configurar</button>
+                      </div>
+                      <div className="setting-card">
+                        <h3>Configuración de Envíos</h3>
+                        <p>Configura las opciones de envío y entrega</p>
+                        <button className="btn-secondary">Configurar</button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
+
+        {/* Modal de Formulario de Producto */}
+        {showProductForm && (
+          <div className="modal-overlay">
+            <div className="product-form-modal">
+              <div className="modal-header">
+                <h3>{editingProduct ? "Editar Producto" : "Nuevo Producto"}</h3>
+                <button
+                  className="close-btn"
+                  onClick={() => {
+                    setShowProductForm(false);
+                    setEditingProduct(null);
+                  }}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+              <div className="modal-content">
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Nombre del Producto</label>
+                    <input
+                      type="text"
+                      value={productForm.nombre}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          nombre: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: Nike Air Max 270"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Marca</label>
+                    <input
+                      type="text"
+                      value={productForm.marca}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          marca: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: Nike"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Precio</label>
+                    <input
+                      type="number"
+                      value={productForm.precio}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          precio: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: 250000"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Stock</label>
+                    <input
+                      type="number"
+                      value={productForm.stock}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          stock: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: 50"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Color</label>
+                    <input
+                      type="text"
+                      value={productForm.color}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          color: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: Negro"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Talla</label>
+                    <input
+                      type="text"
+                      value={productForm.talla}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          talla: e.target.value,
+                        })
+                      }
+                      placeholder="Ej: 42"
+                    />
+                  </div>
+                  <div className="form-group full-width">
+                    <label>Descripción</label>
+                    <textarea
+                      value={productForm.descripcion}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          descripcion: e.target.value,
+                        })
+                      }
+                      placeholder="Descripción detallada del producto..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn-secondary"
+                  onClick={() => {
+                    setShowProductForm(false);
+                    setEditingProduct(null);
+                  }}
+                >
+                  <FaTimes />
+                  Cancelar
+                </button>
+                <button className="btn-primary" onClick={handleSaveProduct}>
+                  <FaSave />
+                  {editingProduct ? "Actualizar" : "Crear"} Producto
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

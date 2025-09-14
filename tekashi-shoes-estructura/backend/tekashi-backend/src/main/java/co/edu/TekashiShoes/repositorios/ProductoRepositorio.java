@@ -50,6 +50,28 @@ public class ProductoRepositorio {
         return productos;
     }
 
+    public List<Producto> listarProductosPorTipo(int tipoProductoId) throws SQLException {
+        String sql = "SELECT * FROM producto WHERE tipo_producto_id = ?";
+        List<Producto> productos = new ArrayList<>();
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, tipoProductoId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    productos.add(new Producto(
+                            rs.getInt("id_producto"),
+                            rs.getInt("tipo_producto_id"),
+                            rs.getString("marca"),
+                            rs.getString("color"),
+                            rs.getDouble("precio"),
+                            rs.getInt("stock"),
+                            rs.getInt("id_imagen")
+                    ));
+                }
+            }
+        }
+        return productos;
+    }
+
     public Producto ListarPorId(int id) throws SQLException {
         Producto producto = null;
         String query = "SELECT * FROM producto WHERE id_producto = ?";

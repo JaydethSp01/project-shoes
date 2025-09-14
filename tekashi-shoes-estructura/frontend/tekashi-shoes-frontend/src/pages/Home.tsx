@@ -3,35 +3,27 @@ import {
   FaHeart,
   FaEye,
   FaShoppingCart,
-  FaHome,
   FaSearch,
   FaFilter,
-  FaUser,
-  FaShoppingBag,
-  FaGift,
-  FaPhone,
-  FaBars,
-  FaTimes,
-  FaChevronDown,
-  FaChevronUp,
   FaCheck,
-  FaUserShield,
-  FaSignOutAlt,
-  FaChartBar,
 } from "react-icons/fa";
 // import ProductForm from "../componets/ProductForm";
 // import { useProductForm } from "../hooks/useProductForm";
 import Chatbot from "../components/Chatbot";
 import ShoppingCart from "../components/ShoppingCart";
 import AdvancedSearch from "../components/AdvancedSearch";
+import ProductFilters from "../components/ProductFilters";
+import CheckoutForm from "../components/CheckoutForm";
 import ProductReviews from "../components/ProductReviews";
 import Footer from "../components/Footer";
 // import NotificationSystem from "../components/NotificationSystem";
-import AlertSystem from "../components/AlertSystem";
+// import AlertSystem from "../components/AlertSystem";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
 import AdminPanel from "../components/AdminPanel";
 import RealDashboard from "../components/RealDashboard";
+import UserDashboard from "../components/UserDashboard";
+import UserMenu from "../components/UserMenu";
 import ProductImage from "../components/ProductImage";
 import { authService, User } from "../services/AuthService";
 import { useState, useEffect } from "react";
@@ -39,6 +31,14 @@ import { Product, TipoProducto } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import { cartService } from "../services/CartService";
 import { notificationService } from "../services/NotificationService";
+import "../styles/UserDashboard.css";
+import "../styles/UserMenu.css";
+import "../styles/AdminPanel.css";
+import "../styles/AdvancedSearch.css";
+import "../styles/ProductFilters.css";
+import "../styles/CheckoutForm.css";
+import "../styles/FavoritesManager.css";
+import "../styles/WishlistManager.css";
 
 const Home = () => {
   // const {
@@ -55,9 +55,9 @@ const Home = () => {
   //   handleFilterByType,
   // } = useProductForm();
 
-  // Datos temporales hasta implementar useProductForm
-  const [products] = useState<Product[]>([]);
-  const [images] = useState<{ [key: number]: string }>({});
+  // Estados para productos e imágenes
+  const [products, setProducts] = useState<Product[]>([]);
+  const [images, setImages] = useState<{ [key: number]: string }>({});
 
   // Estados para funcionalidades
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -69,23 +69,64 @@ const Home = () => {
   const [cartItemCount, setCartItemCount] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showRealDashboard, setShowRealDashboard] = useState(false);
+  const [showUserDashboard, setShowUserDashboard] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  // Estados para búsqueda avanzada
+  // const [searchResults, setSearchResults] = useState<Product[]>([]);
+  // const [totalSearchResults, setTotalSearchResults] = useState(0);
+
+  // Cargar productos
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const productos = await ConexionApiBackend.obtenerProductos();
+        console.log("Productos cargados:", productos);
+        setProducts(productos);
+      } catch (error) {
+        console.error("Error cargando productos:", error);
+        // Mostrar mensaje de error al usuario
+        console.error(
+          "Error de conexión: No se pudieron cargar los productos. Verifique que el servidor esté ejecutándose."
+        );
+      }
+    };
+    loadProducts();
+  }, []);
+
+  // Cargar imágenes de productos
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const imagenes = await ConexionApiBackend.obtenerImagenes();
+        console.log("Imágenes cargadas:", imagenes);
+        setImages(imagenes);
+      } catch (error) {
+        console.error("Error cargando imágenes:", error);
+        // Continuar sin imágenes si hay error
+        setImages({});
+      }
+    };
+    loadImages();
+  }, []);
 
   // Cargar tipos de producto
   useEffect(() => {
     const loadTipos = async () => {
       try {
         const tipos = await ConexionApiBackend.obtenerTiposProducto();
+        console.log("Tipos de producto cargados:", tipos);
         setTiposProducto(tipos);
       } catch (error) {
         console.error("Error cargando tipos de producto:", error);
+        // Continuar sin tipos si hay error
+        setTiposProducto([]);
       }
     };
     loadTipos();
@@ -99,8 +140,9 @@ const Home = () => {
   // Actualizar contadores del carrito (sin cache)
   useEffect(() => {
     const updateCartCounters = () => {
-      setCartItemCount(cartService.getTotalItems());
-      setCartTotal(cartService.getTotalPrice());
+      setCartItemCount(cartService.getItemCount());
+      const summary = cartService.getCartSummary();
+      setCartTotal(summary.total);
     };
 
     // Forzar actualización inicial para evitar cache
@@ -123,14 +165,52 @@ const Home = () => {
     return unsubscribe;
   }, []);
 
+  // Cargar favoritos del usuario cuando se loguee
+  useEffect(() => {
+    const loadUserFavorites = async () => {
+      if (currentUser) {
+        try {
+          const userFavorites = await ConexionApiBackend.obtenerFavoritosUsuario(currentUser.id);
+          const favoriteIds = userFavorites.map((fav: any) => fav.productoId);
+          setFavorites(favoriteIds);
+        } catch (error) {
+          console.error("Error cargando favoritos del usuario:", error);
+        }
+      } else {
+        setFavorites([]);
+      }
+    };
+
+    loadUserFavorites();
+  }, [currentUser]);
+
+  // Función para manejar resultados de búsqueda
+  const handleSearchResults = (products: Product[]) => {
+    setFilteredProducts(products);
+    // Scroll to products section
+    document
+      .querySelector(".products-section")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Función para manejar pedido completado
+  const handleOrderComplete = (order: {
+    id: string;
+    total: number;
+    status: string;
+  }) => {
+    console.log("Pedido completado:", order);
+    // Aquí podrías mostrar una notificación de éxito o redirigir a una página de confirmación
+  };
+
   // Mostrar siempre como usuario invitado por defecto
-  const isGuestMode = !currentUser;
+  // const isGuestMode = !currentUser;
 
   // Header con position: sticky - no necesita JavaScript
 
   const handleAddToCart = (product: Product) => {
     // El servicio del carrito maneja toda la lógica
-    cartService.addItem(product, 1);
+    cartService.addToCart(product, 1);
 
     // Mostrar notificación de éxito
     // notificationService.showNotification(
@@ -140,23 +220,34 @@ const Home = () => {
     // );
   };
 
-  const handleToggleFavorite = (productId: number) => {
+  const handleToggleFavorite = async (productId: number) => {
     const product = products.find((p) => p.idProducto === productId);
-    if (!product) return;
+    if (!product || !currentUser) return;
 
     const isCurrentlyFavorite = favorites.includes(productId);
 
-    setFavorites((prev) =>
-      isCurrentlyFavorite
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
-
-    // Notificar la acción
-    notificationService.favoriteNotification(
-      product.marca,
-      !isCurrentlyFavorite
-    );
+    try {
+      if (isCurrentlyFavorite) {
+        // Remover de favoritos
+        await ConexionApiBackend.removerDeFavoritos(currentUser.id, productId);
+        setFavorites((prev) => prev.filter((id) => id !== productId));
+        notificationService.favoriteNotification(product.marca, false);
+      } else {
+        // Agregar a favoritos
+        await ConexionApiBackend.agregarAFavoritos(currentUser.id, productId);
+        setFavorites((prev) => [...prev, productId]);
+        notificationService.favoriteNotification(product.marca, true);
+      }
+    } catch (error) {
+      console.error("Error al manejar favoritos:", error);
+      // Fallback: manejar localmente si falla la API
+      setFavorites((prev) =>
+        isCurrentlyFavorite
+          ? prev.filter((id) => id !== productId)
+          : [...prev, productId]
+      );
+      notificationService.favoriteNotification(product.marca, !isCurrentlyFavorite);
+    }
   };
 
   const handleViewReviews = (product: Product) => {
@@ -164,38 +255,38 @@ const Home = () => {
     setShowReviews(true);
   };
 
-  // Función para obtener imagen por marca
-  const getProductImageByBrand = (marca: string): string => {
-    const brandImages: { [key: string]: string } = {
-      Nike: "/shoe1.jpg",
-      Adidas: "/shoe2.jpg",
-      "Air Jordan": "/shoe1.jpg",
-      Jordan: "/shoe1.jpg",
-      Puma: "/shoe3.jpg",
-      Converse: "/shoe4.jpg",
-      Vans: "/shoe5.jpg",
-      "New Balance": "/shoe1.jpg",
-      Reebok: "/shoe2.jpg",
-      Gucci: "/shoe3.jpg",
-      Balenciaga: "/shoe4.jpg",
-      Yeezy: "/shoe5.jpg",
-      "Tommy Hilfiger": "/shoe1.jpg",
-      Lacoste: "/shoe2.jpg",
-      "Ralph Lauren": "/shoe3.jpg",
-      "Calvin Klein": "/shoe4.jpg",
-      Asics: "/shoe5.jpg",
-      Brooks: "/shoe1.jpg",
-      Saucony: "/shoe2.jpg",
-      "Under Armour": "/shoe3.jpg",
-    };
+  // Función para obtener imagen por marca (reemplazada por ProductImage component)
+  // const getProductImageByBrand = (marca: string): string => {
+  // const brandImages: { [key: string]: string } = {
+  //   Nike: "/shoe1.jpg",
+  //   Adidas: "/shoe2.jpg",
+  //   "Air Jordan": "/shoe1.jpg",
+  //   Jordan: "/shoe1.jpg",
+  //   Puma: "/shoe3.jpg",
+  //   Converse: "/shoe4.jpg",
+  //   Vans: "/shoe5.jpg",
+  //   "New Balance": "/shoe1.jpg",
+  //   Reebok: "/shoe2.jpg",
+  //   Gucci: "/shoe3.jpg",
+  //   Balenciaga: "/shoe4.jpg",
+  //   Yeezy: "/shoe5.jpg",
+  //   "Tommy Hilfiger": "/shoe1.jpg",
+  //   Lacoste: "/shoe2.jpg",
+  //   "Ralph Lauren": "/shoe3.jpg",
+  //   "Calvin Klein": "/shoe4.jpg",
+  //   Asics: "/shoe5.jpg",
+  //   Brooks: "/shoe1.jpg",
+  //   Saucony: "/shoe2.jpg",
+  //   "Under Armour": "/shoe3.jpg",
+  // };
 
-    // Buscar coincidencia parcial en la marca
-    const brandKey = Object.keys(brandImages).find((key) =>
-      marca.toLowerCase().includes(key.toLowerCase())
-    );
+  // Buscar coincidencia parcial en la marca
+  // const brandKey = Object.keys(brandImages).find((key) =>
+  //   marca.toLowerCase().includes(key.toLowerCase())
+  // );
 
-    return brandKey ? brandImages[brandKey] : "/shoe1.jpg";
-  };
+  // return brandKey ? brandImages[brandKey] : "/shoe1.jpg";
+  // };
 
   return (
     <div className="ecommerce-container">
@@ -267,142 +358,41 @@ const Home = () => {
                   >
                     Buscar
                   </button>
+                  <button
+                    className="search-btn filters-btn"
+                    onClick={() => setShowAdvancedSearch(true)}
+                    title="Búsqueda Avanzada"
+                  >
+                    <FaFilter />
+                  </button>
                 </div>
               </div>
 
-              {/* Navegación */}
-              <div className="navbar-nav">
-                <a
-                  href="#"
-                  className="nav-link"
-                  onClick={(e) => e.preventDefault()}
-                >
-                  <FaHome /> Inicio
-                </a>
-                <a
-                  href="#productos"
-                  className="nav-link"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document
-                      .querySelector(".products-section")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  <FaShoppingBag /> Productos
-                </a>
-                <a
-                  href="#ofertas"
-                  className="nav-link"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document
-                      .querySelector(".offers-section")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  <FaGift /> Ofertas
-                </a>
-                <a
-                  href="#contacto"
-                  className="nav-link"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document
-                      .querySelector(".footer")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  <FaPhone /> Contacto
-                </a>
-              </div>
-
-              {/* Usuario - Siempre mostrar opciones */}
-              <div className="user-section">
-                {currentUser ? (
-                  <div className="user-info">
-                    <span className="user-name">{currentUser.name}</span>
-                    {authService.isAdmin() && (
-                      <>
-                        <button
-                          className="admin-btn"
-                          onClick={() => setShowAdminPanel(true)}
-                          title="Panel de Administración"
-                        >
-                          <FaUserShield />
-                        </button>
-                        <button
-                          className="dashboard-btn"
-                          onClick={() => setShowRealDashboard(true)}
-                          title="Dashboard Real"
-                        >
-                          <FaChartBar />
-                        </button>
-                      </>
-                    )}
-                    <button
-                      className="logout-btn"
-                      onClick={() => authService.logout()}
-                      title="Cerrar Sesión"
-                    >
-                      <FaSignOutAlt />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="auth-buttons">
-                    <button
-                      className="guest-btn"
-                      onClick={() => setShowRealDashboard(true)}
-                      title="Vista de Administrador"
-                    >
-                      <FaChartBar />
-                      Admin
-                    </button>
-                    <button
-                      className="login-btn"
-                      onClick={() => setShowLogin(true)}
-                    >
-                      <FaUser />
-                      Iniciar Sesión
-                    </button>
-                    <button
-                      className="register-btn"
-                      onClick={() => setShowRegister(true)}
-                    >
-                      Registrarse
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Carrito */}
-              <div className="cart-container">
-                <button
-                  className="cart-btn"
-                  onClick={() => {
-                    const cartElement = document.querySelector(
-                      ".shopping-cart-container"
-                    );
-                    if (cartElement) {
-                      cartElement.classList.add("active");
-                    }
-                  }}
-                >
-                  <FaShoppingCart />
-                  <span className="cart-count">{cartItemCount}</span>
-                  <span className="cart-total">
-                    ${cartTotal.toLocaleString()}
-                  </span>
-                </button>
-              </div>
-
-              {/* Menú móvil */}
-              <button
-                className="mobile-menu-btn"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-              >
-                {showMobileMenu ? <FaTimes /> : <FaBars />}
-              </button>
+              {/* Nuevo Sistema de Menú */}
+              <UserMenu
+                user={currentUser}
+                onLogout={() => authService.logout()}
+                onShowDashboard={() => {
+                  if (authService.isAdmin()) {
+                    setShowRealDashboard(true);
+                  } else {
+                    setShowUserDashboard(true);
+                  }
+                }}
+                onShowCart={() => {
+                  const cartElement = document.querySelector(
+                    ".shopping-cart-container"
+                  );
+                  if (cartElement) {
+                    cartElement.classList.add("active");
+                  }
+                }}
+                onShowLogin={() => setShowLogin(true)}
+                onShowRegister={() => setShowRegister(true)}
+                onShowAdminPanel={() => setShowAdminPanel(true)}
+                cartItemCount={cartItemCount}
+                cartTotal={cartTotal}
+              />
             </div>
           </div>
         </nav>
@@ -452,24 +442,13 @@ const Home = () => {
         <div className="container">
           <div className="filters-header">
             <h2>Nuestros Productos</h2>
-            <button
-              className="filter-toggle-btn"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <FaFilter /> Filtros
-              {showFilters ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
           </div>
 
-          {showFilters && (
-            <div className="filters-content">
-              <AdvancedSearch
-                products={products}
-                onFilteredProducts={setFilteredProducts}
-                tiposProducto={tiposProducto}
-              />
-            </div>
-          )}
+          {/* Filtros Avanzados */}
+          <ProductFilters
+            onFilterChange={setFilteredProducts}
+            allProducts={products}
+          />
 
           {/* Categorías */}
           <div className="categories-nav">
@@ -479,6 +458,7 @@ const Home = () => {
               }`}
               onClick={() => {
                 setSelectedCategory(null);
+                setFilteredProducts(products);
                 console.log("Filtrar todos los productos");
               }}
             >
@@ -490,9 +470,23 @@ const Home = () => {
                 className={`category-btn ${
                   selectedCategory === tipo.nombre ? "active" : ""
                 }`}
-                onClick={() => {
+                onClick={async () => {
                   setSelectedCategory(tipo.nombre);
                   console.log("Filtrar por tipo:", tipo.idTipoProducto);
+                  try {
+                    const productosFiltrados =
+                      await ConexionApiBackend.obtenerProductosPorTipo(
+                        tipo.idTipoProducto
+                      );
+                    setFilteredProducts(productosFiltrados);
+                  } catch (error) {
+                    console.error("Error filtrando productos:", error);
+                    // Fallback: filtrar localmente
+                    const productosFiltrados = products.filter(
+                      (p) => p.tipoProductoId === tipo.idTipoProducto
+                    );
+                    setFilteredProducts(productosFiltrados);
+                  }
                 }}
               >
                 {tipo.nombre}
@@ -637,11 +631,15 @@ const Home = () => {
         onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
       />
 
-      <ShoppingCart products={products} images={images} />
+      <ShoppingCart
+        products={products}
+        images={images}
+        onShowCheckout={() => setShowCheckout(true)}
+      />
 
       {/* <NotificationSystem /> */}
 
-      <AlertSystem />
+      {/* <AlertSystem /> */}
 
       {/* Modal de Login */}
       <LoginModal
@@ -661,7 +659,6 @@ const Home = () => {
       <AdminPanel
         isOpen={showAdminPanel}
         onClose={() => setShowAdminPanel(false)}
-        products={products}
       />
 
       {/* Dashboard Real */}
@@ -680,6 +677,46 @@ const Home = () => {
             setShowReviews(false);
             setSelectedProductForReview(null);
           }}
+        />
+      )}
+
+      {/* Dashboard Real */}
+      <RealDashboard
+        isOpen={showRealDashboard}
+        onClose={() => setShowRealDashboard(false)}
+        products={products}
+      />
+
+      {/* Dashboard de Usuario */}
+      <UserDashboard
+        isOpen={showUserDashboard}
+        onClose={() => setShowUserDashboard(false)}
+        user={currentUser}
+      />
+
+      {/* Admin Panel */}
+      {showAdminPanel && (
+        <AdminPanel
+          isOpen={showAdminPanel}
+          onClose={() => setShowAdminPanel(false)}
+        />
+      )}
+
+      {/* Advanced Search */}
+      {showAdvancedSearch && (
+        <AdvancedSearch
+          isOpen={showAdvancedSearch}
+          onClose={() => setShowAdvancedSearch(false)}
+          onSearchResults={handleSearchResults}
+        />
+      )}
+
+      {/* Checkout Form */}
+      {showCheckout && (
+        <CheckoutForm
+          isOpen={showCheckout}
+          onClose={() => setShowCheckout(false)}
+          onOrderComplete={handleOrderComplete}
         />
       )}
 

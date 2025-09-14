@@ -16,9 +16,14 @@ import CheckoutForm from "./CheckoutForm";
 interface ShoppingCartProps {
   products: Product[];
   images: { [key: number]: string };
+  onShowCheckout: () => void;
 }
 
-const ShoppingCart: React.FC<ShoppingCartProps> = ({ products, images }) => {
+const ShoppingCart: React.FC<ShoppingCartProps> = ({
+  products,
+  images,
+  onShowCheckout,
+}) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -124,8 +129,8 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ products, images }) => {
                     <div className="cart-item-image">
                       <img
                         src={
-                          images[item.product.id_imagen || 0]
-                            ? `${images[item.product.id_imagen || 0]}`
+                          images[item.product.imagenId || 0]
+                            ? `${images[item.product.imagenId || 0]}`
                             : "https://via.placeholder.com/80x80/f8f9fa/6c757d?text=Imagen"
                         }
                         alt={item.product.marca}
@@ -232,7 +237,10 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ products, images }) => {
                   Vaciar Carrito
                 </button>
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => {
+                    onShowCheckout();
+                    setIsOpen(false);
+                  }}
                   className="btn btn-primary btn-checkout"
                 >
                   <FaCreditCard className="me-2" />

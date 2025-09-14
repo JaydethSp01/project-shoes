@@ -91,10 +91,19 @@ export const ConexionApiBackend = {
   },
 
   // Obtener lista de imágenes
-  obtenerImagenes: async (id: number) => {
-    const response = await fetch(`${BASE_URL}/imagenes/${id}`);
+  obtenerImagenes: async () => {
+    const response = await fetch(`${BASE_URL}/imagenes`);
     if (!response.ok) {
       throw new Error("Error al obtener imágenes");
+    }
+    return await response.json();
+  },
+
+  // Obtener imagen por ID
+  obtenerImagenPorId: async (id: number) => {
+    const response = await fetch(`${BASE_URL}/imagenes/${id}`);
+    if (!response.ok) {
+      throw new Error("Error al obtener imagen");
     }
     return await response.json();
   },
@@ -122,5 +131,86 @@ export const ConexionApiBackend = {
     if (!response.ok) {
       throw new Error("Error al eliminar imagen");
     }
+  },
+
+  // ========== MÉTODOS PARA FAVORITOS ==========
+  
+  // Obtener favoritos de un usuario
+  obtenerFavoritosUsuario: async (usuarioId: number) => {
+    const response = await fetch(`${BASE_URL}/favoritos/usuario/${usuarioId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener favoritos del usuario");
+    }
+
+    return await response.json();
+  },
+
+  // Agregar producto a favoritos
+  agregarAFavoritos: async (usuarioId: number, productoId: number) => {
+    const response = await fetch(`${BASE_URL}/favoritos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        usuarioId: usuarioId,
+        productoId: productoId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al agregar producto a favoritos");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al agregar a favoritos");
+    }
+
+    return data;
+  },
+
+  // Remover producto de favoritos
+  removerDeFavoritos: async (usuarioId: number, productoId: number) => {
+    const response = await fetch(`${BASE_URL}/favoritos/${usuarioId}/${productoId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al remover producto de favoritos");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al remover de favoritos");
+    }
+
+    return data;
+  },
+
+  // Verificar si un producto está en favoritos
+  verificarFavorito: async (usuarioId: number, productoId: number) => {
+    const response = await fetch(`${BASE_URL}/favoritos/usuario/${usuarioId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const favoritos = await response.json();
+    return favoritos.some((fav: any) => fav.productoId === productoId);
   },
 };

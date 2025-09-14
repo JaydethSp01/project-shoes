@@ -35,6 +35,11 @@ public class ProductoServiceImp implements ProductoServicio {
         return repositorio.listarProductos();
     }
 
+    @Override
+    public List<Producto> listarProductosPorTipo(int tipoProductoId) throws SQLException {
+        return repositorio.listarProductosPorTipo(tipoProductoId);
+    }
+
     public void actualizarProducto(int id, Producto producto) throws SQLException {
         repositorio.actualizarProducto(id, producto);
     }

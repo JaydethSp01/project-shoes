@@ -27,15 +27,23 @@ public class ServidorHttp {
     public static void main(String[] args) throws IOException {
         HttpServer servidor = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        // Crear controladores para productos, tipos de productos e imágenes
+        // Crear controladores para productos, tipos de productos, imágenes, usuarios, favoritos, wishlists y notificaciones
         ProductoControlador productoControlador = new ProductoControlador();
         TipoProductoControlador tipoProductoControlador = new TipoProductoControlador();
         ImagenControlador imagenControlador = new ImagenControlador();
+        UsuarioControlador usuarioControlador = new UsuarioControlador();
+        FavoritoControlador favoritoControlador = new FavoritoControlador();
+        WishlistControlador wishlistControlador = new WishlistControlador();
+        NotificacionControlador notificacionControlador = new NotificacionControlador();
 
         // Rutas de la API
         servidor.createContext("/producto", productoControlador);
         servidor.createContext("/tipo_producto", tipoProductoControlador);
         servidor.createContext("/imagenes", imagenControlador);
+        servidor.createContext("/usuarios", usuarioControlador);
+        servidor.createContext("/favoritos", favoritoControlador);
+        servidor.createContext("/wishlists", wishlistControlador);
+        servidor.createContext("/notificaciones", notificacionControlador);
 
         // Iniciar servidor
         servidor.setExecutor(null);
@@ -101,6 +109,8 @@ class ProductoControlador extends BaseControlador {
 
         if (metodo.equals("GET") && path.contains("/productoId")) {
             manejarGetProductoPorId(intercambio);
+        } else if (metodo.equals("GET") && (path.contains("tipoProductoId") || intercambio.getRequestURI().getQuery() != null && intercambio.getRequestURI().getQuery().contains("tipoProductoId"))) {
+            manejarGetProductosPorTipo(intercambio);
         } else {
             switch (metodo) {
                 case "GET":
@@ -156,6 +166,39 @@ class ProductoControlador extends BaseControlador {
             }
         } else {
             enviarError(intercambio, 400, "Solicitud mal formada");
+        }
+    }
+
+    private void manejarGetProductosPorTipo(HttpExchange intercambio) throws IOException {
+        String query = intercambio.getRequestURI().getQuery();
+        System.out.println("Query recibida: " + query); // Debug
+        
+        if (query != null && query.contains("tipoProductoId=")) {
+            String[] params = query.split("=");
+            System.out.println("Params: " + java.util.Arrays.toString(params)); // Debug
+            
+            if (params.length >= 2) {
+                try {
+                    int tipoProductoId = Integer.parseInt(params[1]);
+                    System.out.println("Filtrando por tipoProductoId: " + tipoProductoId); // Debug
+                    
+                    List<Producto> productos = productoServicio.listarProductosPorTipo(tipoProductoId);
+                    System.out.println("Productos encontrados: " + productos.size()); // Debug
+                    
+                    String respuestaJson = gson.toJson(productos);
+                    intercambio.getResponseHeaders().add("Content-Type", "application/json");
+                    enviarRespuesta(intercambio, 200, respuestaJson);
+                } catch (NumberFormatException e) {
+                    enviarError(intercambio, 400, "ID de tipo de producto inválido");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
+                }
+            } else {
+                enviarError(intercambio, 400, "Parámetro tipoProductoId requerido");
+            }
+        } else {
+            enviarError(intercambio, 400, "Parámetro tipoProductoId requerido");
         }
     }
 
@@ -304,6 +347,7 @@ class ImagenControlador extends BaseControlador {
     try {
         String uri = intercambio.getRequestURI().toString();
         String[] partes = uri.split("/"); // Ajusta el delimitador según tu estructura de URL
+        
         if (partes.length == 3 && partes[2].matches("\\d+")) { // Si hay un ID en la URL
             int imagenId = Integer.parseInt(partes[2]);
             Imagen imagen = imagenServicio.obtenerImagen(imagenId);
@@ -314,10 +358,36 @@ class ImagenControlador extends BaseControlador {
             } else {
                 enviarError(intercambio, 404, "Imagen no encontrada");
             }
-        } 
+        } else if (uri.contains("porTipoProducto")) {
+            // Manejar solicitud de imagen por tipo de producto
+            String query = intercambio.getRequestURI().getQuery();
+            if (query != null && query.contains("tipoProductoId=")) {
+                String[] params = query.split("=");
+                if (params.length == 2) {
+                    int tipoProductoId = Integer.parseInt(params[1]);
+                    Imagen imagen = imagenServicio.obtenerImagenPorTipoProducto(tipoProductoId);
+                    if (imagen != null) {
+                        String respuestaJson = gson.toJson(imagen);
+                        intercambio.getResponseHeaders().add("Content-Type", "application/json");
+                        enviarRespuesta(intercambio, 200, respuestaJson);
+                    } else {
+                        enviarError(intercambio, 404, "Imagen no encontrada para este tipo de producto");
+                    }
+                } else {
+                    enviarError(intercambio, 400, "Solicitud mal formada");
+                }
+            } else {
+                enviarError(intercambio, 400, "Parámetro tipoProductoId requerido");
+            }
+        } else {
+            // Listar todas las imágenes (implementar si es necesario)
+            enviarError(intercambio, 404, "Endpoint no implementado");
+        }
     } catch (SQLException e) {
         e.printStackTrace(); // Log exception details
         enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
+    } catch (NumberFormatException e) {
+        enviarError(intercambio, 400, "ID de imagen inválido");
     }
 }
 
