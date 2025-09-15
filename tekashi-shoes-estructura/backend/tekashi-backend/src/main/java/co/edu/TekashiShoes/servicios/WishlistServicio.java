@@ -17,3 +17,4 @@ public interface WishlistServicio {
     int contarProductos(int wishlistId) throws SQLException;
     boolean existeProductoEnWishlist(int wishlistId, int productoId) throws SQLException;
 }
+

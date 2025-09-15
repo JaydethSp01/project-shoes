@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaStar, FaUser, FaThumbsUp, FaThumbsDown, FaTimes } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
 import ProductImage from "./ProductImage";
+import BeautifulAlert from "./BeautifulAlert";
+import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
 import "../styles/ProductReviews.css";
 
 interface Review {
@@ -36,6 +38,9 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
     comment: "",
   });
   const [showReviewForm, setShowReviewForm] = useState(false);
+  
+  // Hook para alertas bonitas
+  const { alertState, showSuccess, showError, hideAlert } = useBeautifulAlert();
   const [averageRating, setAverageRating] = useState(0);
   const [ratingDistribution, setRatingDistribution] = useState<number[]>([
     0, 0, 0, 0, 0,
@@ -117,7 +122,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
     e.preventDefault();
 
     if (!newReview.userName || !newReview.comment || newReview.rating === 0) {
-      alert("Por favor completa todos los campos");
+      showError("❌ Campos Incompletos", "Por favor completa todos los campos antes de enviar tu reseña.");
       return;
     }
 
@@ -362,6 +367,15 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Beautiful Alert */}
+      <BeautifulAlert
+        isOpen={alertState.isOpen}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+        onClose={hideAlert}
+      />
     </div>
   );
 };

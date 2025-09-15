@@ -88,38 +88,16 @@ class DashboardService {
       }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
-      // Fallback a datos simulados
+      // Retornar datos vacíos en caso de error
       return {
-        totalPurchases: 12,
-        totalSpent: 2450000,
-        loyaltyPoints: 150,
-        userLevel: "Silver",
-        nextLevelPoints: 350,
-        activeDiscount: "15%",
-        favoriteCategories: ["Sneakers", "Running", "Casual"],
-        recentActivity: [
-          {
-            id: 1,
-            type: "purchase",
-            description: "Compra realizada: Nike Air Max",
-            date: "2024-01-15",
-            productId: 72,
-          },
-          {
-            id: 2,
-            type: "review",
-            description: "Reseña publicada: Adidas Ultraboost",
-            date: "2024-01-14",
-            productId: 84,
-          },
-          {
-            id: 3,
-            type: "favorite",
-            description: "Producto agregado a favoritos",
-            date: "2024-01-13",
-            productId: 91,
-          },
-        ],
+        totalPurchases: 0,
+        totalSpent: 0,
+        loyaltyPoints: 0,
+        userLevel: "Bronze",
+        nextLevelPoints: 100,
+        activeDiscount: "0%",
+        favoriteCategories: [],
+        recentActivity: [],
       };
     }
   }
@@ -153,36 +131,8 @@ class DashboardService {
       }
     } catch (error) {
       console.error("Error obteniendo historial de compras:", error);
-      // Fallback a datos simulados
-      return [
-        {
-          id: 1,
-          date: "2024-01-15",
-          total: 450000,
-          status: "delivered",
-          products: [],
-          tracking: "TK123456789",
-          invoiceNumber: "INV-001-2024",
-        },
-        {
-          id: 2,
-          date: "2024-01-10",
-          total: 320000,
-          status: "shipped",
-          products: [],
-          tracking: "TK987654321",
-          invoiceNumber: "INV-002-2024",
-        },
-        {
-          id: 3,
-          date: "2024-01-05",
-          total: 180000,
-          status: "delivered",
-          products: [],
-          tracking: "TK456789123",
-          invoiceNumber: "INV-003-2024",
-        },
-      ];
+      // Retornar array vacío en caso de error
+      return [];
     }
   }
 
@@ -212,27 +162,8 @@ class DashboardService {
       }));
     } catch (error) {
       console.error("Error obteniendo favoritos:", error);
-      // Fallback con datos simulados
-      return [
-        {
-          id: 1,
-          productId: 72,
-          product: {
-            id: 72,
-            nombre: "Zapatos Deportivos Nike",
-            marca: "Nike",
-            precio: 150000,
-            imagen: "/placeholder-shoe.jpg",
-          } as Product,
-          dateAdded: "2024-01-10",
-        },
-        {
-          id: 2,
-          productId: 84,
-          product: {} as Product,
-          dateAdded: "2024-01-08",
-        },
-      ];
+      // Retornar array vacío en caso de error
+      return [];
     }
   }
 
@@ -304,25 +235,8 @@ class DashboardService {
       }));
     } catch (error) {
       console.error("Error obteniendo listas de deseos:", error);
-      // Fallback con datos simulados
-      return [
-        {
-          id: 1,
-          name: "Zapatillas de Running",
-          description: "Para mis entrenamientos",
-          products: [],
-          createdAt: "2024-01-10",
-          isPublic: false,
-        },
-        {
-          id: 2,
-          name: "Calzado Formal",
-          description: "Para eventos especiales",
-          products: [],
-          createdAt: "2024-01-08",
-          isPublic: true,
-        },
-      ];
+      // Retornar array vacío en caso de error
+      return [];
     }
   }
 
@@ -419,36 +333,8 @@ class DashboardService {
       }));
     } catch (error) {
       console.error("Error obteniendo notificaciones:", error);
-      // Fallback con datos simulados
-      return [
-        {
-          id: 1,
-          title: "¡Nueva oferta disponible!",
-          message: "20% de descuento en zapatillas Nike",
-          type: "offer",
-          isRead: false,
-          date: "2024-01-16",
-          actionUrl: "/ofertas",
-        },
-        {
-          id: 2,
-          title: "Tu pedido ha sido enviado",
-          message: "Tu pedido #TK987654321 está en camino",
-          type: "order",
-          isRead: true,
-          date: "2024-01-14",
-          actionUrl: "/pedidos",
-        },
-        {
-          id: 3,
-          title: "Nuevo producto disponible",
-          message: "Adidas Ultraboost 22 ya está disponible",
-          type: "new_product",
-          isRead: false,
-          date: "2024-01-13",
-          actionUrl: "/productos/84",
-        },
-      ];
+      // Retornar array vacío en caso de error
+      return [];
     }
   }
 
@@ -556,27 +442,12 @@ class DashboardService {
       return await response.json();
     } catch (error) {
       console.error("Error obteniendo puntos de fidelidad:", error);
-      // Fallback con datos simulados
+      // Retornar datos vacíos en caso de error
       return {
-        currentPoints: 150,
-        level: "Silver",
-        nextLevelPoints: 350,
-        transactions: [
-          {
-            id: 1,
-            type: "earned",
-            points: 50,
-            description: "Puntos de bienvenida",
-            date: "2024-01-01",
-          },
-          {
-            id: 2,
-            type: "earned",
-            points: 100,
-            description: "Compra: Nike Air Max",
-            date: "2024-01-15",
-          },
-        ],
+        currentPoints: 0,
+        level: "Bronze",
+        nextLevelPoints: 100,
+        transactions: [],
       };
     }
   }

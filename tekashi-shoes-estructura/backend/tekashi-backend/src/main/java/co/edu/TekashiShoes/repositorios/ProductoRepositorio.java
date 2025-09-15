@@ -7,6 +7,7 @@ import co.edu.TekashiShoes.dominio.Imagen;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProductoRepositorio {
     //conexion a la bd
@@ -47,6 +48,91 @@ public class ProductoRepositorio {
                 ));
             }
         }
+        return productos;
+    }
+
+    public List<Map<String, Object>> listarProductosCompletos() throws SQLException {
+        String sql = "SELECT p.*, tp.nombre as tipo_nombre, i.imagen as imagen_data " +
+                    "FROM producto p " +
+                    "LEFT JOIN tipo_producto tp ON p.tipo_producto_id = tp.id_tipo_producto " +
+                    "LEFT JOIN imagen i ON p.id_imagen = i.id_imagen " +
+                    "ORDER BY p.id_producto";
+        
+        List<Map<String, Object>> productos = new ArrayList<>();
+        
+        try (Statement stmt = conexion.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Map<String, Object> producto = new java.util.HashMap<>();
+                producto.put("id_producto", rs.getInt("id_producto"));
+                producto.put("tipo_producto_id", rs.getInt("tipo_producto_id"));
+                producto.put("tipo_nombre", rs.getString("tipo_nombre"));
+                producto.put("marca", rs.getString("marca"));
+                producto.put("color", rs.getString("color"));
+                producto.put("precio", rs.getDouble("precio"));
+                producto.put("stock", rs.getInt("stock"));
+                producto.put("imagen", rs.getString("imagen_data"));
+                productos.add(producto);
+            }
+        }
+        
+        return productos;
+    }
+
+    public void eliminarProducto(int productId) throws SQLException {
+        String sql = "DELETE FROM producto WHERE id_producto = ?";
+        
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, productId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public Map<String, Object> obtenerProductoPorId(int productId) throws SQLException {
+        String sql = "SELECT p.*, tp.nombre as tipo_nombre FROM producto p " +
+                    "LEFT JOIN tipo_producto tp ON p.tipo_producto_id = tp.id_tipo_producto " +
+                    "WHERE p.id_producto = ?";
+        
+        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setInt(1, productId);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> producto = new java.util.HashMap<>();
+                    producto.put("id_producto", rs.getInt("id_producto"));
+                    producto.put("tipo_producto_id", rs.getInt("tipo_producto_id"));
+                    producto.put("tipo_nombre", rs.getString("tipo_nombre"));
+                    producto.put("marca", rs.getString("marca"));
+                    producto.put("color", rs.getString("color"));
+                    producto.put("precio", rs.getDouble("precio"));
+                    producto.put("stock", rs.getInt("stock"));
+                    return producto;
+                }
+            }
+        }
+        return new java.util.HashMap<>();
+    }
+
+    public List<Map<String, Object>> obtenerListaProductos() throws SQLException {
+        String sql = "SELECT p.*, tp.nombre as tipo_nombre FROM producto p " +
+                    "LEFT JOIN tipo_producto tp ON p.tipo_producto_id = tp.id_tipo_producto " +
+                    "ORDER BY p.id_producto";
+        
+        List<Map<String, Object>> productos = new ArrayList<>();
+        
+        try (Statement stmt = conexion.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Map<String, Object> producto = new java.util.HashMap<>();
+                producto.put("id_producto", rs.getInt("id_producto"));
+                producto.put("tipo_producto_id", rs.getInt("tipo_producto_id"));
+                producto.put("tipo_nombre", rs.getString("tipo_nombre"));
+                producto.put("marca", rs.getString("marca"));
+                producto.put("color", rs.getString("color"));
+                producto.put("precio", rs.getDouble("precio"));
+                producto.put("stock", rs.getInt("stock"));
+                productos.add(producto);
+            }
+        }
+        
         return productos;
     }
 
@@ -112,13 +198,6 @@ public class ProductoRepositorio {
         }
     }
 
-    public void eliminarProducto(int id) throws SQLException {
-        String sql = "DELETE FROM producto WHERE id_producto=?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
 
     // CRUD(solo get) para TipoProducto
 

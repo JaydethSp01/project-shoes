@@ -9,11 +9,14 @@ import {
   FaGift,
   FaTruck,
   FaStar,
+  FaCheck,
+  FaTrash,
 } from "react-icons/fa";
 import {
   notificationService,
   Notification,
 } from "../services/NotificationService";
+import "../styles/NotificationSystem.css";
 
 const NotificationSystem: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -44,6 +47,10 @@ const NotificationSystem: React.FC = () => {
 
   const removeNotification = (id: string) => {
     notificationService.removeNotification(id);
+  };
+
+  const clearAllNotifications = () => {
+    notificationService.clearAllNotifications();
   };
 
   const getIcon = (type: string) => {
@@ -104,7 +111,7 @@ const NotificationSystem: React.FC = () => {
             <div className="notification-header">
               <h5>
                 <FaBell className="me-2" />
-                Notificaciones
+                Notificaciones del Sistema
                 {unreadCount > 0 && (
                   <span className="unread-count">({unreadCount})</span>
                 )}
@@ -112,10 +119,20 @@ const NotificationSystem: React.FC = () => {
               <div className="notification-actions">
                 {unreadCount > 0 && (
                   <button
-                    className="btn btn-sm btn-outline-primary"
+                    className="btn btn-outline-primary"
                     onClick={markAllAsRead}
                   >
-                    Marcar todas como leídas
+                    <FaCheck className="me-1" />
+                    Marcar como leídas
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    className="btn btn-outline-danger"
+                    onClick={clearAllNotifications}
+                  >
+                    <FaTrash className="me-1" />
+                    Borrar todas
                   </button>
                 )}
                 <button
@@ -142,7 +159,6 @@ const NotificationSystem: React.FC = () => {
                       className={`notification-item ${
                         !notification.read ? "unread" : ""
                       }`}
-                      onClick={() => markAsRead(notification.id)}
                     >
                       <div className="notification-icon">
                         {getIcon(notification.type)}
@@ -161,6 +177,18 @@ const NotificationSystem: React.FC = () => {
                       </div>
 
                       <div className="notification-actions-item">
+                        {!notification.read && (
+                          <button
+                            className="mark-read-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsRead(notification.id);
+                            }}
+                            title="Marcar como leída"
+                          >
+                            <FaCheck />
+                          </button>
+                        )}
                         <button
                           className="remove-btn"
                           onClick={(e) => {
@@ -169,7 +197,7 @@ const NotificationSystem: React.FC = () => {
                           }}
                           title="Eliminar notificación"
                         >
-                          <FaTimes />
+                          <FaTrash />
                         </button>
                       </div>
                     </div>

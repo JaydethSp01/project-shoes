@@ -7,6 +7,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UsuarioRepositorio {
     private static final String URL = "jdbc:mysql://localhost:3306/tekashi_shoes_bd";
@@ -225,6 +226,114 @@ public class UsuarioRepositorio {
             int filasAfectadas = stmt.executeUpdate();
             return filasAfectadas > 0;
         }
+    }
+
+    // Métodos adicionales para AdminController
+    public void crearUsuario(String nombre, String email, String password, String role) throws SQLException {
+        String sql = "INSERT INTO usuario (nombre, email, password, rol, fecha_registro, activo) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = ConexionBD.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, nombre);
+            stmt.setString(2, email);
+            stmt.setString(3, password);
+            stmt.setString(4, role.toUpperCase());
+            stmt.setDate(5, Date.valueOf(java.time.LocalDate.now()));
+            stmt.setBoolean(6, true);
+            
+            stmt.executeUpdate();
+        }
+    }
+
+    public void eliminarUsuario(int userId) throws SQLException {
+        // Eliminar registros relacionados primero
+        String[] tablasRelacionadas = {
+            "DELETE FROM activity_tracking WHERE user_id = ?",
+            "DELETE FROM favoritos WHERE id_usuario = ?",
+            "DELETE FROM carrito WHERE id_usuario = ?",
+            "DELETE FROM pedido WHERE id_usuario = ?",
+            "DELETE FROM review WHERE id_usuario = ?"
+        };
+        
+        try (Connection conn = ConexionBD.obtenerConexion()) {
+            for (String sql : tablasRelacionadas) {
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setInt(1, userId);
+                    stmt.executeUpdate();
+                }
+            }
+            
+            // Finalmente eliminar el usuario
+            String sql = "DELETE FROM usuario WHERE id_usuario = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, userId);
+                stmt.executeUpdate();
+            }
+        }
+    }
+
+    public void actualizarRolUsuario(int userId, String newRole) throws SQLException {
+        String sql = "UPDATE usuario SET rol = ? WHERE id_usuario = ?";
+        
+        try (Connection conn = ConexionBD.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, newRole.toUpperCase());
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
+        }
+    }
+
+    public Map<String, Object> obtenerUsuarioPorId(int userId) throws SQLException {
+        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
+        
+        try (Connection conn = ConexionBD.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, userId);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Map<String, Object> userInfo = new java.util.HashMap<>();
+                    userInfo.put("id", rs.getInt("id_usuario"));
+                    userInfo.put("nombre", rs.getString("nombre"));
+                    userInfo.put("email", rs.getString("email"));
+                    userInfo.put("rol", rs.getString("rol"));
+                    userInfo.put("fecha_registro", rs.getDate("fecha_registro").toString());
+                    userInfo.put("activo", rs.getBoolean("activo"));
+                    return userInfo;
+                }
+            }
+        }
+        return new java.util.HashMap<>();
+    }
+
+    public List<Map<String, Object>> obtenerListaUsuarios() throws SQLException {
+        String sql = "SELECT id_usuario, nombre, email, rol, fecha_registro, activo FROM usuario ORDER BY fecha_registro DESC";
+        List<Map<String, Object>> usuarios = new ArrayList<>();
+        
+        try (Connection conn = ConexionBD.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Map<String, Object> usuario = new java.util.HashMap<>();
+                usuario.put("id", rs.getInt("id_usuario"));
+                usuario.put("nombre", rs.getString("nombre"));
+                usuario.put("email", rs.getString("email"));
+                usuario.put("rol", rs.getString("rol"));
+                usuario.put("fecha_registro", rs.getDate("fecha_registro").toString());
+                usuario.put("activo", rs.getBoolean("activo"));
+                usuarios.add(usuario);
+            }
+        }
+        
+        return usuarios;
+    }
+
+    public void cerrar() {
+        // No hay conexión persistente en este repositorio
     }
 
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {

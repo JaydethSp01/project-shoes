@@ -71,6 +71,12 @@ class NotificationService {
     this.notifyListeners();
   }
 
+  // Limpiar todas las notificaciones
+  clearAllNotifications() {
+    this.notifications = [];
+    this.notifyListeners();
+  }
+
   // Agregar notificación
   addNotification(
     notification: Omit<Notification, "id" | "timestamp" | "read">

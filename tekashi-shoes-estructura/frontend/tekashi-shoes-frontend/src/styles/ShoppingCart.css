@@ -1,5 +1,77 @@
 /* Shopping Cart Styles - Tekashi Shoes */
 
+/* Fixed Components Container */
+.fixed-components {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1000;
+}
+
+/* Fixed Cart Button */
+.cart-toggle-btn {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: cart-pulse 3s infinite;
+}
+
+@keyframes cart-pulse {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.6), 0 0 30px rgba(255, 107, 107, 0.4);
+  }
+}
+
+.cart-toggle-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(255, 107, 107, 0.4);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #00ff88;
+  color: #000;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
 .cart-product-image {
   width: 80px;
   height: 80px;
@@ -52,6 +124,24 @@
 
 /* Responsive para el carrito */
 @media (max-width: 768px) {
+  .fixed-components {
+    bottom: 20px;
+    right: 20px;
+    gap: 12px;
+  }
+
+  .cart-toggle-btn {
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
+  }
+
+  .cart-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
   .cart-product-image {
     width: 60px;
     height: 60px;
@@ -60,5 +150,25 @@
   .cart-item-image {
     min-width: 60px;
     min-height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fixed-components {
+    bottom: 16px;
+    right: 16px;
+    gap: 10px;
+  }
+
+  .cart-toggle-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
+  .cart-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
   }
 }

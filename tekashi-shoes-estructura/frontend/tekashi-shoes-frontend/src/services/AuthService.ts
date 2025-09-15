@@ -211,6 +211,12 @@ class AuthService {
     this.notifyListeners();
   }
 
+  updateCurrentUser(updatedUser: any) {
+    this.currentUser = updatedUser;
+    localStorage.setItem("tekashi_user", JSON.stringify(updatedUser));
+    this.notifyListeners();
+  }
+
   getCurrentUser(): User | null {
     return this.currentUser;
   }

@@ -16,11 +16,11 @@ interface ChatbotProps {
   onToggle: () => void;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ products, isOpen, onToggle }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "1",
-      text: "¡Hola! 👋 Soy el asistente inteligente de Tekashi Shoes. Puedo ayudarte a encontrar los zapatos perfectos usando datos en tiempo real de nuestra tienda. ¿En qué puedo ayudarte?",
+      text: '¡Hola! 👋 Soy tu asistente personal de compras en Tekashi Shoes.\n\n🎯 **Te ayudo a encontrar el zapato perfecto para ti**\n\n**¿Por dónde empezamos? Elige una opción:**\n\n1️⃣ **🏷️ Buscar por marca** - "nike", "adidas", "puma"\n2️⃣ **👟 Ver por tipo** - "tenis", "zapatillas", "botas"\n3️⃣ **💰 Ver ofertas** - "descuentos", "promociones"\n4️⃣ **📏 Ayuda con tallas** - "talla 42", "medidas"\n5️⃣ **🛒 Ver carrito** - "carrito", "compras"\n6️⃣ **📞 Contactar soporte** - "soporte", "ayuda"\n\n**💡 Ejemplos de búsqueda:**\n• "nike negro" - Zapatos Nike en negro\n• "tenis baratos" - Tenis económicos\n• "talla 42" - Ayuda con tallas\n• "ofertas" - Ver promociones\n\n**🔄 Tip:** Puedes combinar palabras como "nike negro barato" para mejores resultados',
       isUser: false,
       timestamp: new Date(),
       type: "text",
@@ -215,14 +215,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ products, isOpen, onToggle }) => {
           </button>
         </div>
         <div className="chatbot-suggestions">
-          <span>Prueba:</span>
-          <button onClick={() => setInputText("tenis Nike")}>tenis Nike</button>
-          <button onClick={() => setInputText("productos baratos")}>
-            productos baratos
+          <span>💡 Prueba:</span>
+          <button onClick={() => setInputText("nike negro")}>nike negro</button>
+          <button onClick={() => setInputText("tenis baratos")}>
+            tenis baratos
           </button>
-          <button onClick={() => setInputText("stock disponible")}>
-            stock disponible
-          </button>
+          <button onClick={() => setInputText("ofertas")}>ofertas</button>
+          <button onClick={() => setInputText("talla 42")}>talla 42</button>
         </div>
       </div>
     </div>

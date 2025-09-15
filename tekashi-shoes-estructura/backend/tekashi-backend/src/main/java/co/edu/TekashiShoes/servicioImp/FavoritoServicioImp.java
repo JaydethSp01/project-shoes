@@ -59,3 +59,4 @@ public class FavoritoServicioImp implements FavoritoServicio {
         return repositorio.contarFavoritosPorUsuario(usuarioId);
     }
 }
+

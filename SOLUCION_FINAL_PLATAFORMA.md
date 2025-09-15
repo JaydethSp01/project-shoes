@@ -149,3 +149,4 @@
 - **Productos**: http://localhost:8080/producto
 - **Tipos**: http://localhost:8080/tipo_producto
 - **Imágenes**: http://localhost:8080/imagenes
+

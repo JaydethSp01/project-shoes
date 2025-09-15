@@ -271,7 +271,8 @@ class CartService {
   async processOrder(
     shippingAddress: ShippingAddress,
     paymentInfo: PaymentInfo,
-    loyaltyPointsUsed: number = 0
+    loyaltyPointsUsed: number = 0,
+    paymentData?: any
   ): Promise<OrderInfo> {
     const cartSummary = this.getCartSummary();
 
@@ -328,6 +329,7 @@ class CartService {
           subtotal: this.getSubtotal(),
           shipping: this.getShippingCost(),
           tax: this.getTax(),
+          paymentData: paymentData,
         }),
       });
 

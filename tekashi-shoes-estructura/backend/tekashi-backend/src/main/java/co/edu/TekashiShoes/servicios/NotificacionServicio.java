@@ -17,3 +17,4 @@ public interface NotificacionServicio {
     boolean eliminar(int id) throws SQLException;
     int contarNoLeidas(int usuarioId) throws SQLException;
 }
+

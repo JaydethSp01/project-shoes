@@ -36,8 +36,12 @@ import {
   Wishlist,
   Notification,
 } from "../services/DashboardService";
+import { internationalizationService } from "../services/InternationalizationService";
 import FavoritesManager from "./FavoritesManager";
 import WishlistManager from "./WishlistManager";
+import UserProfileModal from "./UserProfileModal";
+import BeautifulAlert from "./BeautifulAlert";
+import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
 
 interface UserDashboardProps {
   isOpen: boolean;
@@ -63,9 +67,15 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const [showNewWishlistForm, setShowNewWishlistForm] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showWishlists, setShowWishlists] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(user);
+  
+  // Hook para alertas bonitas
+  const { alertState, showSuccess, showError, showInfo, hideAlert } = useBeautifulAlert();
 
   useEffect(() => {
     if (isOpen && user) {
+      setCurrentUser(user);
       loadDashboardData();
     }
   }, [isOpen, user]);
@@ -75,6 +85,8 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
     setError("");
 
     try {
+      console.log("Cargando datos del dashboard para usuario:", user.id);
+
       const [
         statsData,
         purchasesData,
@@ -89,14 +101,38 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
         dashboardService.getNotifications(Number(user.id)),
       ]);
 
+      console.log("Datos cargados:", {
+        stats: statsData,
+        purchases: purchasesData,
+        favorites: favoritesData,
+        wishlists: wishlistsData,
+        notifications: notificationsData,
+      });
+
       setStats(statsData);
       setPurchases(purchasesData);
       setFavorites(favoritesData);
       setWishlists(wishlistsData);
       setNotifications(notificationsData);
     } catch (err) {
-      setError("Error cargando datos del dashboard");
+      setError("Error cargando datos del dashboard. Verifica tu conexión.");
       console.error("Error loading dashboard:", err);
+
+      // Establecer datos vacíos en caso de error
+      setStats({
+        totalPurchases: 0,
+        totalSpent: 0,
+        loyaltyPoints: 0,
+        userLevel: "Bronze",
+        nextLevelPoints: 100,
+        activeDiscount: "0%",
+        favoriteCategories: [],
+        recentActivity: [],
+      });
+      setPurchases([]);
+      setFavorites([]);
+      setWishlists([]);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
@@ -104,17 +140,24 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
 
   const handleRemoveFavorite = async (productId: number) => {
     try {
+      console.log("Removiendo favorito:", productId);
       await dashboardService.removeFromFavorites(user.id, productId);
       setFavorites(favorites.filter((fav) => fav.productId !== productId));
+      console.log("Favorito removido exitosamente");
     } catch (err) {
       console.error("Error removing favorite:", err);
+      showError("❌ Error", "Error al remover de favoritos. Intenta nuevamente.");
     }
   };
 
   const handleCreateWishlist = async () => {
-    if (!newWishlistName.trim()) return;
+    if (!newWishlistName.trim()) {
+      showError("❌ Campo Requerido", "Por favor ingresa un nombre para la lista de deseos");
+      return;
+    }
 
     try {
+      console.log("Creando lista de deseos:", newWishlistName);
       const newWishlist = await dashboardService.createWishlist(
         Number(user.id),
         newWishlistName,
@@ -124,22 +167,33 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       setNewWishlistName("");
       setNewWishlistDescription("");
       setShowNewWishlistForm(false);
+      console.log("Lista de deseos creada exitosamente");
+      showSuccess("✅ Lista Creada", "Lista de deseos creada exitosamente");
     } catch (err) {
       console.error("Error creating wishlist:", err);
+      showError("❌ Error", "Error al crear la lista de deseos. Intenta nuevamente.");
     }
   };
 
   const handleMarkNotificationAsRead = async (notificationId: number) => {
     try {
+      console.log("Marcando notificación como leída:", notificationId);
       await dashboardService.markNotificationAsRead(notificationId);
       setNotifications(
         notifications.map((notif) =>
           notif.id === notificationId ? { ...notif, isRead: true } : notif
         )
       );
+      console.log("Notificación marcada como leída");
     } catch (err) {
       console.error("Error marking notification as read:", err);
+      showError("❌ Error", "Error al marcar la notificación como leída.");
     }
+  };
+
+  const handleProfileUpdated = (updatedUser: any) => {
+    setCurrentUser(updatedUser);
+    console.log("Perfil actualizado:", updatedUser);
   };
 
   const getStatusIcon = (estado: string) => {
@@ -188,12 +242,42 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   };
 
   const tabs = [
-    { id: "overview", label: "Resumen", icon: FaUser },
-    { id: "purchases", label: "Compras", icon: FaShoppingBag },
-    { id: "favorites", label: "Favoritos", icon: FaHeart },
-    { id: "wishlists", label: "Listas de Deseos", icon: FaStar },
-    { id: "notifications", label: "Notificaciones", icon: FaBell },
-    { id: "profile", label: "Perfil", icon: FaCog },
+    {
+      id: "overview",
+      label: "Resumen",
+      icon: FaUser,
+      description: "Vista general de tu cuenta",
+    },
+    {
+      id: "purchases",
+      label: "Mis Pedidos",
+      icon: FaShoppingBag,
+      description: "Historial y estado de compras",
+    },
+    {
+      id: "favorites",
+      label: "Favoritos",
+      icon: FaHeart,
+      description: "Productos que te gustan",
+    },
+    {
+      id: "wishlists",
+      label: "Listas de Deseos",
+      icon: FaStar,
+      description: "Productos para comprar después",
+    },
+    {
+      id: "notifications",
+      label: "Notificaciones",
+      icon: FaBell,
+      description: "Alertas y actualizaciones",
+    },
+    {
+      id: "profile",
+      label: "Mi Perfil",
+      icon: FaCog,
+      description: "Información personal y configuración",
+    },
   ];
 
   if (!isOpen) return null;
@@ -237,15 +321,23 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                       activeTab === tab.id ? "active" : ""
                     }`}
                     onClick={() => setActiveTab(tab.id)}
+                    title={tab.description}
                   >
-                    <Icon />
-                    <span>{tab.label}</span>
-                    {tab.id === "notifications" &&
-                      notifications.filter((n) => !n.isRead).length > 0 && (
-                        <span className="notification-badge">
-                          {notifications.filter((n) => !n.isRead).length}
+                    <div className="nav-item-content">
+                      <Icon className="nav-icon" />
+                      <div className="nav-text">
+                        <span className="nav-label">{tab.label}</span>
+                        <span className="nav-description">
+                          {tab.description}
                         </span>
-                      )}
+                      </div>
+                      {tab.id === "notifications" &&
+                        notifications.filter((n) => !n.isRead).length > 0 && (
+                          <span className="notification-badge">
+                            {notifications.filter((n) => !n.isRead).length}
+                          </span>
+                        )}
+                    </div>
                   </button>
                 );
               })}
@@ -606,30 +698,62 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
 
                 {activeTab === "profile" && (
                   <div className="profile-section">
-                    <h3>Configuración del Perfil</h3>
-                    <div className="profile-form">
-                      <div className="form-group">
-                        <label>Nombre Completo</label>
-                        <input type="text" defaultValue={user?.name || ""} />
+                    <div className="section-header">
+                      <h3>Mi Perfil</h3>
+                      <button
+                        className="manage-btn"
+                        onClick={() => setShowProfileModal(true)}
+                      >
+                        <FaEdit />
+                        Gestionar Perfil
+                      </button>
+                    </div>
+                    <div className="profile-preview">
+                      <div className="profile-info">
+                        <div className="profile-avatar">
+                          <FaUser className="avatar-icon" />
+                        </div>
+                        <div className="profile-details">
+                          <h4>{currentUser?.name || "Usuario"}</h4>
+                          <p>{currentUser?.email || "No especificado"}</p>
+                          <span className="user-level">
+                            {stats?.userLevel || "Bronze"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label>Email</label>
-                        <input type="email" defaultValue={user?.email || ""} />
+                      <div className="profile-stats">
+                        <div className="stat-item">
+                          <span className="stat-label">
+                            Puntos de Fidelidad
+                          </span>
+                          <span className="stat-value">
+                            {stats?.loyaltyPoints || 0} pts
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Total Compras</span>
+                          <span className="stat-value">
+                            {stats?.totalPurchases || 0}
+                          </span>
+                        </div>
+                        <div className="stat-item">
+                          <span className="stat-label">Monto Total</span>
+                          <span className="stat-value">
+                            {internationalizationService.formatCurrency(
+                              stats?.totalSpent || 0
+                            )}
+                          </span>
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label>Teléfono</label>
-                        <input type="tel" defaultValue={user?.phone || ""} />
-                      </div>
-                      <div className="form-group">
-                        <label>Dirección</label>
-                        <textarea defaultValue={user?.address || ""}></textarea>
-                      </div>
-                      <div className="form-actions">
-                        <button className="btn-primary">Guardar Cambios</button>
-                        <button className="btn-secondary">
-                          Cambiar Contraseña
-                        </button>
-                      </div>
+                    </div>
+                    <div className="profile-actions">
+                      <button
+                        className="btn-primary"
+                        onClick={() => setShowProfileModal(true)}
+                      >
+                        <FaEdit />
+                        Editar Perfil Completo
+                      </button>
                     </div>
                   </div>
                 )}
@@ -649,6 +773,23 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       <WishlistManager
         isOpen={showWishlists}
         onClose={() => setShowWishlists(false)}
+      />
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={currentUser}
+        onProfileUpdated={handleProfileUpdated}
+      />
+
+      {/* Beautiful Alert */}
+      <BeautifulAlert
+        isOpen={alertState.isOpen}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+        onClose={hideAlert}
       />
     </div>
   );

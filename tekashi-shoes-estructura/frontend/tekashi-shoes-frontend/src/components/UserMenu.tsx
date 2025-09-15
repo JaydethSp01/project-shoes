@@ -3,14 +3,11 @@ import {
   FaUser,
   FaSignOutAlt,
   FaCog,
-  FaBell,
   FaHeart,
   FaShoppingBag,
   FaHistory,
   FaGift,
   FaTrophy,
-  FaCrown,
-  FaGem,
   FaChevronDown,
   FaChevronUp,
   FaHome,
@@ -48,43 +45,8 @@ const UserMenu: React.FC<UserMenuProps> = ({
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleUserDropdown = () => setIsUserDropdownOpen(!isUserDropdownOpen);
 
-  const userMenuItems = [
-    {
-      id: "dashboard",
-      label: "Mi Panel",
-      icon: FaUser,
-      action: onShowDashboard,
-      description: "Accede a tu dashboard personal",
-    },
-    {
-      id: "profile",
-      label: "Mi Perfil",
-      icon: FaCog,
-      action: () => console.log("Profile"),
-      description: "Gestiona tu información personal",
-    },
-    {
-      id: "favorites",
-      label: "Favoritos",
-      icon: FaHeart,
-      action: () => console.log("Favorites"),
-      description: "Productos que te gustan",
-    },
-    {
-      id: "history",
-      label: "Historial",
-      icon: FaHistory,
-      action: () => console.log("History"),
-      description: "Tus compras anteriores",
-    },
-    {
-      id: "points",
-      label: "Puntos",
-      icon: FaGem,
-      action: () => console.log("Points"),
-      description: "Gestiona tus puntos de fidelidad",
-    },
-    ...(user?.role === "admin"
+  const userMenuItems =
+    user?.role === "admin"
       ? [
           {
             id: "admin",
@@ -94,8 +56,16 @@ const UserMenu: React.FC<UserMenuProps> = ({
             description: "Acceso al panel de administración",
           },
         ]
-      : []),
-  ];
+      : [
+          {
+            id: "dashboard",
+            label: "Mi Panel",
+            icon: FaUser,
+            action: onShowDashboard,
+            description:
+              "Accede a tu dashboard personal con todas las opciones",
+          },
+        ];
 
   const navigationItems = [
     {
@@ -180,14 +150,6 @@ const UserMenu: React.FC<UserMenuProps> = ({
                   </div>
                   <div className="user-info">
                     <span className="user-name">{user.name}</span>
-                    <div className="user-badges">
-                      <span className="badge-small">
-                        <FaCrown /> VIP
-                      </span>
-                      <span className="badge-small">
-                        <FaGem /> 150 pts
-                      </span>
-                    </div>
                   </div>
                   {isUserDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
                 </button>
@@ -224,17 +186,6 @@ const UserMenu: React.FC<UserMenuProps> = ({
                   </div>
                 )}
               </div>
-
-              {/* Carrito */}
-              <button className="cart-btn" onClick={onShowCart}>
-                <FaShoppingCart />
-                <div className="cart-info">
-                  <span className="cart-count">{cartItemCount}</span>
-                  <span className="cart-total">
-                    ${cartTotal.toLocaleString()}
-                  </span>
-                </div>
-              </button>
             </div>
           ) : (
             <div className="guest-user">
@@ -248,14 +199,6 @@ const UserMenu: React.FC<UserMenuProps> = ({
             </div>
           )}
         </div>
-
-        {/* Notificaciones */}
-        {user && (
-          <button className="notification-btn" title="Notificaciones">
-            <FaBell />
-            <span className="notification-badge">3</span>
-          </button>
-        )}
       </div>
 
       {/* Overlay para cerrar dropdown */}

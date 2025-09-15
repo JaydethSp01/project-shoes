@@ -17,6 +17,8 @@ import { Product } from "../modelos/productTypes";
 import { dashboardService, Wishlist } from "../services/DashboardService";
 import { cartService } from "../services/CartService";
 import { authService } from "../services/AuthService";
+import BeautifulAlert from "./BeautifulAlert";
+import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
 
 interface WishlistManagerProps {
   isOpen: boolean;
@@ -36,6 +38,9 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingWishlist, setEditingWishlist] = useState<Wishlist | null>(null);
+  
+  // Hook para alertas bonitas
+  const { alertState, showSuccess, showError, showConfirm, hideAlert } = useBeautifulAlert();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -122,26 +127,30 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
   };
 
   const handleDeleteWishlist = async (wishlistId: number) => {
-    if (
-      !confirm("¿Estás seguro de que quieres eliminar esta lista de deseos?")
-    ) {
-      return;
-    }
+    showConfirm(
+      "🗑️ Eliminar Lista de Deseos",
+      "¿Estás seguro de que quieres eliminar esta lista de deseos? Esta acción no se puede deshacer.",
+      async () => {
+        try {
+          const user = authService.getCurrentUser();
+          if (!user) return;
 
-    try {
-      const user = authService.getCurrentUser();
-      if (!user) return;
+          // Aquí deberías llamar al servicio para eliminar la wishlist
+          // await dashboardService.deleteWishlist(wishlistId);
 
-      // Aquí deberías llamar al servicio para eliminar la wishlist
-      // await dashboardService.deleteWishlist(wishlistId);
-
-      setWishlists(wishlists.filter((w) => w.id !== wishlistId));
-      if (selectedWishlist?.id === wishlistId) {
-        setSelectedWishlist(null);
-      }
-    } catch (err) {
-      console.error("Error deleting wishlist:", err);
-    }
+          setWishlists(wishlists.filter((w) => w.id !== wishlistId));
+          if (selectedWishlist?.id === wishlistId) {
+            setSelectedWishlist(null);
+          }
+          showSuccess("✅ Lista Eliminada", "La lista de deseos ha sido eliminada exitosamente.");
+        } catch (err) {
+          console.error("Error deleting wishlist:", err);
+          showError("❌ Error", "Error al eliminar la lista de deseos. Intenta nuevamente.");
+        }
+      },
+      "Eliminar",
+      "Cancelar"
+    );
   };
 
   const handleRemoveFromWishlist = async (
@@ -566,6 +575,18 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
             </div>
           </div>
         )}
+
+        {/* Beautiful Alert */}
+        <BeautifulAlert
+          isOpen={alertState.isOpen}
+          type={alertState.type}
+          title={alertState.title}
+          message={alertState.message}
+          onClose={hideAlert}
+          onConfirm={alertState.onConfirm}
+          confirmText={alertState.confirmText}
+          cancelText={alertState.cancelText}
+        />
       </div>
     </div>
   );

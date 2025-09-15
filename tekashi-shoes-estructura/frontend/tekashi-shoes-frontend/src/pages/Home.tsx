@@ -3,9 +3,8 @@ import {
   FaHeart,
   FaEye,
   FaShoppingCart,
-  FaSearch,
-  FaFilter,
   FaCheck,
+  FaEdit,
 } from "react-icons/fa";
 // import ProductForm from "../componets/ProductForm";
 // import { useProductForm } from "../hooks/useProductForm";
@@ -16,7 +15,7 @@ import ProductFilters from "../components/ProductFilters";
 import CheckoutForm from "../components/CheckoutForm";
 import ProductReviews from "../components/ProductReviews";
 import Footer from "../components/Footer";
-// import NotificationSystem from "../components/NotificationSystem";
+import NotificationSystem from "../components/NotificationSystem";
 // import AlertSystem from "../components/AlertSystem";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
@@ -26,6 +25,8 @@ import UserDashboard from "../components/UserDashboard";
 import UserMenu from "../components/UserMenu";
 import ProductImage from "../components/ProductImage";
 import Pagination from "../components/Pagination";
+import SimplifiedHeader from "../components/SimplifiedHeader";
+import AdminHeader from "../components/AdminHeader";
 import { authService, User } from "../services/AuthService";
 import { useState, useEffect } from "react";
 import { Product, TipoProducto } from "../modelos/productTypes";
@@ -67,6 +68,8 @@ const Home = () => {
   const [tiposProducto, setTiposProducto] = useState<TipoProducto[]>([]);
   const [selectedProductForReview, setSelectedProductForReview] =
     useState<Product | null>(null);
+  const [selectedProductForManagement, setSelectedProductForManagement] =
+    useState<Product | null>(null);
   const [showReviews, setShowReviews] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [cartTotal, setCartTotal] = useState(0);
@@ -80,6 +83,7 @@ const Home = () => {
   const [showUserDashboard, setShowUserDashboard] = useState(false);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showCart, setShowCart] = useState(false);
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -88,21 +92,23 @@ const Home = () => {
   // const [searchResults, setSearchResults] = useState<Product[]>([]);
   // const [totalSearchResults, setTotalSearchResults] = useState(0);
 
+  // Función para cargar productos
+  const loadProducts = async () => {
+    try {
+      const productos = await ConexionApiBackend.obtenerProductos();
+      console.log("Productos cargados:", productos);
+      setProducts(productos);
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+      // Mostrar mensaje de error al usuario
+      console.error(
+        "Error de conexión: No se pudieron cargar los productos. Verifique que el servidor esté ejecutándose."
+      );
+    }
+  };
+
   // Cargar productos
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const productos = await ConexionApiBackend.obtenerProductos();
-        console.log("Productos cargados:", productos);
-        setProducts(productos);
-      } catch (error) {
-        console.error("Error cargando productos:", error);
-        // Mostrar mensaje de error al usuario
-        console.error(
-          "Error de conexión: No se pudieron cargar los productos. Verifique que el servidor esté ejecutándose."
-        );
-      }
-    };
     loadProducts();
   }, []);
 
@@ -179,7 +185,9 @@ const Home = () => {
         try {
           const userFavorites =
             await ConexionApiBackend.obtenerFavoritosUsuario(currentUser.id);
-          const favoriteIds = userFavorites.map((fav: any) => fav.productoId);
+          const favoriteIds = userFavorites.map(
+            (fav: { productoId: number }) => fav.productoId
+          );
           setFavorites(favoriteIds);
         } catch (error) {
           console.error("Error cargando favoritos del usuario:", error);
@@ -234,6 +242,12 @@ const Home = () => {
   }) => {
     console.log("Pedido completado:", order);
     // Aquí podrías mostrar una notificación de éxito o redirigir a una página de confirmación
+  };
+
+  // Función para manejar gestión de productos
+  const handleManageProduct = (product: Product) => {
+    setSelectedProductForManagement(product);
+    setShowAdminPanel(true);
   };
 
   // Mostrar siempre como usuario invitado por defecto
@@ -363,48 +377,7 @@ const Home = () => {
                 </a>
               </div>
 
-              {/* Búsqueda */}
-              <div className="search-container">
-                <div className="search-box">
-                  <FaSearch className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Buscar zapatos, marcas, colores..."
-                    className="search-input"
-                  />
-                  <button
-                    className="search-btn"
-                    onClick={() => {
-                      const searchInput = document.querySelector(
-                        ".search-input"
-                      ) as HTMLInputElement;
-                      if (searchInput && searchInput.value.trim()) {
-                        // Filtrar productos por texto de búsqueda
-                        const searchTerm = searchInput.value.toLowerCase();
-                        const filtered = products.filter(
-                          (product) =>
-                            product.marca.toLowerCase().includes(searchTerm) ||
-                            product.color.toLowerCase().includes(searchTerm)
-                        );
-                        setFilteredProducts(filtered);
-                        setCurrentPage(1); // Resetear a la primera página
-                      } else {
-                        setFilteredProducts(products);
-                        setCurrentPage(1); // Resetear a la primera página
-                      }
-                    }}
-                  >
-                    Buscar
-                  </button>
-                  <button
-                    className="search-btn filters-btn"
-                    onClick={() => setShowAdvancedSearch(true)}
-                    title="Búsqueda Avanzada"
-                  >
-                    <FaFilter />
-                  </button>
-                </div>
-              </div>
+              {/* Búsqueda removida del header - se usa la de abajo */}
 
               {/* Nuevo Sistema de Menú */}
               <UserMenu
@@ -431,6 +404,12 @@ const Home = () => {
                 cartItemCount={cartItemCount}
                 cartTotal={cartTotal}
               />
+
+              {/* Header específico según el rol */}
+              {currentUser && !authService.isAdmin() && (
+                <SimplifiedHeader onCartOpen={() => setShowCart(true)} />
+              )}
+              {currentUser && authService.isAdmin() && <AdminHeader />}
             </div>
           </div>
         </nav>
@@ -623,13 +602,26 @@ const Home = () => {
                   </div>
 
                   <div className="product-actions">
-                    <button
-                      className="btn btn-primary btn-add-cart"
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.stock === 0}
-                    >
-                      <FaShoppingCart /> Agregar al Carrito
-                    </button>
+                    {/* Solo mostrar botón de agregar al carrito para usuarios regulares */}
+                    {!authService.isAdmin() && (
+                      <button
+                        className="btn btn-primary btn-add-cart"
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.stock === 0}
+                      >
+                        <FaShoppingCart /> Agregar al Carrito
+                      </button>
+                    )}
+
+                    {/* Para administradores, mostrar botón de gestión */}
+                    {authService.isAdmin() && (
+                      <button
+                        className="btn btn-secondary btn-manage-product"
+                        onClick={() => handleManageProduct(product)}
+                      >
+                        <FaEdit /> Gestionar
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
@@ -684,22 +676,24 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Componentes flotantes */}
-      <Chatbot
-        products={products}
-        isOpen={isChatbotOpen}
-        onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
-      />
+      {/* Componentes fijos integrados */}
+      <div className="fixed-components">
+        <Chatbot
+          products={products}
+          isOpen={isChatbotOpen}
+          onToggle={() => setIsChatbotOpen(!isChatbotOpen)}
+        />
+        <ShoppingCart
+          isOpen={showCart}
+          onClose={() => setShowCart(false)}
+          products={products}
+          images={images}
+          onShowCheckout={() => setShowCheckout(true)}
+        />
+      </div>
 
-      <ShoppingCart
-        products={products}
-        images={images}
-        onShowCheckout={() => setShowCheckout(true)}
-      />
-
-      {/* <NotificationSystem /> */}
-
-      {/* <AlertSystem /> */}
+      {/* Sistema de Notificaciones */}
+      <NotificationSystem />
 
       {/* Modal de Login */}
       <LoginModal
@@ -721,6 +715,11 @@ const Home = () => {
       <AdminPanel
         isOpen={showAdminPanel}
         onClose={() => setShowAdminPanel(false)}
+        selectedProduct={selectedProductForManagement}
+        onProductUpdated={() => {
+          setSelectedProductForManagement(null);
+          loadProducts(); // Recargar productos después de actualizar
+        }}
       />
 
       {/* Dashboard Real */}
@@ -743,27 +742,12 @@ const Home = () => {
         />
       )}
 
-      {/* Dashboard Real */}
-      <RealDashboard
-        isOpen={showRealDashboard}
-        onClose={() => setShowRealDashboard(false)}
-        products={products}
-      />
-
       {/* Dashboard de Usuario */}
       <UserDashboard
         isOpen={showUserDashboard}
         onClose={() => setShowUserDashboard(false)}
         user={currentUser}
       />
-
-      {/* Admin Panel */}
-      {showAdminPanel && (
-        <AdminPanel
-          isOpen={showAdminPanel}
-          onClose={() => setShowAdminPanel(false)}
-        />
-      )}
 
       {/* Advanced Search */}
       {showAdvancedSearch && (

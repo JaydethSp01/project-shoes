@@ -1,0 +1,424 @@
+/* Admin Header Styles - Tekashi Shoes */
+
+.admin-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 20px;
+  pointer-events: none;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Botón de notificaciones para admin */
+.admin-notification-btn {
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.admin-notification-btn:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.3);
+  color: #00ff88;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+}
+
+.admin-notification-btn svg {
+  font-size: 18px;
+}
+
+/* Badge de notificaciones */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+  color: white;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Panel de notificaciones para admin */
+.admin-notifications-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: #1a1a1a;
+  border: 2px solid #00ff88;
+  border-radius: 16px;
+  width: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.notifications-header h3 {
+  color: #00ff88;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.notifications-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mark-all-read-btn {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #00ff88;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mark-all-read-btn:hover {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: rgba(0, 255, 136, 0.5);
+}
+
+.close-notifications-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-notifications-btn:hover {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.4);
+  color: #ff6b6b;
+}
+
+.notifications-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.3);
+  border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 136, 0.5);
+}
+
+/* Items de notificación para admin */
+.admin-notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.admin-notification-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+  border-left-color: rgba(0, 255, 136, 0.5);
+}
+
+.admin-notification-item.unread {
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-left-color: #00ff88;
+}
+
+.notification-icon {
+  font-size: 24px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content h4 {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.notification-content p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.notification-date {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.notification-data {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.data-item {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: #00ff88;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.unread-indicator {
+  width: 8px;
+  height: 8px;
+  background: #00ff88;
+  border-radius: 50%;
+  margin-top: 6px;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.5);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 6px rgba(0, 255, 136, 0.5);
+  }
+  to {
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.8);
+  }
+}
+
+.no-notifications {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.no-notifications p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Overlay */
+.notifications-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 15px;
+  }
+
+  .admin-notification-btn {
+    width: 45px;
+    height: 45px;
+  }
+
+  .admin-notification-btn svg {
+    font-size: 16px;
+  }
+
+  .admin-notifications-panel {
+    width: 320px;
+    right: -50px;
+  }
+
+  .notifications-header {
+    padding: 15px;
+  }
+
+  .notifications-header h3 {
+    font-size: 16px;
+  }
+
+  .admin-notification-item {
+    padding: 12px;
+  }
+
+  .notification-content h4 {
+    font-size: 14px;
+  }
+
+  .notification-content p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-header {
+    padding: 10px;
+  }
+
+  .admin-notifications-panel {
+    width: 300px;
+    right: -80px;
+  }
+
+  .notifications-header {
+    padding: 12px;
+  }
+
+  .mark-all-read-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+
+/* Animaciones adicionales */
+.admin-notification-item {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.admin-notification-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.admin-notification-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.admin-notification-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estados de hover mejorados */
+.admin-notification-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+}
+
+/* Efectos de glow para admin */
+.notification-badge {
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3),
+    0 0 10px rgba(255, 107, 107, 0.2);
+}
+
+/* Estilos específicos para tipos de notificación */
+.admin-notification-item[data-type="order"] {
+  border-left-color: rgba(0, 255, 136, 0.5);
+}
+
+.admin-notification-item[data-type="stock"] {
+  border-left-color: rgba(255, 193, 7, 0.5);
+}
+
+.admin-notification-item[data-type="user"] {
+  border-left-color: rgba(33, 150, 243, 0.5);
+}
+
+.admin-notification-item[data-type="payment"] {
+  border-left-color: rgba(76, 175, 80, 0.5);
+}
+
+.admin-notification-item[data-type="system"] {
+  border-left-color: rgba(156, 39, 176, 0.5);
+}

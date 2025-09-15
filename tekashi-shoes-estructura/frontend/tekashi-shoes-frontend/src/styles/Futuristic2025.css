@@ -2174,13 +2174,13 @@ body {
   position: fixed;
   bottom: 24px;
   right: 100px;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: var(--gradient-tertiary);
   color: var(--text-primary);
   border: none;
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
   box-shadow: var(--shadow-glow);
   transition: var(--transition-smooth);
@@ -2296,6 +2296,38 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.notification-actions .btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: var(--transition-smooth);
+  white-space: nowrap;
+}
+
+.notification-actions .btn-outline-primary {
+  background: transparent;
+  color: var(--primary-neon);
+  border: 1px solid var(--primary-neon);
+}
+
+.notification-actions .btn-outline-primary:hover {
+  background: var(--primary-neon);
+  color: var(--bg-primary);
+}
+
+.notification-actions .btn-outline-danger {
+  background: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+}
+
+.notification-actions .btn-outline-danger:hover {
+  background: #ff6b6b;
+  color: white;
 }
 
 .notification-close-btn {
@@ -2429,18 +2461,26 @@ body {
 @media (max-width: 768px) {
   .cart-toggle-btn {
     bottom: 12px;
-    left: 12px;
-    width: 60px;
-    height: 60px;
-    font-size: 20px;
+    right: 12px;
+    width: 55px;
+    height: 55px;
+    font-size: 18px;
   }
 
   .notification-toggle-btn {
     bottom: 12px;
     right: 80px;
-    width: 50px;
-    height: 50px;
-    font-size: 18px;
+    width: 45px;
+    height: 45px;
+    font-size: 14px;
+  }
+
+  .chatbot-toggle-btn {
+    bottom: 90px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+    font-size: 20px;
   }
 
   .cart-panel,
@@ -2454,18 +2494,36 @@ body {
 @media (max-width: 480px) {
   .cart-toggle-btn {
     bottom: 12px;
-    left: 12px;
-    width: 55px;
-    height: 55px;
-    font-size: 18px;
+    right: 12px;
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
   }
 
   .notification-toggle-btn {
     bottom: 12px;
     right: 70px;
-    width: 45px;
-    height: 45px;
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+  }
+
+  .chatbot-toggle-btn {
+    bottom: 80px;
+    right: 16px;
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .notification-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .notification-actions .btn {
+    font-size: 11px;
+    padding: 4px 8px;
   }
 
   .cart-actions {
@@ -3412,6 +3470,19 @@ body {
   justify-content: center;
   padding: 24px;
   animation: fadeIn 0.3s ease-out;
+  cursor: pointer;
+}
+
+.admin-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 .admin-container {
@@ -3432,6 +3503,9 @@ body {
   overflow: hidden;
   animation: slideInUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   backdrop-filter: blur(20px);
+  cursor: default;
+  position: relative;
+  z-index: 2;
 }
 
 .admin-header {
@@ -3486,9 +3560,9 @@ body {
 }
 
 .admin-close-btn {
-  background: rgba(0, 0, 0, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: #000000;
+  background: rgba(255, 0, 0, 0.1);
+  border: 2px solid rgba(255, 0, 0, 0.3);
+  color: #ff4444;
   cursor: pointer;
   padding: 12px;
   border-radius: 50%;
@@ -3500,14 +3574,16 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 1;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .admin-close-btn:hover {
-  background: rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.6);
   transform: rotate(90deg) scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+  color: #ff6666;
 }
 
 .admin-content {
@@ -3607,12 +3683,22 @@ body {
   border-radius: 8px;
   transition: all 0.3s ease;
   font-size: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .logout-btn:hover {
   background: rgba(255, 0, 0, 0.2);
-  border-color: rgba(255, 0, 0, 0.5);
+  border-color: rgba(255, 0, 0, 0.6);
   transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+  color: #ff6666;
 }
 
 .admin-main {

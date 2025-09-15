@@ -16,3 +16,4 @@ public interface FavoritoServicio {
     boolean existeFavorito(int usuarioId, int productoId) throws SQLException;
     int contarFavoritosPorUsuario(int usuarioId) throws SQLException;
 }
+

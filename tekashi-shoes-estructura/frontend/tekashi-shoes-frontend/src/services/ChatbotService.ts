@@ -32,10 +32,15 @@ class ChatbotService {
 
     const message = userMessage.toLowerCase().trim();
 
+    // Manejar opciones numéricas
+    if (this.isNumericOption(message)) {
+      return this.handleNumericOption(message);
+    }
+
     // Respuestas de saludo
     if (this.isGreeting(message)) {
       return this.createMessage(
-        `¡Hola! 👋 Soy el asistente de Tekashi Shoes. Estoy aquí para ayudarte a encontrar los zapatos perfectos. ¿En qué puedo ayudarte?`,
+        `¡Hola! 👋 Soy tu asistente personal de compras en Tekashi Shoes.\n\n🎯 **Te ayudo a encontrar el zapato perfecto para ti**\n\n**¿Por dónde empezamos? Elige una opción:**\n\n1️⃣ **🏷️ Buscar por marca** - "nike", "adidas", "puma"\n2️⃣ **👟 Ver por tipo** - "tenis", "zapatillas", "botas"\n3️⃣ **💰 Ver ofertas** - "descuentos", "promociones"\n4️⃣ **📏 Ayuda con tallas** - "talla 42", "medidas"\n5️⃣ **🛒 Ver carrito** - "carrito", "compras"\n6️⃣ **📞 Contactar soporte** - "soporte", "ayuda"\n\n**💡 Ejemplos de búsqueda:**\n• "nike negro" - Zapatos Nike en negro\n• "tenis baratos" - Tenis económicos\n• "talla 42" - Ayuda con tallas\n• "ofertas" - Ver promociones\n\n**🔄 Tip:** Puedes combinar palabras como "nike negro barato" para mejores resultados`,
         false
       );
     }
@@ -592,6 +597,85 @@ Puedes probar con:
       type,
       data,
     };
+  }
+
+  // Nuevas funciones para manejar opciones numéricas
+  private isNumericOption(message: string): boolean {
+    const numericPattern = /^[1-6]$/;
+    return numericPattern.test(message.trim());
+  }
+
+  private async handleNumericOption(message: string): Promise<ChatMessage> {
+    const option = parseInt(message.trim());
+
+    switch (option) {
+      case 1:
+        return this.createMessage(
+          `🔍 **Búsqueda por Marca**\n\nEscribe el nombre de la marca que te interesa:\n\n**Marcas disponibles:**\n${this.getAvailableBrands()}\n\n**Ejemplos:**\n• "nike" - Ver zapatos Nike\n• "adidas" - Ver zapatos Adidas\n• "puma" - Ver zapatos Puma\n\n¿Qué marca te interesa?`,
+          false
+        );
+
+      case 2:
+        return this.createMessage(
+          `👟 **Búsqueda por Tipo**\n\nEscribe el tipo de zapato que buscas:\n\n**Tipos disponibles:**\n${this.getAvailableTypes()}\n\n**Ejemplos:**\n• "zapatillas deportivas"\n• "botas"\n• "sandalias"\n• "zapatos formales"\n\n¿Qué tipo de zapato necesitas?`,
+          false
+        );
+
+      case 3:
+        return this.createMessage(
+          `💰 **Ofertas Especiales**\n\n¡Aquí tienes nuestras mejores ofertas!\n\n${this.getSpecialOffers()}\n\n¿Te interesa alguna de estas ofertas?`,
+          false
+        );
+
+      case 4:
+        return this.createMessage(
+          `📏 **Guía de Tallas**\n\n**¿Cómo elegir tu talla correcta?**\n\n1️⃣ **Mide tu pie:** Coloca tu pie en una hoja de papel y marca la punta y el talón\n2️⃣ **Mide la distancia:** Usa una regla para medir en centímetros\n3️⃣ **Consulta la tabla:**\n\n**Tabla de Tallas:**\n• 38 = 24.5 cm\n• 39 = 25.5 cm\n• 40 = 26.0 cm\n• 41 = 27.0 cm\n• 42 = 27.5 cm\n• 43 = 28.5 cm\n• 44 = 29.0 cm\n\n**💡 Consejo:** Si estás entre dos tallas, elige la más grande.\n\n¿Qué talla necesitas?`,
+          false
+        );
+
+      case 5:
+        return this.createMessage(
+          `🛒 **Tu Carrito de Compras**\n\nPara revisar tu carrito, necesitas:\n\n1️⃣ **Iniciar sesión** si no lo has hecho\n2️⃣ **Hacer clic en el icono del carrito** en la parte superior\n3️⃣ **Ver tus productos** y proceder al pago\n\n**¿Necesitas ayuda con:**\n• Agregar productos al carrito\n• Cambiar cantidades\n• Proceder al pago\n• Códigos de descuento\n\n¿En qué más puedo ayudarte con tu carrito?`,
+          false
+        );
+
+      case 6:
+        return this.createMessage(
+          `📞 **Soporte al Cliente**\n\n**¿Cómo podemos ayudarte?**\n\n**📧 Email:** soporte@tekashishoes.com\n**📱 Teléfono:** +57 300 123 4567\n**💬 WhatsApp:** +57 300 123 4567\n**🕒 Horario:** Lunes a Viernes 8:00 AM - 6:00 PM\n\n**Preguntas frecuentes:**\n• Cambios y devoluciones\n• Problemas con pedidos\n• Información de envío\n• Garantías\n\n**¿Qué tipo de ayuda necesitas?**`,
+          false
+        );
+
+      default:
+        return this.createMessage(
+          `❌ Opción no válida. Por favor escribe un número del 1 al 6.`,
+          false
+        );
+    }
+  }
+
+  private getAvailableBrands(): string {
+    const brands = [...new Set(this.products.map((p) => p.marca))];
+    return brands
+      .slice(0, 10)
+      .map((brand) => `• ${brand}`)
+      .join("\n");
+  }
+
+  private getAvailableTypes(): string {
+    return this.tiposProducto
+      .slice(0, 10)
+      .map((tipo) => `• ${tipo.nombre}`)
+      .join("\n");
+  }
+
+  private getSpecialOffers(): string {
+    const offers = [
+      "🔥 **Nike Air Max 270** - 30% OFF - Antes: $450,000 - Ahora: $315,000",
+      "🔥 **Adidas Ultraboost 22** - 25% OFF - Antes: $380,000 - Ahora: $285,000",
+      "🔥 **Puma RS-X** - 20% OFF - Antes: $320,000 - Ahora: $256,000",
+      "🔥 **New Balance 990** - 15% OFF - Antes: $400,000 - Ahora: $340,000",
+    ];
+    return offers.join("\n\n");
   }
 }
 

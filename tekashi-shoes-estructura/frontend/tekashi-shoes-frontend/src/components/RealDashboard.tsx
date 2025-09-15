@@ -12,6 +12,7 @@ import {
   FaPlus,
   FaUser,
   FaUserShield,
+  FaSignOutAlt,
   FaTimes,
   FaFilter,
   FaDownload,
@@ -87,10 +88,36 @@ const RealDashboard: React.FC<RealDashboardProps> = ({
     }
   };
 
-  const handleLogout = async () => {
-    await authService.logout();
+  const handleCloseModal = () => {
     onClose();
   };
+
+  const handleHeaderClose = () => {
+    onClose();
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  // Agregar listener para tecla Escape
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-CO", {
@@ -118,7 +145,7 @@ const RealDashboard: React.FC<RealDashboardProps> = ({
   if (!isOpen || !authService.isAdmin()) return null;
 
   return (
-    <div className="admin-overlay">
+    <div className="admin-overlay" onClick={handleOverlayClick}>
       <div className="admin-container">
         <div className="admin-header">
           <div className="admin-title">
@@ -133,7 +160,7 @@ const RealDashboard: React.FC<RealDashboardProps> = ({
             >
               <FaRedo />
             </button>
-            <button className="admin-close-btn" onClick={onClose}>
+            <button className="admin-close-btn" onClick={handleHeaderClose}>
               <FaTimes />
             </button>
           </div>
@@ -199,8 +226,12 @@ const RealDashboard: React.FC<RealDashboardProps> = ({
                 </span>
                 <span className="user-role">Administrador</span>
               </div>
-              <button className="logout-btn" onClick={handleLogout}>
-                <FaUserShield />
+              <button
+                className="logout-btn"
+                onClick={handleCloseModal}
+                title="Cerrar Panel"
+              >
+                <FaTimes />
               </button>
             </div>
           </div>

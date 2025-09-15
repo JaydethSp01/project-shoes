@@ -10,7 +10,9 @@ import co.edu.TekashiShoes.repositorios.ProductoRepositorio;
 import co.edu.TekashiShoes.dominio.Producto;
 import co.edu.TekashiShoes.dominio.TipoProducto;
 import co.edu.TekashiShoes.dominio.Imagen;
+import co.edu.TekashiShoes.controladores.AdminController;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.util.Collections;
 
 import java.io.BufferedReader;
@@ -27,7 +29,7 @@ public class ServidorHttp {
     public static void main(String[] args) throws IOException {
         HttpServer servidor = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        // Crear controladores para productos, tipos de productos, imágenes, usuarios, favoritos, wishlists y notificaciones
+        // Crear controladores para productos, tipos de productos, imágenes, usuarios, favoritos, wishlists, notificaciones y admin
         ProductoControlador productoControlador = new ProductoControlador();
         TipoProductoControlador tipoProductoControlador = new TipoProductoControlador();
         ImagenControlador imagenControlador = new ImagenControlador();
@@ -35,6 +37,7 @@ public class ServidorHttp {
         FavoritoControlador favoritoControlador = new FavoritoControlador();
         WishlistControlador wishlistControlador = new WishlistControlador();
         NotificacionControlador notificacionControlador = new NotificacionControlador();
+        AdminControlador adminControlador = new AdminControlador();
 
         // Rutas de la API
         servidor.createContext("/producto", productoControlador);
@@ -44,6 +47,7 @@ public class ServidorHttp {
         servidor.createContext("/favoritos", favoritoControlador);
         servidor.createContext("/wishlists", wishlistControlador);
         servidor.createContext("/notificaciones", notificacionControlador);
+        servidor.createContext("/admin", adminControlador);
 
         // Iniciar servidor
         servidor.setExecutor(null);
@@ -57,21 +61,33 @@ abstract class BaseControlador implements HttpHandler {
     protected Gson gson = new Gson();
 
     protected void manejarOptions(HttpExchange intercambio) throws IOException {
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
         intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-        enviarRespuesta(intercambio, 204, "");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        intercambio.getResponseHeaders().add("Access-Control-Max-Age", "86400");
+        intercambio.sendResponseHeaders(204, -1);
     }
 
     protected void enviarRespuesta(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
         intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
-        intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
-        try (OutputStream os = intercambio.getResponseBody()) {
-            os.write(mensaje.getBytes());
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        intercambio.getResponseHeaders().add("Content-Type", "application/json");
+        
+        if (mensaje == null || mensaje.isEmpty()) {
+            intercambio.sendResponseHeaders(codigo, -1);
+        } else {
+            intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
+            try (OutputStream os = intercambio.getResponseBody()) {
+                os.write(mensaje.getBytes());
+            }
         }
     }
 
     protected void enviarError(HttpExchange intercambio, int codigo, String mensaje) throws IOException {
         intercambio.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:5173");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        intercambio.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
         intercambio.getResponseHeaders().add("Content-Type", "application/json");
         intercambio.sendResponseHeaders(codigo, mensaje.getBytes().length);
         try (OutputStream os = intercambio.getResponseBody()) {
@@ -249,7 +265,146 @@ class ProductoControlador extends BaseControlador {
             e.printStackTrace();
             enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
         }
-    } 
+    }
+}
+
+// Controlador para funcionalidades de administración
+class AdminControlador extends BaseControlador {
+    private AdminController adminController;
+    private Gson gson;
+
+    public AdminControlador() {
+        this.adminController = new AdminController();
+        this.gson = new Gson();
+    }
+
+    @Override
+    public void handle(HttpExchange intercambio) throws IOException {
+        String method = intercambio.getRequestMethod();
+        String path = intercambio.getRequestURI().getPath();
+
+        if ("OPTIONS".equals(method)) {
+            manejarOptions(intercambio);
+            return;
+        }
+
+        try {
+            switch (method) {
+                case "GET":
+                    manejarGet(intercambio, path);
+                    break;
+                case "POST":
+                    manejarPost(intercambio, path);
+                    break;
+                case "DELETE":
+                    manejarDelete(intercambio, path);
+                    break;
+                default:
+                    enviarError(intercambio, 405, "Método no permitido");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            enviarError(intercambio, 500, "Error interno del servidor: " + e.getMessage());
+        }
+    }
+
+    private void manejarGet(HttpExchange intercambio, String path) throws IOException {
+        if (path.equals("/admin/notifications")) {
+            String response = adminController.obtenerNotificacionesAdmin();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/stats")) {
+            String response = adminController.verEstadisticasBaseDatos();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/system-info")) {
+            String response = adminController.obtenerInformacionSistema();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/logs")) {
+            String response = adminController.verLogs();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/users")) {
+            String response = adminController.obtenerListaUsuarios();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/products")) {
+            String response = adminController.obtenerListaProductos();
+            enviarRespuesta(intercambio, 200, response);
+        } else {
+            enviarError(intercambio, 404, "Endpoint no encontrado");
+        }
+    }
+
+    private void manejarPost(HttpExchange intercambio, String path) throws IOException {
+        String requestBody = new BufferedReader(new InputStreamReader(intercambio.getRequestBody()))
+                .lines().collect(Collectors.joining("\n"));
+
+        if (path.equals("/admin/backup")) {
+            String response = adminController.respaldarBaseDatos();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/optimize")) {
+            String response = adminController.optimizarBaseDatos();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/create-user")) {
+            // Parsear JSON del request body
+            JsonObject json = gson.fromJson(requestBody, JsonObject.class);
+            String nombre = json.get("nombre").getAsString();
+            String email = json.get("email").getAsString();
+            String password = json.get("password").getAsString();
+            String role = json.get("role").getAsString();
+            
+            String response = adminController.crearUsuario(nombre, email, password, role);
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/delete-user")) {
+            JsonObject json = gson.fromJson(requestBody, JsonObject.class);
+            int userId = json.get("userId").getAsInt();
+            
+            String response = adminController.eliminarUsuario(userId);
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/update-role")) {
+            JsonObject json = gson.fromJson(requestBody, JsonObject.class);
+            int userId = json.get("userId").getAsInt();
+            String newRole = json.get("newRole").getAsString();
+            
+            String response = adminController.gestionarRoles(userId, newRole);
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/import-products")) {
+            String response = adminController.importarProductos(requestBody);
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/export-catalog")) {
+            String response = adminController.exportarCatalogo();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/mark-notification-read")) {
+            JsonObject json = gson.fromJson(requestBody, JsonObject.class);
+            int activityId = json.get("activityId").getAsInt();
+            
+            String response = adminController.marcarNotificacionLeida(activityId);
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/mark-all-notifications-read")) {
+            String response = adminController.marcarTodasNotificacionesLeidas();
+            enviarRespuesta(intercambio, 200, response);
+        } else if (path.equals("/admin/delete-product")) {
+            JsonObject json = gson.fromJson(requestBody, JsonObject.class);
+            int productId = json.get("productId").getAsInt();
+            
+            String response = adminController.eliminarProducto(productId);
+            enviarRespuesta(intercambio, 200, response);
+        } else {
+            enviarError(intercambio, 404, "Endpoint no encontrado");
+        }
+    }
+
+    private void manejarDelete(HttpExchange intercambio, String path) throws IOException {
+        String[] pathParts = path.split("/");
+        if (pathParts.length >= 4 && pathParts[2].equals("user")) {
+            int userId = Integer.parseInt(pathParts[3]);
+            String response = adminController.eliminarUsuario(userId);
+            enviarRespuesta(intercambio, 200, response);
+        } else if (pathParts.length >= 4 && pathParts[2].equals("product")) {
+            int productId = Integer.parseInt(pathParts[3]);
+            String response = adminController.eliminarProducto(productId);
+            enviarRespuesta(intercambio, 200, response);
+        } else {
+            enviarError(intercambio, 404, "Endpoint no encontrado");
+        }
+    }
 }
 
 // Controlador de TipoProducto
