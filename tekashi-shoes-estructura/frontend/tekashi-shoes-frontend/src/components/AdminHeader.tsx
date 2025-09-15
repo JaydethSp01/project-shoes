@@ -1,67 +1,72 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaBell, FaTimes } from "react-icons/fa";
 import { notificationService } from "../services/NotificationService";
 import "../styles/AdminHeader.css";
 
+// Definir interfaces al inicio del archivo
+interface AdminNotification {
+  id: number;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
+  data?: Record<string, unknown>;
+  user_name?: string;
+  user_email?: string;
+}
+
+interface BackendNotification {
+  id_activity: number;
+  notification_title: string;
+  activity_description: string;
+  activity_type: string;
+  is_read: boolean;
+  created_at: string;
+  metadata?: string;
+  user_name?: string;
+  user_email?: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: BackendNotification[];
+  message?: string;
+}
+
 const AdminHeader: React.FC = () => {
-  const [notificationCount, setNotificationCount] = useState(0);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notificationCount, setNotificationCount] = useState<number>(0);
+  const [showNotifications, setShowNotifications] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Suscribirse a cambios de notificaciones
-    const unsubscribeNotifications = notificationService.subscribe(
-      (notifications) => {
-        setNotifications(notifications);
-        const unreadCount = notifications.filter((n) => !n.isRead).length;
-        setNotificationCount(unreadCount);
-      }
-    );
-
-    // Cargar notificaciones iniciales
-    loadNotifications();
-
-    return () => {
-      unsubscribeNotifications();
-    };
-  }, []);
-
-  const loadNotifications = async () => {
+  // Función para cargar notificaciones desde el backend
+  const loadAdminNotifications = useCallback(async (): Promise<
+    AdminNotification[]
+  > => {
     try {
-      // Cargar notificaciones del sistema para admin
-      const adminNotifications = await loadAdminNotifications();
-      setNotifications(adminNotifications);
-      const unreadCount = adminNotifications.filter(
-        (n: { isRead: boolean }) => !n.isRead
-      ).length;
-      setNotificationCount(unreadCount);
-    } catch (error) {
-      console.error("Error loading admin notifications:", error);
-    }
-  };
+      setIsLoading(true);
+      const response = await fetch(
+        "http://localhost:8080/admin/notifications",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            // Agregar headers de autenticación si es necesario
+            // 'Authorization': `Bearer ${token}`
+          },
+        }
+      );
 
-  const loadAdminNotifications = async () => {
-    try {
-      // Cargar notificaciones reales desde el backend
-      const response = await fetch("http://localhost:8080/admin/notifications");
       if (!response.ok) {
-        throw new Error("Error al cargar notificaciones");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
+
       if (result.success && result.data) {
         return result.data.map(
-          (notification: {
-            id_activity: number;
-            notification_title: string;
-            activity_description: string;
-            activity_type: string;
-            is_read: boolean;
-            created_at: string;
-            metadata?: string;
-            user_name?: string;
-            user_email?: string;
-          }) => ({
+          (notification: BackendNotification): AdminNotification => ({
             id: notification.id_activity,
             title: notification.notification_title,
             message: notification.activity_description,
@@ -80,92 +85,198 @@ const AdminHeader: React.FC = () => {
       return [];
     } catch (error) {
       console.error("Error loading admin notifications:", error);
+      // Aquí podrías mostrar una notificación de error al usuario
       return [];
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  type AdminNotification = {
-    id: number;
-    title: string;
-    message: string;
-    type: string;
-    isRead: boolean;
-    createdAt: string;
-    data?: Record<string, unknown>;
-    user_name?: string;
-    user_email?: string;
-  };
+  // Función principal para cargar notificaciones
+  const loadNotifications = useCallback(async () => {
+    try {
+      const adminNotifications = await loadAdminNotifications();
+      setNotifications(adminNotifications);
+      const unreadCount = adminNotifications.filter((n) => !n.isRead).length;
+      setNotificationCount(unreadCount);
+    } catch (error) {
+      console.error("Error loading notifications:", error);
+    }
+  }, [loadAdminNotifications]);
+
+  useEffect(() => {
+    let unsubscribeNotifications: (() => void) | undefined;
+
+    // Verificar si notificationService existe y tiene el método subscribe
+    if (
+      notificationService &&
+      typeof notificationService.subscribe === "function"
+    ) {
+      unsubscribeNotifications = notificationService.subscribe(
+        (notifications: AdminNotification[]) => {
+          setNotifications(notifications);
+          const unreadCount = notifications.filter((n) => !n.isRead).length;
+          setNotificationCount(unreadCount);
+        }
+      );
+    }
+
+    // Cargar notificaciones iniciales
+    loadNotifications();
+
+    return () => {
+      if (unsubscribeNotifications) {
+        unsubscribeNotifications();
+      }
+    };
+  }, [loadNotifications]);
 
   const handleNotificationClick = async (notification: AdminNotification) => {
     if (!notification.isRead) {
       try {
-        // Marcar como leída en el backend
-        await fetch("http://localhost:8080/admin/mark-notification-read", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            activityId: notification.id,
-          }),
-        });
-
-        // Actualizar estado local
-        setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === notification.id ? { ...n, isRead: true } : n
-          )
+        const response = await fetch(
+          "http://localhost:8080/admin/mark-notification-read",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              // Agregar headers de autenticación si es necesario
+            },
+            body: JSON.stringify({
+              activityId: notification.id,
+            }),
+          }
         );
-        setNotificationCount((prev) => Math.max(0, prev - 1));
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Actualizar estado local solo si la operación fue exitosa
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === notification.id ? { ...n, isRead: true } : n
+            )
+          );
+          setNotificationCount((prev) => Math.max(0, prev - 1));
+        }
       } catch (error) {
         console.error("Error marking notification as read:", error);
+        // Aquí podrías mostrar una notificación de error al usuario
       }
     }
   };
 
   const handleMarkAllAsRead = async () => {
     try {
-      // Marcar todas como leídas en el backend
-      await fetch("http://localhost:8080/admin/mark-all-notifications-read", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "http://localhost:8080/admin/mark-all-notifications-read",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Agregar headers de autenticación si es necesario
+          },
+        }
+      );
 
-      // Actualizar estado local
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setNotificationCount(0);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Actualizar estado local solo si la operación fue exitosa
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        setNotificationCount(0);
+      }
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
+      // Aquí podrías mostrar una notificación de error al usuario
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formatDate = (dateString: string): string => {
+    try {
+      return new Date(dateString).toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString; // Retornar la fecha original si hay error
+    }
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "order":
-        return "🛒";
-      case "stock":
-        return "📦";
-      case "user":
-        return "👤";
-      case "payment":
-        return "💳";
-      case "system":
-        return "⚙️";
-      default:
-        return "🔔";
+  const getNotificationIcon = (type: string): string => {
+    const iconMap: Record<string, string> = {
+      order: "🛒",
+      stock: "📦",
+      user: "👤",
+      payment: "💳",
+      system: "⚙️",
+    };
+
+    return iconMap[type] || "🔔";
+  };
+
+  const handleToggleNotifications = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("Toggle notifications:", !showNotifications);
+    setShowNotifications(!showNotifications);
+  };
+
+  const handleCloseNotifications = () => {
+    setShowNotifications(false);
+  };
+
+  const renderNotificationData = (notification: AdminNotification) => {
+    if (!notification.data) return null;
+
+    const dataItems: JSX.Element[] = [];
+
+    if (notification.type === "order" && notification.data.orderId) {
+      dataItems.push(
+        <span key="order" className="data-item">
+          Orden: {notification.data.orderId}
+        </span>
+      );
     }
+
+    if (notification.type === "stock") {
+      dataItems.push(
+        <span key="stock" className="data-item">
+          Stock: {notification.data.stock || "Agotado"}
+        </span>
+      );
+    }
+
+    if (notification.type === "user" && notification.data.userName) {
+      dataItems.push(
+        <span key="user" className="data-item">
+          Usuario: {notification.data.userName}
+        </span>
+      );
+    }
+
+    if (notification.type === "payment" && notification.data.paymentId) {
+      dataItems.push(
+        <span key="payment" className="data-item">
+          Pago: {notification.data.paymentId}
+        </span>
+      );
+    }
+
+    return dataItems.length > 0 ? (
+      <div className="notification-data">{dataItems}</div>
+    ) : null;
   };
 
   return (
@@ -175,12 +286,9 @@ const AdminHeader: React.FC = () => {
         <div className="notification-container">
           <button
             className="notification-btn admin-notification-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log("Toggle notifications:", !showNotifications);
-              setShowNotifications(!showNotifications);
-            }}
+            onClick={handleToggleNotifications}
             title="Notificaciones del Sistema"
+            aria-label={`Notificaciones del Sistema (${notificationCount} sin leer)`}
           >
             <FaBell />
             {notificationCount > 0 && (
@@ -201,13 +309,15 @@ const AdminHeader: React.FC = () => {
                     <button
                       className="mark-all-read-btn"
                       onClick={handleMarkAllAsRead}
+                      disabled={isLoading}
                     >
                       Marcar todas como leídas
                     </button>
                   )}
                   <button
                     className="close-notifications-btn"
-                    onClick={() => setShowNotifications(false)}
+                    onClick={handleCloseNotifications}
+                    aria-label="Cerrar notificaciones"
                   >
                     <FaTimes />
                   </button>
@@ -215,7 +325,11 @@ const AdminHeader: React.FC = () => {
               </div>
 
               <div className="notifications-list">
-                {notifications.length === 0 ? (
+                {isLoading ? (
+                  <div className="loading-notifications">
+                    <p>Cargando notificaciones...</p>
+                  </div>
+                ) : notifications.length === 0 ? (
                   <div className="no-notifications">
                     <p>No hay notificaciones del sistema</p>
                   </div>
@@ -227,6 +341,13 @@ const AdminHeader: React.FC = () => {
                         !notification.isRead ? "unread" : ""
                       }`}
                       onClick={() => handleNotificationClick(notification)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          handleNotificationClick(notification);
+                        }
+                      }}
                     >
                       <div className="notification-icon">
                         {getNotificationIcon(notification.type)}
@@ -237,33 +358,13 @@ const AdminHeader: React.FC = () => {
                         <span className="notification-date">
                           {formatDate(notification.createdAt)}
                         </span>
-                        {notification.data && (
-                          <div className="notification-data">
-                            {notification.type === "order" && (
-                              <span className="data-item">
-                                Orden: {notification.data.orderId}
-                              </span>
-                            )}
-                            {notification.type === "stock" && (
-                              <span className="data-item">
-                                Stock: {notification.data.stock || "Agotado"}
-                              </span>
-                            )}
-                            {notification.type === "user" && (
-                              <span className="data-item">
-                                Usuario: {notification.data.userName}
-                              </span>
-                            )}
-                            {notification.type === "payment" && (
-                              <span className="data-item">
-                                Pago: {notification.data.paymentId}
-                              </span>
-                            )}
-                          </div>
-                        )}
+                        {renderNotificationData(notification)}
                       </div>
                       {!notification.isRead && (
-                        <div className="unread-indicator"></div>
+                        <div
+                          className="unread-indicator"
+                          aria-hidden="true"
+                        ></div>
                       )}
                     </div>
                   ))
@@ -278,7 +379,7 @@ const AdminHeader: React.FC = () => {
       {showNotifications && (
         <div
           className="notifications-overlay"
-          onClick={() => setShowNotifications(false)}
+          onClick={handleCloseNotifications}
         />
       )}
     </div>
