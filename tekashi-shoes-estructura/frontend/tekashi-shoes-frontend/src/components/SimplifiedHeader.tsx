@@ -17,11 +17,11 @@ interface Notification {
   data?: Record<string, unknown>;
 }
 
-interface CartItem {
-  id: number;
-  quantity: number;
-  [key: string]: unknown;
-}
+// interface CartItem {
+//   id: number;
+//   quantity: number;
+//   [key: string]: unknown;
+// }
 
 interface SimplifiedHeaderProps {
   onCartOpen: () => void;
@@ -39,11 +39,9 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
     try {
       setIsLoading(true);
       const userNotifications = await notificationService.getNotifications();
-      setNotifications(userNotifications);
+      setNotifications(userNotifications as any);
       // Usar tanto 'read' como 'isRead' para compatibilidad
-      const unreadCount = userNotifications.filter(
-        (n) => !n.read && !n.isRead
-      ).length;
+      const unreadCount = userNotifications.filter((n) => !n.read).length;
       setNotificationCount(unreadCount);
     } catch (error) {
       console.error("Error loading notifications:", error);
@@ -58,7 +56,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
 
     // Verificar si los servicios existen antes de suscribirse
     if (cartService && typeof cartService.subscribe === "function") {
-      unsubscribeCart = cartService.subscribe((cart: CartItem[]) => {
+      unsubscribeCart = cartService.subscribe((cart: any[]) => {
         const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
         setCartItemCount(totalItems);
       });
@@ -69,12 +67,10 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
       typeof notificationService.subscribe === "function"
     ) {
       unsubscribeNotifications = notificationService.subscribe(
-        (notifications: Notification[]) => {
+        (notifications: any[]) => {
           setNotifications(notifications);
           // Usar tanto 'read' como 'isRead' para compatibilidad
-          const unreadCount = notifications.filter(
-            (n) => !n.read && !n.isRead
-          ).length;
+          const unreadCount = notifications.filter((n) => !n.read).length;
           setNotificationCount(unreadCount);
         }
       );
@@ -96,7 +92,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.isRead && !notification.read) {
       try {
-        await notificationService.markAsRead(notification.id);
+        await notificationService.markAsRead(notification.id.toString());
         // Actualizar estado local
         setNotifications((prev) =>
           prev.map((n) =>
@@ -119,7 +115,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
       // Marcar todas como leídas
       await Promise.all(
         unreadNotifications.map((notification) =>
-          notificationService.markAsRead(notification.id)
+          notificationService.markAsRead(notification.id.toString())
         )
       );
 
@@ -283,3 +279,4 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
 };
 
 export default SimplifiedHeader;
+

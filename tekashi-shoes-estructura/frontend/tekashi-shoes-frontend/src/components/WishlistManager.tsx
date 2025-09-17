@@ -11,7 +11,6 @@ import {
   FaCheck,
   FaHeart,
   FaShare,
-  FaCopy,
 } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
 import { dashboardService, Wishlist } from "../services/DashboardService";
@@ -38,9 +37,10 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingWishlist, setEditingWishlist] = useState<Wishlist | null>(null);
-  
+
   // Hook para alertas bonitas
-  const { alertState, showSuccess, showError, showConfirm, hideAlert } = useBeautifulAlert();
+  const { alertState, showSuccess, showError, showConfirm, hideAlert } =
+    useBeautifulAlert();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -142,10 +142,16 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
           if (selectedWishlist?.id === wishlistId) {
             setSelectedWishlist(null);
           }
-          showSuccess("✅ Lista Eliminada", "La lista de deseos ha sido eliminada exitosamente.");
+          showSuccess(
+            "✅ Lista Eliminada",
+            "La lista de deseos ha sido eliminada exitosamente."
+          );
         } catch (err) {
           console.error("Error deleting wishlist:", err);
-          showError("❌ Error", "Error al eliminar la lista de deseos. Intenta nuevamente.");
+          showError(
+            "❌ Error",
+            "Error al eliminar la lista de deseos. Intenta nuevamente."
+          );
         }
       },
       "Eliminar",
@@ -387,7 +393,7 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
                                       onClick={() =>
                                         handleRemoveFromWishlist(
                                           selectedWishlist.id,
-                                          product.id
+                                          product.id || 0
                                         )
                                       }
                                       title="Eliminar de la lista"

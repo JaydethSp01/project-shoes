@@ -6,7 +6,6 @@ import {
   FaEye,
   FaShoppingCart,
   FaSpinner,
-  FaPlus,
   FaMinus,
   FaTimes,
   FaCheck,

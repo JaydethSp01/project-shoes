@@ -10,12 +10,6 @@ import {
   FaTruck,
   FaGift,
   FaStar,
-  FaUser,
-  FaPhone,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaCalendarAlt,
-  FaDownload,
   FaFilePdf,
 } from "react-icons/fa";
 import jsPDF from "jspdf";
@@ -27,6 +21,7 @@ import {
   OrderInfo,
 } from "../services/CartService";
 import { authService } from "../services/AuthService";
+import { useGeolocation } from "../hooks/useGeolocation";
 // import PaymentSystem from "./PaymentSystem"; // Ya no se usa
 
 interface CheckoutFormProps {
@@ -70,6 +65,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [loyaltyPointsUsed, setLoyaltyPointsUsed] = useState(0);
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Hook para geolocalización
+  const {
+    // location,
+    address,
+    error: _locationError,
+    getCurrentLocation,
+  } = useGeolocation();
 
   const steps = [
     { id: 1, title: "Envío", icon: FaTruck },
@@ -212,28 +215,27 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       }
 
       // Crear datos de pago simulados
-      const paymentData = {
-        method: paymentInfo.method,
-        amount: finalTotal,
-        transactionId: `TK${Date.now()}${Math.random()
-          .toString(36)
-          .substr(2, 5)}`,
-        timestamp: new Date().toISOString(),
-        cardData:
-          paymentInfo.method === "credit_card"
-            ? {
-                lastFour: paymentInfo.cardNumber?.slice(-4),
-                type: getCardType(paymentInfo.cardNumber),
-              }
-            : null,
-      };
+      // const paymentData = {
+      //   method: paymentInfo.method,
+      //   amount: finalTotal,
+      //   transactionId: `TK${Date.now()}${Math.random()
+      //     .toString(36)
+      //     .substr(2, 5)}`,
+      //   timestamp: new Date().toISOString(),
+      //   cardData:
+      //     paymentInfo.method === "credit_card"
+      //       ? {
+      //           lastFour: paymentInfo.cardNumber?.slice(-4),
+      //           type: getCardType(paymentInfo.cardNumber || ""),
+      //         }
+      //       : null,
+      // };
 
       // Procesar el pedido
       const order = await cartService.processOrder(
         shippingAddress,
         paymentInfo,
-        loyaltyPointsUsed,
-        paymentData
+        loyaltyPointsUsed
       );
 
       setPaymentSuccess(true);
@@ -253,13 +255,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     }
   };
 
-  const getCardType = (number: string): string => {
-    const num = number.replace(/\s/g, "");
-    if (num.startsWith("4")) return "Visa";
-    if (num.startsWith("5") || num.startsWith("2")) return "Mastercard";
-    if (num.startsWith("3")) return "American Express";
-    return "Unknown";
-  };
+  // const getCardType = (number: string): string => {
+  //   const num = number.replace(/\s/g, "");
+  //   if (num.startsWith("4")) return "Visa";
+  //   if (num.startsWith("5") || num.startsWith("2")) return "Mastercard";
+  //   if (num.startsWith("3")) return "American Express";
+  //   return "Unknown";
+  // };
 
   // Generar número de pedido único
   const generateOrderNumber = (): string => {
@@ -453,7 +455,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <div className="checkout-content">
           {/* Progress Steps */}
           <div className="checkout-steps">
-            {steps.map((step, index) => {
+            {steps.map((step) => {
               const Icon = step.icon;
               const isActive = currentStep === step.id;
               const isCompleted = currentStep > step.id;
@@ -526,14 +528,39 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div className="form-group">
                     <label>Dirección *</label>
-                    <input
-                      type="text"
-                      value={shippingAddress.address}
-                      onChange={(e) =>
-                        handleShippingChange("address", e.target.value)
-                      }
-                      placeholder="Calle 123 #45-67"
-                    />
+                    <div className="address-input-group">
+                      <input
+                        type="text"
+                        value={shippingAddress.address}
+                        onChange={(e) =>
+                          handleShippingChange("address", e.target.value)
+                        }
+                        placeholder="Calle 123 #45-67"
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={async () => {
+                          try {
+                            await getCurrentLocation();
+                            if (address) {
+                              setShippingAddress((prev) => ({
+                                ...prev,
+                                address: address.address,
+                                city: address.city,
+                                country: address.country,
+                                postalCode: address.postalCode,
+                              }));
+                            }
+                          } catch (error) {
+                            console.error("Error obteniendo ubicación:", error);
+                          }
+                        }}
+                        disabled={false}
+                      >
+                        {"📍"} Usar mi ubicación
+                      </button>
+                    </div>
                   </div>
 
                   <div className="form-group">

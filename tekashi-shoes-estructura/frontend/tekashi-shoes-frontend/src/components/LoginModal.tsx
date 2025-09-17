@@ -10,6 +10,7 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import { authService, LoginCredentials } from "../services/AuthService";
+import { useTranslation } from "../hooks/useTranslation";
 import "../styles/AuthForms.css";
 
 interface LoginModalProps {
@@ -32,6 +33,9 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Hook para traducciones
+  const { t } = useTranslation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,7 +78,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
         <div className="auth-header">
           <div className="auth-title">
             <FaSignInAlt className="auth-icon" />
-            <h2>Iniciar Sesión</h2>
+            <h2>{t("auth.loginTitle")}</h2>
           </div>
           <button className="auth-close-btn" onClick={handleClose}>
             <FaTimes />
@@ -92,7 +96,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
             <div className="form-group">
               <label htmlFor="email">
                 <FaUser className="input-icon" />
-                Email
+                {t("auth.email")}
               </label>
               <input
                 type="email"
@@ -100,7 +104,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 name="email"
                 value={credentials.email}
                 onChange={handleInputChange}
-                placeholder="tu@email.com"
+                placeholder={t("auth.emailPlaceholder")}
                 required
                 disabled={isLoading}
                 className="form-input"
@@ -110,7 +114,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
             <div className="form-group">
               <label htmlFor="password">
                 <FaLock className="input-icon" />
-                Contraseña
+                {t("auth.password")}
               </label>
               <div className="password-input-container">
                 <input
@@ -139,12 +143,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
               {isLoading ? (
                 <>
                   <div className="spinner"></div>
-                  Iniciando sesión...
+                  {t("auth.loggingIn")}
                 </>
               ) : (
                 <>
                   <FaSignInAlt />
-                  Iniciar Sesión
+                  {t("auth.loginButton")}
                 </>
               )}
             </button>
@@ -152,21 +156,21 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
           <div className="auth-info">
             <div className="demo-accounts">
-              <h4>Cuentas de demostración:</h4>
+              <h4>{t("auth.demoAccounts")}</h4>
               <div className="demo-account">
                 <FaShoppingBag className="demo-icon user" />
                 <div>
-                  <strong>Usuario:</strong> user@tekashi.com
+                  <strong>{t("auth.user")}:</strong> user@tekashi.com
                   <br />
-                  <small>Contraseña: user123</small>
+                  <small>{t("auth.password")}: user123</small>
                 </div>
               </div>
               <div className="demo-account">
                 <FaUserShield className="demo-icon admin" />
                 <div>
-                  <strong>Admin:</strong> admin@tekashi.com
+                  <strong>{t("auth.admin")}:</strong> admin@tekashi.com
                   <br />
-                  <small>Contraseña: admin456</small>
+                  <small>{t("auth.password")}: admin456</small>
                 </div>
               </div>
             </div>
@@ -174,7 +178,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
           {onShowRegister && (
             <div className="auth-switch">
-              <p>¿No tienes cuenta?</p>
+              <p>{t("auth.noAccount")}</p>
               <button
                 className="auth-switch-btn"
                 onClick={() => {
@@ -182,7 +186,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                   onShowRegister();
                 }}
               >
-                Crear cuenta nueva
+                {t("auth.createNewAccount")}
               </button>
             </div>
           )}

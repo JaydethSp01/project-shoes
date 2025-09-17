@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   FaSearch,
-  FaFilter,
   FaTimes,
   FaChevronDown,
   FaChevronUp,
-  FaCheck,
   FaSlidersH,
   FaSpinner,
   FaHistory,
   FaFire,
   FaTag,
-  FaSortAmountDown,
-  FaSortAmountUp,
 } from "react-icons/fa";
 import { Product, TipoProducto } from "../modelos/productTypes";
 import {
@@ -165,7 +161,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 
   const clearFilters = () => {
     setFilters({
-      query: searchQuery,
+      query: searchQuery || undefined,
       minPrice: undefined,
       maxPrice: undefined,
       tipoProductoId: undefined,

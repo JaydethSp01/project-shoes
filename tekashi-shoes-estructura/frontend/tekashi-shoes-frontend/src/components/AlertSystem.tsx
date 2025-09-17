@@ -4,11 +4,6 @@ import {
   FaInfoCircle,
   FaCheckCircle,
   FaTimes,
-  FaBell,
-  FaGift,
-  FaTruck,
-  FaStar,
-  FaFire,
 } from "react-icons/fa";
 
 interface Alert {

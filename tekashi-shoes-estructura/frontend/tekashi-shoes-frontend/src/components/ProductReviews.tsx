@@ -40,7 +40,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
   const [showReviewForm, setShowReviewForm] = useState(false);
   
   // Hook para alertas bonitas
-  const { alertState, showSuccess, showError, hideAlert } = useBeautifulAlert();
+  const { alertState, showError, hideAlert } = useBeautifulAlert();
   const [averageRating, setAverageRating] = useState(0);
   const [ratingDistribution, setRatingDistribution] = useState<number[]>([
     0, 0, 0, 0, 0,

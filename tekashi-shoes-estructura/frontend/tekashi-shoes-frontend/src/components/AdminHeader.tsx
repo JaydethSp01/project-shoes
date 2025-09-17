@@ -113,7 +113,7 @@ const AdminHeader: React.FC = () => {
       typeof notificationService.subscribe === "function"
     ) {
       unsubscribeNotifications = notificationService.subscribe(
-        (notifications: AdminNotification[]) => {
+        (notifications: any[]) => {
           setNotifications(notifications);
           const unreadCount = notifications.filter((n) => !n.isRead).length;
           setNotificationCount(unreadCount);
@@ -245,7 +245,7 @@ const AdminHeader: React.FC = () => {
     if (notification.type === "order" && notification.data.orderId) {
       dataItems.push(
         <span key="order" className="data-item">
-          Orden: {notification.data.orderId}
+          Orden: {String(notification.data?.orderId || "N/A")}
         </span>
       );
     }
@@ -253,7 +253,7 @@ const AdminHeader: React.FC = () => {
     if (notification.type === "stock") {
       dataItems.push(
         <span key="stock" className="data-item">
-          Stock: {notification.data.stock || "Agotado"}
+          Stock: {String(notification.data?.stock || "Agotado")}
         </span>
       );
     }
@@ -261,7 +261,7 @@ const AdminHeader: React.FC = () => {
     if (notification.type === "user" && notification.data.userName) {
       dataItems.push(
         <span key="user" className="data-item">
-          Usuario: {notification.data.userName}
+          Usuario: {String(notification.data?.userName || "N/A")}
         </span>
       );
     }
@@ -269,7 +269,7 @@ const AdminHeader: React.FC = () => {
     if (notification.type === "payment" && notification.data.paymentId) {
       dataItems.push(
         <span key="payment" className="data-item">
-          Pago: {notification.data.paymentId}
+          Pago: {String(notification.data?.paymentId || "N/A")}
         </span>
       );
     }

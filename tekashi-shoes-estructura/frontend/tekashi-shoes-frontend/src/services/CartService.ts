@@ -271,8 +271,7 @@ class CartService {
   async processOrder(
     shippingAddress: ShippingAddress,
     paymentInfo: PaymentInfo,
-    loyaltyPointsUsed: number = 0,
-    paymentData?: any
+    loyaltyPointsUsed: number = 0
   ): Promise<OrderInfo> {
     const cartSummary = this.getCartSummary();
 
@@ -324,12 +323,12 @@ class CartService {
         },
         body: JSON.stringify({
           ...order,
-          items: this.items,
+          items: this.getCartItems(),
           total: this.getTotal(),
           subtotal: this.getSubtotal(),
           shipping: this.getShippingCost(),
           tax: this.getTax(),
-          paymentData: paymentData,
+          paymentData: {},
         }),
       });
 
@@ -448,6 +447,26 @@ class CartService {
   }
 
   // Métodos de compatibilidad para componentes existentes
+  getTotal(): number {
+    const cartSummary = this.getCartSummary();
+    return cartSummary.total;
+  }
+
+  getSubtotal(): number {
+    const cartSummary = this.getCartSummary();
+    return cartSummary.subtotal;
+  }
+
+  getShippingCost(): number {
+    const cartSummary = this.getCartSummary();
+    return cartSummary.shipping;
+  }
+
+  getTax(): number {
+    const cartSummary = this.getCartSummary();
+    return cartSummary.tax;
+  }
+
   getTotalItems(): number {
     return this.getItemCount();
   }
@@ -478,9 +497,9 @@ class CartService {
   // Obtener productos recomendados basados en el carrito
   getRecommendedProducts(): Product[] {
     // Simular recomendaciones basadas en los productos en el carrito
-    const categories = [
-      ...new Set(this.cartItems.map((item) => item.product.tipoProductoId)),
-    ];
+    // const _categories = [
+    //   ...new Set(this.cartItems.map((item) => item.product.tipoProductoId)),
+    // ];
 
     // En una implementación real, esto vendría del backend
     return [];

@@ -159,7 +159,7 @@ class NotificationService {
     try {
       const products = await ConexionApiBackend.obtenerProductos();
       const lowStockProducts = products.filter(
-        (p) => p.stock > 0 && p.stock <= 5
+        (p: any) => p.stock > 0 && p.stock <= 5
       );
 
       if (lowStockProducts.length > 0 && Math.random() < 0.3) {
@@ -240,6 +240,24 @@ class NotificationService {
       type: "info",
       title: "Búsqueda completada",
       message: `Se encontraron ${resultsCount} productos para "${searchTerm}"`,
+    });
+  }
+
+  showNotification(
+    message: string,
+    type: "success" | "error" | "warning" | "info" = "info"
+  ) {
+    this.addNotification({
+      type,
+      title:
+        type === "success"
+          ? "Éxito"
+          : type === "error"
+          ? "Error"
+          : type === "warning"
+          ? "Advertencia"
+          : "Información",
+      message,
     });
   }
 }

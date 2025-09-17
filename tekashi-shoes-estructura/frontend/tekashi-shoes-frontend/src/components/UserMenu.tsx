@@ -3,17 +3,11 @@ import {
   FaUser,
   FaSignOutAlt,
   FaCog,
-  FaHeart,
   FaShoppingBag,
-  FaHistory,
-  FaGift,
-  FaTrophy,
   FaChevronDown,
   FaChevronUp,
   FaHome,
-  FaShoppingCart,
   FaPhone,
-  FaEnvelope,
 } from "react-icons/fa";
 
 interface UserMenuProps {
@@ -32,12 +26,9 @@ const UserMenu: React.FC<UserMenuProps> = ({
   user,
   onLogout,
   onShowDashboard,
-  onShowCart,
   onShowLogin,
   onShowRegister,
   onShowAdminPanel,
-  cartItemCount,
-  cartTotal,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);

@@ -33,6 +33,7 @@ import { Product, TipoProducto } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import { cartService } from "../services/CartService";
 import { notificationService } from "../services/NotificationService";
+import { useGeolocation } from "../hooks/useGeolocation";
 import "../styles/UserDashboard.css";
 import "../styles/UserMenu.css";
 import "../styles/AdminPanel.css";
@@ -42,6 +43,7 @@ import "../styles/CheckoutForm.css";
 import "../styles/FavoritesManager.css";
 import "../styles/WishlistManager.css";
 import "../styles/Pagination.css";
+import "../styles/LocationBanner.css";
 
 const Home = () => {
   // const {
@@ -92,6 +94,13 @@ const Home = () => {
   // const [searchResults, setSearchResults] = useState<Product[]>([]);
   // const [totalSearchResults, setTotalSearchResults] = useState(0);
 
+  // Hook para geolocalización
+  const {
+    location,
+    error: _locationError,
+    getCurrentLocation,
+  } = useGeolocation();
+
   // Función para cargar productos
   const loadProducts = async () => {
     try {
@@ -110,6 +119,20 @@ const Home = () => {
   // Cargar productos
   useEffect(() => {
     loadProducts();
+  }, []);
+
+  // Obtener ubicación del usuario al cargar la página
+  useEffect(() => {
+    const initializeLocation = async () => {
+      try {
+        await getCurrentLocation();
+      } catch (error) {
+        console.log("No se pudo obtener la ubicación del usuario:", error);
+        // No es crítico si no se puede obtener la ubicación
+      }
+    };
+
+    initializeLocation();
   }, []);
 
   // Cargar imágenes de productos
@@ -184,7 +207,10 @@ const Home = () => {
       if (currentUser) {
         try {
           const userFavorites =
-            await ConexionApiBackend.obtenerFavoritosUsuario(currentUser.id);
+            await ConexionApiBackend.obtenerFavoritosUsuario({
+              pagina: 1,
+              limite: 100,
+            });
           const favoriteIds = userFavorites.map(
             (fav: { productoId: number }) => fav.productoId
           );
@@ -276,12 +302,17 @@ const Home = () => {
     try {
       if (isCurrentlyFavorite) {
         // Remover de favoritos
-        await ConexionApiBackend.removerDeFavoritos(currentUser.id, productId);
+        await ConexionApiBackend.removerDeFavoritos(currentUser.id.toString());
         setFavorites((prev) => prev.filter((id) => id !== productId));
         notificationService.favoriteNotification(product.marca, false);
       } else {
         // Agregar a favoritos
-        await ConexionApiBackend.agregarAFavoritos(currentUser.id, productId);
+        await ConexionApiBackend.agregarAFavoritos(productId.toString(), {
+          notas: "Favorito agregado desde la página principal",
+          prioridad: 1,
+          notificarOferta: true,
+          notificarStock: true,
+        });
         setFavorites((prev) => [...prev, productId]);
         notificationService.favoriteNotification(product.marca, true);
       }
@@ -501,7 +532,7 @@ const Home = () => {
                     try {
                       const productosFiltrados =
                         await ConexionApiBackend.obtenerProductosPorTipo(
-                          tipo.idTipoProducto
+                          tipo.idTipoProducto.toString()
                         );
                       setFilteredProducts(productosFiltrados);
                     } catch (error) {
@@ -520,6 +551,45 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Location Banner */}
+      {location && (
+        <section className="location-banner">
+          <div className="container">
+            <div className="location-info">
+              <div className="location-icon">📍</div>
+              <div className="location-details">
+                <h4>Ubicación Detectada</h4>
+                <p>
+                  Estamos entregando en tu área. Tiempo de entrega estimado: 2-3
+                  días hábiles.
+                </p>
+                {location && (
+                  <small>
+                    Coordenadas: {location.latitude.toFixed(4)},{" "}
+                    {location.longitude.toFixed(4)}
+                  </small>
+                )}
+              </div>
+              <div className="location-actions">
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={async () => {
+                    try {
+                      await getCurrentLocation();
+                      alert(`Dirección obtenida exitosamente`);
+                    } catch (error) {
+                      console.error("Error obteniendo dirección:", error);
+                    }
+                  }}
+                >
+                  Ver Dirección
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Productos */}
       <section className="products-section">

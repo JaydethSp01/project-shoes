@@ -7,11 +7,10 @@ import {
   FaTrash,
   FaCreditCard,
   FaTruck,
-  FaSpinner,
 } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
 import { cartService, CartItem } from "../services/CartService";
-import { authService } from "../services/AuthService";
+// import { authService } from "../services/AuthService";
 import CheckoutForm from "./CheckoutForm";
 import ProductImage from "./ProductImage";
 import BeautifulAlert from "./BeautifulAlert";
@@ -29,17 +28,15 @@ interface ShoppingCartProps {
 const ShoppingCart: React.FC<ShoppingCartProps> = ({
   isOpen,
   onClose,
-  products,
   images,
   onShowCheckout,
 }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  // const [isCheckingOut] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
   // Hook para alertas bonitas
-  const { alertState, showSuccess, showError, showWarning, hideAlert } =
-    useBeautifulAlert();
+  const { alertState, hideAlert } = useBeautifulAlert();
 
   useEffect(() => {
     // Suscribirse al servicio del carrito
@@ -65,28 +62,28 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     cartService.clearCart();
   };
 
-  const handleCheckout = async () => {
-    // Verificar si el usuario está logueado
-    const currentUser = authService.getCurrentUser();
-    if (!currentUser) {
-      showWarning(
-        "🔐 Inicio de Sesión Requerido",
-        "Debes iniciar sesión para proceder con el pago. Haz clic en 'Iniciar Sesión' en el menú superior."
-      );
-      return;
-    }
+  // const handleCheckout = async (_event?: any) => {
+  //   // Verificar si el usuario está logueado
+  //   const currentUser = authService.getCurrentUser();
+  //   if (!currentUser) {
+  //     showWarning(
+  //       "🔐 Inicio de Sesión Requerido",
+  //       "Debes iniciar sesión para proceder con el pago. Haz clic en 'Iniciar Sesión' en el menú superior."
+  //     );
+  //     return;
+  //   }
 
-    // Verificar que no sea un administrador intentando comprar
-    if (authService.isAdmin()) {
-      showWarning(
-        "⚠️ Acceso Restringido",
-        "Los administradores no pueden realizar compras. Usa una cuenta de usuario regular."
-      );
-      return;
-    }
+  //   // Verificar que no sea un administrador intentando comprar
+  //   if (authService.isAdmin()) {
+  //     showWarning(
+  //       "⚠️ Acceso Restringido",
+  //       "Los administradores no pueden realizar compras. Usa una cuenta de usuario regular."
+  //     );
+  //     return;
+  //   }
 
-    setShowCheckout(true);
-  };
+  //   setShowCheckout(true);
+  // };
 
   const handleCheckoutSuccess = () => {
     cartService.clearCart();
@@ -281,10 +278,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       {/* Formulario de Checkout */}
       {showCheckout && (
         <CheckoutForm
-          cartItems={cartItems}
-          total={getTotalWithShipping()}
+          isOpen={showCheckout}
           onClose={handleCheckoutClose}
-          onSuccess={handleCheckoutSuccess}
+          onOrderComplete={handleCheckoutSuccess}
         />
       )}
 

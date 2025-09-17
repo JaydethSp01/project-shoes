@@ -38,10 +38,12 @@ class AuthService {
   // Usuarios de prueba
   private users: User[] = [
     {
-      id: "1",
+      id: 1,
       name: "Usuario Cliente",
+      nombre: "Usuario Cliente",
       email: "user@tekashi.com",
       role: "user",
+      rol: "user",
       avatar: "/avatar-user.jpg",
       phone: "+57 300 123 4567",
       address: "Calle 123 #45-67, Bogotá",
@@ -54,10 +56,12 @@ class AuthService {
       favoriteCategories: ["Sneakers", "Running", "Casual"],
     },
     {
-      id: "2",
+      id: 2,
       name: "Administrador",
+      nombre: "Administrador",
       email: "admin@tekashi.com",
       role: "admin",
+      rol: "admin",
       avatar: "/avatar-admin.jpg",
       registrationDate: "2024-01-01",
       lastLogin: new Date().toISOString(),
@@ -266,7 +270,7 @@ class AuthService {
     // Permitir creación de usuarios durante el registro
     const newUser: User = {
       ...userData,
-      id: Date.now().toString(),
+      id: Date.now(),
     };
 
     this.users.push(newUser);
@@ -280,7 +284,7 @@ class AuthService {
       );
     }
 
-    const userIndex = this.users.findIndex((u) => u.id === id);
+    const userIndex = this.users.findIndex((u) => u.id === Number(id));
     if (userIndex === -1) {
       throw new Error("Usuario no encontrado");
     }
@@ -296,7 +300,7 @@ class AuthService {
       );
     }
 
-    const userIndex = this.users.findIndex((u) => u.id === id);
+    const userIndex = this.users.findIndex((u) => u.id === Number(id));
     if (userIndex === -1) {
       throw new Error("Usuario no encontrado");
     }
@@ -343,7 +347,7 @@ class AuthService {
     return discounts[level] || "5%";
   }
 
-  async addLoyaltyPoints(points: number, reason: string): Promise<void> {
+  async addLoyaltyPoints(points: number, _reason: string): Promise<void> {
     if (!this.isUser()) {
       throw new Error("Acceso denegado: se requiere ser usuario");
     }

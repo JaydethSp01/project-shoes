@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  FaFilter,
   FaTimes,
   FaChevronDown,
   FaChevronUp,
   FaSlidersH,
   FaSearch,
-  FaSort,
 } from "react-icons/fa";
 import { Product, TipoProducto } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
@@ -70,8 +68,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       // Eliminar duplicados de tipos de producto
       const uniqueTipos = tipos.filter(
-        (tipo, index, self) =>
-          index === self.findIndex((t) => t.nombre === tipo.nombre)
+        (tipo: any, index: number, self: any[]) =>
+          index === self.findIndex((t: any) => t.nombre === tipo.nombre)
       );
       setTiposProducto(uniqueTipos);
 
@@ -116,7 +114,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         inStock: filters.inStock || undefined,
       };
 
-      const result = await searchService.search(searchFilters);
+      const result = await searchService.search(searchFilters as any);
       onFilterChange(result.products);
     } catch (error) {
       console.error("Error applying filters:", error);

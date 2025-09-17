@@ -3,8 +3,6 @@ import {
   FaTimes,
   FaSave,
   FaSpinner,
-  FaUpload,
-  FaImage,
   FaDollarSign,
   FaBox,
   FaTag,
@@ -132,18 +130,20 @@ const ProductManagementModal: React.FC<ProductManagementModalProps> = ({
       if (product) {
         // Actualizar producto existente
         savedProduct = await ConexionApiBackend.actualizarProducto(
-          product.idProducto,
+          product.idProducto.toString(),
           productToSave
         );
         setSuccess("Producto actualizado exitosamente");
       } else {
         // Crear nuevo producto
-        savedProduct = await ConexionApiBackend.agregarProducto(productToSave);
+        savedProduct = await ConexionApiBackend.agregarProducto(
+          productToSave as any
+        );
         setSuccess("Producto creado exitosamente");
       }
 
       onProductSaved(savedProduct);
-      
+
       // Cerrar modal después de 1.5 segundos
       setTimeout(() => {
         onClose();
@@ -162,9 +162,7 @@ const ProductManagementModal: React.FC<ProductManagementModalProps> = ({
     <div className="product-management-overlay">
       <div className="product-management-modal">
         <div className="modal-header">
-          <h2>
-            {product ? "Editar Producto" : "Crear Nuevo Producto"}
-          </h2>
+          <h2>{product ? "Editar Producto" : "Crear Nuevo Producto"}</h2>
           <button className="close-btn" onClick={onClose}>
             <FaTimes />
           </button>
@@ -265,12 +263,17 @@ const ProductManagementModal: React.FC<ProductManagementModalProps> = ({
                 <label>Tipo de Producto *</label>
                 <select
                   value={productData.tipoProductoId}
-                  onChange={(e) => handleInputChange("tipoProductoId", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("tipoProductoId", e.target.value)
+                  }
                   disabled={isLoading}
                 >
                   <option value="">Seleccionar tipo...</option>
                   {tiposProducto.map((tipo) => (
-                    <option key={tipo.idTipoProducto} value={tipo.idTipoProducto}>
+                    <option
+                      key={tipo.idTipoProducto}
+                      value={tipo.idTipoProducto}
+                    >
                       {tipo.nombre}
                     </option>
                   ))}
@@ -282,7 +285,9 @@ const ProductManagementModal: React.FC<ProductManagementModalProps> = ({
               <label>Descripción</label>
               <textarea
                 value={productData.descripcion}
-                onChange={(e) => handleInputChange("descripcion", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("descripcion", e.target.value)
+                }
                 placeholder="Describe las características del producto..."
                 rows={4}
                 disabled={isLoading}

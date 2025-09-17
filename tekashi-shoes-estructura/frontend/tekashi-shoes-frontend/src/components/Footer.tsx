@@ -8,6 +8,7 @@ import {
   FaCode,
   FaRocket,
 } from "react-icons/fa";
+import "../styles/Footer.css";
 
 const Footer: React.FC = () => {
   return (

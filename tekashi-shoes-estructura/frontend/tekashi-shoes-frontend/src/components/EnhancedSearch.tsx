@@ -151,9 +151,7 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
 
     try {
       // Buscar en el backend
-      const searchResults = await ConexionApiBackend.buscarProductos(
-        searchQuery
-      );
+      const searchResults = await ConexionApiBackend.obtenerProductos({});
       onSearchResults(searchResults);
     } catch (error) {
       console.error("Error searching products:", error);

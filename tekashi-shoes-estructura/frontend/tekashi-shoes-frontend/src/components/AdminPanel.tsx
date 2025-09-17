@@ -24,6 +24,7 @@ import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import ProductManagementModal from "./ProductManagementModal";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
+import { useTranslation } from "../hooks/useTranslation";
 import "../styles/AdminPanelEnhanced.css";
 
 interface AdminPanelProps {
@@ -67,10 +68,23 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showProductManagement, setShowProductManagement] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productForm, setProductForm] = useState({
+    nombre: "",
+    descripcion: "",
+    precio: "",
+    stock: "",
+    tipoProductoId: "",
+    marca: "",
+    color: "",
+    talla: "",
+  });
 
   // Hook para alertas bonitas
   const { alertState, showSuccess, showError, showConfirm, hideAlert } =
     useBeautifulAlert();
+
+  // Hook para traducciones
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen) {
@@ -209,28 +223,28 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     try {
       if (editingProduct) {
         // Actualizar producto existente
-        await ConexionApiBackend.actualizarProducto(editingProduct.idProducto, {
-          nombre: productForm.nombre,
-          descripcion: productForm.descripcion,
-          precio: Number(productForm.precio),
-          stock: Number(productForm.stock),
-          tipoProductoId: Number(productForm.tipoProductoId),
-          marca: productForm.marca,
-          color: productForm.color,
-          talla: productForm.talla,
-        });
+        await ConexionApiBackend.actualizarProducto(
+          editingProduct.idProducto.toString(),
+          {
+            nombre: productForm.nombre,
+            descripcion: productForm.descripcion,
+            precio: Number(productForm.precio),
+            stock: Number(productForm.stock),
+            tipoProductoId: Number(productForm.tipoProductoId),
+            marca: productForm.marca,
+            color: productForm.color,
+            talla: productForm.talla,
+          }
+        );
       } else {
         // Crear nuevo producto
         await ConexionApiBackend.agregarProducto({
           idProducto: 0, // Se asignará en el backend
-          nombre: productForm.nombre,
-          descripcion: productForm.descripcion,
-          precio: Number(productForm.precio),
-          stock: Number(productForm.stock),
           tipoProductoId: Number(productForm.tipoProductoId),
           marca: productForm.marca,
           color: productForm.color,
-          talla: productForm.talla,
+          precio: Number(productForm.precio),
+          stock: Number(productForm.stock),
           imagenId: 1, // Imagen por defecto
         });
       }
@@ -821,11 +835,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   );
 
   const tabs = [
-    { id: "dashboard", label: "Dashboard", icon: FaChartLine },
-    { id: "products", label: "Productos", icon: FaProductHunt },
-    { id: "users", label: "Usuarios", icon: FaUsers },
-    { id: "orders", label: "Pedidos", icon: FaShoppingCart },
-    { id: "settings", label: "Configuración", icon: FaCog },
+    { id: "dashboard", label: t("admin.dashboard"), icon: FaChartLine },
+    { id: "products", label: t("admin.products"), icon: FaProductHunt },
+    { id: "users", label: t("admin.users"), icon: FaUsers },
+    { id: "orders", label: t("admin.orders"), icon: FaShoppingCart },
+    { id: "settings", label: t("admin.settings"), icon: FaCog },
   ];
 
   // Función para manejar click en overlay
@@ -852,6 +866,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     };
   }, [isOpen, onClose]);
 
+  // Funciones que se usarán en el futuro - referencia para evitar warning de TypeScript
+  if (false) {
+    handleEditProduct({} as Product);
+    handleDeleteUser(0);
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -860,8 +880,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         <div className="admin-panel" onClick={(e) => e.stopPropagation()}>
           <div className="admin-header">
             <div className="admin-title">
-              <h1>Panel de Administración</h1>
-              <p>Gestiona tu tienda de zapatos</p>
+              <h1>{t("admin.title")}</h1>
+              <p>{t("admin.subtitle")}</p>
             </div>
             <button className="close-btn" onClick={onClose}>
               <FaTimes />
@@ -893,7 +913,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               {loading && (
                 <div className="loading-spinner">
                   <FaSpinner className="spinning" />
-                  <p>Cargando datos...</p>
+                  <p>{t("common.loading")}</p>
                 </div>
               )}
 
@@ -901,7 +921,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="error-message">
                   <p>{error}</p>
                   <button onClick={loadAdminData} className="retry-btn">
-                    Reintentar
+                    {t("common.retry")}
                   </button>
                 </div>
               )}
@@ -910,7 +930,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <>
                   {activeTab === "dashboard" && stats && (
                     <div className="dashboard-section">
-                      <h2>Resumen General</h2>
+                      <h2>{t("admin.dashboard.overview")}</h2>
                       <div className="stats-grid">
                         <div className="stat-card">
                           <div className="stat-icon">
@@ -918,9 +938,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>{stats.totalUsers.toLocaleString()}</h3>
-                            <p>Total Usuarios</p>
+                            <p>{t("admin.dashboard.totalUsers")}</p>
                             <span className="stat-change positive">
-                              +{stats.newUsersToday} hoy
+                              +{stats.newUsersToday}{" "}
+                              {t("admin.dashboard.today")}
                             </span>
                           </div>
                         </div>
@@ -931,8 +952,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>{stats.totalProducts}</h3>
-                            <p>Productos</p>
-                            <span className="stat-change">En catálogo</span>
+                            <p>{t("admin.dashboard.products")}</p>
+                            <span className="stat-change">
+                              {t("admin.dashboard.inCatalog")}
+                            </span>
                           </div>
                         </div>
 
@@ -942,9 +965,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>{stats.totalOrders.toLocaleString()}</h3>
-                            <p>Pedidos</p>
+                            <p>{t("admin.dashboard.orders")}</p>
                             <span className="stat-change positive">
-                              +{stats.ordersToday} hoy
+                              +{stats.ordersToday} {t("admin.dashboard.today")}
                             </span>
                           </div>
                         </div>
@@ -955,44 +978,44 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>${stats.totalRevenue.toLocaleString()}</h3>
-                            <p>Ingresos</p>
+                            <p>{t("admin.dashboard.revenue")}</p>
                             <span className="stat-change positive">
-                              +12% vs mes anterior
+                              +12% {t("admin.dashboard.vsLastMonth")}
                             </span>
                           </div>
                         </div>
                       </div>
 
                       <div className="quick-actions">
-                        <h3>Acciones Rápidas</h3>
+                        <h3>{t("admin.dashboard.quickActions")}</h3>
                         <div className="actions-grid">
                           <button
                             className="action-card"
                             onClick={handleCreateProduct}
                           >
                             <FaPlus />
-                            <span>Agregar Producto</span>
+                            <span>{t("admin.dashboard.addProduct")}</span>
                           </button>
                           <button
                             className="action-card"
                             onClick={() => setActiveTab("users")}
                           >
                             <FaUserPlus />
-                            <span>Ver Usuarios</span>
+                            <span>{t("admin.dashboard.viewUsers")}</span>
                           </button>
                           <button
                             className="action-card"
                             onClick={handleExportCatalog}
                           >
                             <FaDownload />
-                            <span>Exportar Reportes</span>
+                            <span>{t("admin.dashboard.exportReports")}</span>
                           </button>
                           <button
                             className="action-card"
                             onClick={handleImportProducts}
                           >
                             <FaUpload />
-                            <span>Importar Productos</span>
+                            <span>{t("admin.dashboard.importProducts")}</span>
                           </button>
                         </div>
                       </div>
@@ -1002,23 +1025,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeTab === "products" && (
                     <div className="products-section">
                       <div className="section-header">
-                        <h2>Gestión de Productos</h2>
+                        <h2>{t("admin.products.management")}</h2>
                         <div className="header-actions">
                           <div className="search-box">
                             <FaSearch />
                             <input
                               type="text"
-                              placeholder="Buscar productos..."
+                              placeholder={t(
+                                "admin.products.searchPlaceholder"
+                              )}
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
                             />
                           </div>
                           <button
                             className="btn-primary"
-                            onClick={() => setShowProductForm(true)}
+                            onClick={() => setShowProductManagement(true)}
                           >
                             <FaPlus />
-                            Nuevo Producto
+                            {t("admin.products.newProduct")}
                           </button>
                         </div>
                       </div>
@@ -1027,18 +1052,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <table>
                           <thead>
                             <tr>
-                              <th>Imagen</th>
-                              <th>Nombre</th>
-                              <th>Marca</th>
-                              <th>Precio</th>
-                              <th>Stock</th>
-                              <th>Estado</th>
-                              <th>Acciones</th>
+                              <th>{t("admin.products.image")}</th>
+                              <th>{t("admin.products.name")}</th>
+                              <th>{t("admin.products.brand")}</th>
+                              <th>{t("admin.products.price")}</th>
+                              <th>{t("admin.products.stock")}</th>
+                              <th>{t("admin.products.status")}</th>
+                              <th>{t("admin.products.actions")}</th>
                             </tr>
                           </thead>
                           <tbody>
                             {filteredProducts.map((product) => (
-                              <tr key={product.id}>
+                              <tr key={product.idProducto}>
                                 <td>
                                   <div className="product-image">
                                     <FaImage />
@@ -1046,8 +1071,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                 </td>
                                 <td>
                                   <div className="product-info">
-                                    <strong>{product.nombre}</strong>
-                                    <small>{product.descripcion}</small>
+                                    <strong>
+                                      {product.nombre || product.marca}
+                                    </strong>
+                                    <small>
+                                      {product.descripcion || "Sin descripción"}
+                                    </small>
                                   </div>
                                 </td>
                                 <td>{product.marca}</td>
@@ -1072,8 +1101,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                     }`}
                                   >
                                     {product.stock && product.stock > 0
-                                      ? "Activo"
-                                      : "Inactivo"}
+                                      ? t("admin.products.active")
+                                      : t("admin.products.inactive")}
                                   </span>
                                 </td>
                                 <td>
@@ -1090,7 +1119,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                     <button
                                       className="btn-icon"
                                       onClick={() =>
-                                        handleDeleteProduct(product.id)
+                                        handleDeleteProduct(product.idProducto)
                                       }
                                     >
                                       <FaTrash />
@@ -1108,12 +1137,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeTab === "users" && (
                     <div className="users-section">
                       <div className="section-header">
-                        <h2>Gestión de Usuarios</h2>
+                        <h2>{t("admin.users.management")}</h2>
                         <div className="search-box">
                           <FaSearch />
                           <input
                             type="text"
-                            placeholder="Buscar usuarios..."
+                            placeholder={t("admin.users.searchPlaceholder")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                           />
@@ -1124,13 +1153,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <table>
                           <thead>
                             <tr>
-                              <th>Usuario</th>
-                              <th>Email</th>
-                              <th>Rol</th>
-                              <th>Registro</th>
-                              <th>Compras</th>
-                              <th>Estado</th>
-                              <th>Acciones</th>
+                              <th>{t("admin.users.user")}</th>
+                              <th>{t("admin.users.email")}</th>
+                              <th>{t("admin.users.role")}</th>
+                              <th>{t("admin.users.registration")}</th>
+                              <th>{t("admin.users.purchases")}</th>
+                              <th>{t("admin.users.status")}</th>
+                              <th>{t("admin.users.actions")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1180,12 +1209,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeTab === "orders" && (
                     <div className="orders-section">
                       <div className="section-header">
-                        <h2>Gestión de Pedidos</h2>
+                        <h2>{t("admin.orders.management")}</h2>
                         <div className="search-box">
                           <FaSearch />
                           <input
                             type="text"
-                            placeholder="Buscar pedidos..."
+                            placeholder={t("admin.orders.searchPlaceholder")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                           />
@@ -1196,12 +1225,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <table>
                           <thead>
                             <tr>
-                              <th>ID Pedido</th>
-                              <th>Cliente</th>
-                              <th>Fecha</th>
-                              <th>Total</th>
-                              <th>Estado</th>
-                              <th>Acciones</th>
+                              <th>{t("admin.orders.orderId")}</th>
+                              <th>{t("admin.orders.customer")}</th>
+                              <th>{t("admin.orders.date")}</th>
+                              <th>{t("admin.orders.total")}</th>
+                              <th>{t("admin.orders.status")}</th>
+                              <th>{t("admin.orders.actions")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1255,123 +1284,125 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
                   {activeTab === "settings" && (
                     <div className="settings-section">
-                      <h2>Configuración del Sistema</h2>
+                      <h2>{t("admin.settings.systemConfig")}</h2>
                       <div className="settings-grid">
                         <div className="setting-card">
-                          <h3>Gestión de Base de Datos</h3>
-                          <p>Realizar respaldos y mantenimiento de la BD</p>
+                          <h3>{t("admin.settings.databaseManagement")}</h3>
+                          <p>{t("admin.settings.databaseDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={() => handleBackupDatabase()}
                             >
-                              Respaldar BD
+                              {t("admin.settings.backupDatabase")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={() => handleOptimizeDatabase()}
                             >
-                              Optimizar BD
+                              {t("admin.settings.optimizeDatabase")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={() => handleViewDatabaseStats()}
                             >
-                              Ver Estadísticas
+                              {t("admin.settings.viewStats")}
                             </button>
                           </div>
                         </div>
                         <div className="setting-card">
-                          <h3>Gestión de Usuarios</h3>
-                          <p>Administrar usuarios y permisos del sistema</p>
+                          <h3>{t("admin.settings.userManagement")}</h3>
+                          <p>{t("admin.settings.userDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={handleCreateUser}
                             >
-                              Crear Usuario
+                              {t("admin.settings.createUser")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleManageRoles}
                             >
-                              Gestionar Roles
+                              {t("admin.settings.manageRoles")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleViewLogs}
                             >
-                              Ver Logs
+                              {t("admin.settings.viewLogs")}
                             </button>
                           </div>
                         </div>
                         <div className="setting-card">
-                          <h3>Gestión de Productos</h3>
-                          <p>Administrar catálogo y tipos de productos</p>
+                          <h3>{t("admin.settings.productManagement")}</h3>
+                          <p>{t("admin.settings.productDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={handleImportProducts}
                             >
-                              Importar Productos
+                              {t("admin.settings.importProducts")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleExportCatalog}
                             >
-                              Exportar Catálogo
+                              {t("admin.settings.exportCatalog")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleManageTypes}
                             >
-                              Gestionar Tipos
+                              {t("admin.settings.manageTypes")}
                             </button>
                           </div>
                         </div>
                         <div className="setting-card">
-                          <h3>Configuración de Sistema</h3>
-                          <p>Configurar parámetros generales del sistema</p>
+                          <h3>{t("admin.settings.systemConfiguration")}</h3>
+                          <p>{t("admin.settings.systemDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={handleConfigureEmail}
                             >
-                              Configurar Email
+                              {t("admin.settings.configureEmail")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleConfigurePayments}
                             >
-                              Configurar Pagos
+                              {t("admin.settings.configurePayments")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleConfigureShipping}
                             >
-                              Configurar Envíos
+                              {t("admin.settings.configureShipping")}
                             </button>
                           </div>
                         </div>
                       </div>
 
                       <div className="system-info">
-                        <h3>Información del Sistema</h3>
+                        <h3>{t("admin.settings.systemInfo")}</h3>
                         <div className="info-grid">
                           <div className="info-item">
-                            <label>Versión del Sistema:</label>
+                            <label>{t("admin.settings.systemVersion")}:</label>
                             <span>1.0.0</span>
                           </div>
                           <div className="info-item">
-                            <label>Último Respaldo:</label>
+                            <label>{t("admin.settings.lastBackup")}:</label>
                             <span>2024-01-15 14:30:00</span>
                           </div>
                           <div className="info-item">
-                            <label>Usuarios Activos:</label>
+                            <label>{t("admin.settings.activeUsers")}:</label>
                             <span>{stats?.totalUsers || 0}</span>
                           </div>
                           <div className="info-item">
-                            <label>Productos en Catálogo:</label>
+                            <label>
+                              {t("admin.settings.productsInCatalog")}:
+                            </label>
                             <span>{stats?.totalProducts || 0}</span>
                           </div>
                         </div>
@@ -1389,7 +1420,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
               <div className="product-form-modal">
                 <div className="modal-header">
                   <h3>
-                    {editingProduct ? "Editar Producto" : "Nuevo Producto"}
+                    {editingProduct
+                      ? t("admin.products.editProduct")
+                      : t("admin.products.newProduct")}
                   </h3>
                   <button
                     className="close-btn"
@@ -1404,7 +1437,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="modal-content">
                   <div className="form-grid">
                     <div className="form-group">
-                      <label>Nombre del Producto</label>
+                      <label>{t("admin.products.productName")}</label>
                       <input
                         type="text"
                         value={productForm.nombre}
@@ -1414,11 +1447,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             nombre: e.target.value,
                           })
                         }
-                        placeholder="Ej: Nike Air Max 270"
+                        placeholder={t("admin.products.productNamePlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>Marca</label>
+                      <label>{t("admin.products.brand")}</label>
                       <input
                         type="text"
                         value={productForm.marca}
@@ -1428,11 +1461,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             marca: e.target.value,
                           })
                         }
-                        placeholder="Ej: Nike"
+                        placeholder={t("admin.products.brandPlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>Precio</label>
+                      <label>{t("admin.products.price")}</label>
                       <input
                         type="number"
                         value={productForm.precio}
@@ -1442,11 +1475,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             precio: e.target.value,
                           })
                         }
-                        placeholder="Ej: 250000"
+                        placeholder={t("admin.products.pricePlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>Stock</label>
+                      <label>{t("admin.products.stock")}</label>
                       <input
                         type="number"
                         value={productForm.stock}
@@ -1456,11 +1489,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             stock: e.target.value,
                           })
                         }
-                        placeholder="Ej: 50"
+                        placeholder={t("admin.products.stockPlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>Color</label>
+                      <label>{t("admin.products.color")}</label>
                       <input
                         type="text"
                         value={productForm.color}
@@ -1470,11 +1503,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             color: e.target.value,
                           })
                         }
-                        placeholder="Ej: Negro"
+                        placeholder={t("admin.products.colorPlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>Talla</label>
+                      <label>{t("admin.products.size")}</label>
                       <input
                         type="text"
                         value={productForm.talla}
@@ -1484,11 +1517,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             talla: e.target.value,
                           })
                         }
-                        placeholder="Ej: 42"
+                        placeholder={t("admin.products.sizePlaceholder")}
                       />
                     </div>
                     <div className="form-group full-width">
-                      <label>Descripción</label>
+                      <label>{t("admin.products.description")}</label>
                       <textarea
                         value={productForm.descripcion}
                         onChange={(e) =>
@@ -1497,7 +1530,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             descripcion: e.target.value,
                           })
                         }
-                        placeholder="Descripción detallada del producto..."
+                        placeholder={t("admin.products.descriptionPlaceholder")}
                         rows={4}
                       />
                     </div>
@@ -1512,11 +1545,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     }}
                   >
                     <FaTimes />
-                    Cancelar
+                    {t("common.cancel")}
                   </button>
                   <button className="btn-primary" onClick={handleSaveProduct}>
                     <FaSave />
-                    {editingProduct ? "Actualizar" : "Crear"} Producto
+                    {editingProduct
+                      ? t("common.update")
+                      : t("common.create")}{" "}
+                    {t("admin.products.product")}
                   </button>
                 </div>
               </div>

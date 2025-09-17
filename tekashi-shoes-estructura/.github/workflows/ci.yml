@@ -1,0 +1,98 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password123
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/tekashi-shoes-frontend/package-lock.json
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend/tekashi-shoes-frontend
+          npm ci
+
+      - name: Run Backend Linting
+        run: |
+          cd backend
+          npm run lint
+
+      - name: Run Frontend Linting
+        run: |
+          cd frontend/tekashi-shoes-frontend
+          npm run lint
+
+      - name: Build Frontend
+        run: |
+          cd frontend/tekashi-shoes-frontend
+          npm run build
+
+      - name: Test Backend
+        run: |
+          cd backend
+          npm test
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://admin:password123@localhost:27017/tekashi_shoes_test?authSource=admin
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Security Audit
+        run: |
+          cd backend && npm audit --audit-level moderate
+          cd ../frontend/tekashi-shoes-frontend && npm audit --audit-level moderate
+
+  deploy:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Railway
+        uses: railway-app/railway-deploy@v1
+        with:
+          railway-token: ${{ secrets.RAILWAY_TOKEN }}
+          service: backend
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          channelId: live
+          projectId: tekashi-shoes

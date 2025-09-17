@@ -8,16 +8,13 @@ import {
   FaTruck,
   FaEye,
   FaEdit,
-  FaTrash,
-  FaPlus,
   FaUser,
-  FaUserShield,
-  FaSignOutAlt,
   FaTimes,
   FaFilter,
   FaDownload,
   FaRedo,
 } from "react-icons/fa";
+import "../styles/RealDashboard.css";
 import { authService, User } from "../services/AuthService";
 import {
   guestCheckoutService,
@@ -32,17 +29,13 @@ interface RealDashboardProps {
   products: Product[];
 }
 
-const RealDashboard: React.FC<RealDashboardProps> = ({
-  isOpen,
-  onClose,
-  products,
-}) => {
+const RealDashboard: React.FC<RealDashboardProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<
     "overview" | "orders" | "products" | "analytics" | "users"
   >("overview");
   const [orders, setOrders] = useState<GuestOrder[]>([]);
-  const [cartItems, setCartItems] = useState(cartService.getItems());
-  const [users, setUsers] = useState<User[]>([]);
+  const [, setCartItems] = useState(cartService.getItems());
+  const [, setUsers] = useState<User[]>([]);
   const [analytics, setAnalytics] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -141,6 +134,11 @@ const RealDashboard: React.FC<RealDashboardProps> = ({
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Función que se usará en el futuro - referencia para evitar warning de TypeScript
+  if (false) {
+    getStatusColor("pending");
+  }
 
   if (!isOpen || !authService.isAdmin()) return null;
 

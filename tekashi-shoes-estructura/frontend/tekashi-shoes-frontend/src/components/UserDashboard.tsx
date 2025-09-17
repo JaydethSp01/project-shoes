@@ -22,12 +22,8 @@ import {
   FaShare,
   FaLock,
   FaTimes,
-  FaSearch,
-  FaFilter,
-  FaArrowRight,
   FaSpinner,
 } from "react-icons/fa";
-import { Product } from "../modelos/productTypes";
 import {
   dashboardService,
   DashboardStats,
@@ -42,6 +38,7 @@ import WishlistManager from "./WishlistManager";
 import UserProfileModal from "./UserProfileModal";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface UserDashboardProps {
   isOpen: boolean;
@@ -69,9 +66,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const [showWishlists, setShowWishlists] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(user);
-  
+
   // Hook para alertas bonitas
-  const { alertState, showSuccess, showError, showInfo, hideAlert } = useBeautifulAlert();
+  const { alertState, showSuccess, showError, hideAlert } = useBeautifulAlert();
+
+  // Hook para traducciones
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isOpen && user) {
@@ -146,13 +146,19 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       console.log("Favorito removido exitosamente");
     } catch (err) {
       console.error("Error removing favorite:", err);
-      showError("❌ Error", "Error al remover de favoritos. Intenta nuevamente.");
+      showError(
+        "❌ Error",
+        "Error al remover de favoritos. Intenta nuevamente."
+      );
     }
   };
 
   const handleCreateWishlist = async () => {
     if (!newWishlistName.trim()) {
-      showError("❌ Campo Requerido", "Por favor ingresa un nombre para la lista de deseos");
+      showError(
+        "❌ Campo Requerido",
+        "Por favor ingresa un nombre para la lista de deseos"
+      );
       return;
     }
 
@@ -171,7 +177,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       showSuccess("✅ Lista Creada", "Lista de deseos creada exitosamente");
     } catch (err) {
       console.error("Error creating wishlist:", err);
-      showError("❌ Error", "Error al crear la lista de deseos. Intenta nuevamente.");
+      showError(
+        "❌ Error",
+        "Error al crear la lista de deseos. Intenta nuevamente."
+      );
     }
   };
 
@@ -244,39 +253,39 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const tabs = [
     {
       id: "overview",
-      label: "Resumen",
+      label: t("dashboard.overview"),
       icon: FaUser,
-      description: "Vista general de tu cuenta",
+      description: t("dashboard.overviewDescription"),
     },
     {
       id: "purchases",
-      label: "Mis Pedidos",
+      label: t("dashboard.purchases"),
       icon: FaShoppingBag,
-      description: "Historial y estado de compras",
+      description: t("dashboard.purchasesDescription"),
     },
     {
       id: "favorites",
-      label: "Favoritos",
+      label: t("dashboard.favorites"),
       icon: FaHeart,
-      description: "Productos que te gustan",
+      description: t("dashboard.favoritesDescription"),
     },
     {
       id: "wishlists",
-      label: "Listas de Deseos",
+      label: t("dashboard.wishlists"),
       icon: FaStar,
-      description: "Productos para comprar después",
+      description: t("dashboard.wishlistsDescription"),
     },
     {
       id: "notifications",
-      label: "Notificaciones",
+      label: t("dashboard.notifications"),
       icon: FaBell,
-      description: "Alertas y actualizaciones",
+      description: t("dashboard.notificationsDescription"),
     },
     {
       id: "profile",
-      label: "Mi Perfil",
+      label: t("dashboard.profile"),
       icon: FaCog,
-      description: "Información personal y configuración",
+      description: t("dashboard.profileDescription"),
     },
   ];
 

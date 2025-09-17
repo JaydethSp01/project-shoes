@@ -26,9 +26,9 @@ const ProductForm = ({
   });
 
   const [tiposProducto, setTiposProducto] = useState<TipoProducto[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [, setSelectedFile] = useState<File | null>(null);
   const [base64Image, setBase64Image] = useState<string>("");
-  const [fileName, setFileName] = useState<string>("");
+  const [, setFileName] = useState<string>("");
 
   useEffect(() => {
     const cargarTiposProducto = async () => {

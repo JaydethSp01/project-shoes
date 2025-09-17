@@ -42,7 +42,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [success, setSuccess] = useState("");
   
   // Hook para alertas bonitas
-  const { alertState, showSuccess, showError, showInfo, hideAlert } = useBeautifulAlert();
+  const { alertState, showError, hideAlert } = useBeautifulAlert();
 
   useEffect(() => {
     if (user && isOpen) {

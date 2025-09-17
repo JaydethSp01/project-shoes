@@ -5,6 +5,7 @@ import {
   FaFootballBall,
   FaBasketballBall,
 } from "react-icons/fa";
+import "../styles/ProductImage.css";
 
 interface ProductImageProps {
   marca: string;
@@ -94,49 +95,22 @@ const ProductImage: React.FC<ProductImageProps> = ({
   // Si hay imagen de BD, mostrarla
   if (imageSource) {
     return (
-      <img
-        src={imageSource}
-        alt={alt}
-        className={className}
-        onError={() => setImageError(true)}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          borderRadius: "8px",
-        }}
-      />
+      <div className={`product-image-container ${className}`}>
+        <img
+          src={imageSource}
+          alt={alt}
+          className="product-image"
+          onError={() => setImageError(true)}
+        />
+      </div>
     );
   }
 
   // Si no hay imagen o hay error, mostrar icono de marca
   return (
-    <div
-      className={`product-icon-fallback ${className}`}
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
-        borderRadius: "8px",
-        border: "2px dashed rgba(0, 255, 136, 0.3)",
-        flexDirection: "column",
-        gap: "8px",
-      }}
-    >
+    <div className={`product-icon-fallback ${className}`}>
       {getBrandIcon(marca)}
-      <span
-        style={{
-          fontSize: "12px",
-          color: "var(--text-secondary)",
-          textAlign: "center",
-          fontWeight: "600",
-        }}
-      >
-        {marca}
-      </span>
+      <span className="brand-name">{marca}</span>
     </div>
   );
 };

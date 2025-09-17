@@ -27,7 +27,7 @@ export interface SearchSuggestion {
 }
 
 class SearchService {
-  private baseUrl = "http://localhost:8080";
+  // private _baseUrl = "http://localhost:8080";
   private searchHistory: string[] = [];
   private popularSearches: string[] = [
     "nike air max",
@@ -83,7 +83,7 @@ class SearchService {
       const allProducts = await ConexionApiBackend.obtenerProductos();
       return allProducts
         .filter(
-          (product) =>
+          (product: any) =>
             product.nombre?.toLowerCase().includes(query.toLowerCase()) ||
             product.descripcion?.toLowerCase().includes(query.toLowerCase()) ||
             product.marca?.toLowerCase().includes(query.toLowerCase())
@@ -105,9 +105,11 @@ class SearchService {
 
       // Buscar en nombres de productos
       const productMatches = allProducts
-        .filter((p) => p.nombre?.toLowerCase().includes(query.toLowerCase()))
+        .filter((p: any) =>
+          p.nombre?.toLowerCase().includes(query.toLowerCase())
+        )
         .slice(0, 3)
-        .map((p) => ({
+        .map((p: any) => ({
           text: p.nombre || "",
           type: "product" as const,
           count: 1,
@@ -117,13 +119,16 @@ class SearchService {
       const brandMatches = [
         ...new Set(
           allProducts
-            .filter((p) => p.marca?.toLowerCase().includes(query.toLowerCase()))
-            .map((p) => p.marca)
+            .filter((p: any) =>
+              p.marca?.toLowerCase().includes(query.toLowerCase())
+            )
+            .map((p: any) => p.marca)
         ),
       ]
+        .filter((brand) => brand && brand !== "")
         .slice(0, 3)
         .map((brand) => ({
-          text: brand || "",
+          text: brand as string,
           type: "brand" as const,
         }));
 
@@ -131,18 +136,25 @@ class SearchService {
       const colorMatches = [
         ...new Set(
           allProducts
-            .filter((p) => p.color?.toLowerCase().includes(query.toLowerCase()))
-            .map((p) => p.color)
+            .filter((p: any) =>
+              p.color?.toLowerCase().includes(query.toLowerCase())
+            )
+            .map((p: any) => p.color)
         ),
       ]
+        .filter((color) => color && color !== "")
         .slice(0, 2)
         .map((color) => ({
-          text: color || "",
+          text: color as string,
           type: "color" as const,
         }));
 
       // Combinar sugerencias
-      suggestions.push(...productMatches, ...brandMatches, ...colorMatches);
+      suggestions.push(
+        ...productMatches,
+        ...brandMatches.filter((b: any) => b.text && b.text !== ""),
+        ...colorMatches
+      );
 
       // Si no hay suficientes sugerencias, agregar del historial
       if (suggestions.length < 5) {
@@ -342,10 +354,10 @@ class SearchService {
       const allProducts = await ConexionApiBackend.obtenerProductos();
       const tiposProducto = await ConexionApiBackend.obtenerTiposProducto();
 
-      return tiposProducto.map((tipo) => ({
+      return tiposProducto.map((tipo: any) => ({
         name: tipo.nombre,
         count: allProducts.filter(
-          (p) => p.tipoProductoId === tipo.idTipoProducto
+          (p: any) => p.tipoProductoId === tipo.idTipoProducto
         ).length,
         image: tipo.imagen,
       }));
@@ -361,7 +373,7 @@ class SearchService {
       const allProducts = await ConexionApiBackend.obtenerProductos();
       const brandCounts: { [key: string]: number } = {};
 
-      allProducts.forEach((product) => {
+      allProducts.forEach((product: any) => {
         if (product.marca) {
           brandCounts[product.marca] = (brandCounts[product.marca] || 0) + 1;
         }
@@ -382,7 +394,7 @@ class SearchService {
     try {
       const allProducts = await ConexionApiBackend.obtenerProductos();
       const colors = [
-        ...new Set(allProducts.map((p) => p.color).filter(Boolean)),
+        ...new Set(allProducts.map((p: any) => p.color).filter(Boolean)),
       ] as string[];
 
       return colors.sort();

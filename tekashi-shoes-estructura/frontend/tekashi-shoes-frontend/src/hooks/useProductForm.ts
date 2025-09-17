@@ -12,7 +12,7 @@ export const useProductForm = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<{ [key: number]: string }>({});
-  const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
+  // const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
 
   const handleAddProduct = () => {
     setIsEditing(false);
@@ -36,7 +36,9 @@ export const useProductForm = () => {
         const imagePromises = fetchedProducts.map(async (product: Product) => {
           if (product.imagenId) {
             const fetchedImage: Imagen =
-              await ConexionApiBackend.obtenerImagenes(product.imagenId);
+              await ConexionApiBackend.obtenerImagenes({
+                productoId: product.imagenId.toString(),
+              });
             return { id: product.imagenId, base64: fetchedImage.imagenBase64 };
           }
           return null;
@@ -73,7 +75,7 @@ export const useProductForm = () => {
 
     if (result.isConfirmed) {
       try {
-        await ConexionApiBackend.eliminarProducto(id);
+        await ConexionApiBackend.eliminarProducto(id.toString());
         setProducts(products.filter((product) => product.idProducto !== id));
         setAllProducts(
           allProducts.filter((product) => product.idProducto !== id)
@@ -151,7 +153,10 @@ export const useProductForm = () => {
     }
 
     if (isEditing) {
-      await ConexionApiBackend.actualizarProducto(product.idProducto, product);
+      await ConexionApiBackend.actualizarProducto(
+        product.idProducto.toString(),
+        product
+      );
       const result = await Swal.fire({
         title: "¡Actualización exitosa!",
         text: "El producto ha sido actualizado correctamente.",
@@ -194,7 +199,7 @@ export const useProductForm = () => {
     } else {
       setProducts(allProducts);
     }
-    setSelectedTypeId(tipoId);
+    // setSelectedTypeId(tipoId);
   };
 
   return {

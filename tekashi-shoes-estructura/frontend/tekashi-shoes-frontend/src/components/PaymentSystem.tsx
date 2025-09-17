@@ -202,13 +202,13 @@ const PaymentSystem: React.FC<PaymentSystemProps> = ({
     return "Unknown";
   };
 
-  const getMaskedCardNumber = (): string => {
-    if (cardData.number.length > 4) {
-      const lastFour = cardData.number.slice(-4);
-      return "**** **** **** " + lastFour;
-    }
-    return cardData.number;
-  };
+  // const getMaskedCardNumber = (_: any): string => {
+  //   if (cardData.number.length > 4) {
+  //     const lastFour = cardData.number.slice(-4);
+  //     return "**** **** **** " + lastFour;
+  //   }
+  //   return cardData.number;
+  // };
 
   return (
     <div className="payment-overlay">

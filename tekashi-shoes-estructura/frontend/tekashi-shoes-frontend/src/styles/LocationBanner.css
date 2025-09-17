@@ -1,0 +1,108 @@
+/* Location Banner Styles */
+.location-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 0;
+  margin: 20px 0;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.location-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.location-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  height: 60px;
+}
+
+.location-details {
+  flex: 1;
+  min-width: 250px;
+}
+
+.location-details h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.location-details p {
+  margin: 0 0 5px 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+.location-details small {
+  opacity: 0.7;
+  font-size: 0.8rem;
+}
+
+.location-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.location-actions .btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.location-actions .btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .location-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .location-details {
+    min-width: auto;
+  }
+
+  .location-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .location-banner {
+    margin: 10px 0;
+    padding: 15px 0;
+  }
+
+  .location-icon {
+    font-size: 1.5rem;
+    min-width: 50px;
+    height: 50px;
+  }
+
+  .location-details h4 {
+    font-size: 1.1rem;
+  }
+
+  .location-details p {
+    font-size: 0.9rem;
+  }
+}

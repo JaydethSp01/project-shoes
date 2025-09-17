@@ -171,6 +171,21 @@
   gap: 8px;
 }
 
+.address-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.address-input-group input {
+  flex: 1;
+}
+
+.address-input-group .btn {
+  white-space: nowrap;
+  min-width: 140px;
+}
+
 .form-group label {
   color: #00ff88;
   font-weight: 600;
