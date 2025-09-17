@@ -6,6 +6,7 @@ import {
   FaSlidersH,
   FaSearch,
 } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { Product, TipoProducto } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import { searchService } from "../services/SearchService";
@@ -31,6 +32,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   onFilterChange,
   allProducts,
 }) => {
+  const { t } = useTranslation();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     query: "",
@@ -235,7 +237,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   const getSortOptions = () => [
-    { value: "", label: "Ordenar por..." },
+    { value: "", label: t("products.sortBy") },
     { value: "price_asc", label: "Precio: Menor a Mayor" },
     { value: "price_desc", label: "Precio: Mayor a Menor" },
     { value: "name_asc", label: "Nombre: A-Z" },
@@ -251,7 +253,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           <FaSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Buscar productos..."
+            placeholder={t("products.searchPlaceholder")}
             value={filters.query}
             onChange={(e) => handleFilterChange("query", e.target.value)}
           />
@@ -265,7 +267,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             }
             className="quick-filter"
           >
-            <option value="">Todas las categorías</option>
+            <option value="">{t("products.allCategories")}</option>
             {tiposProducto.map((tipo) => (
               <option key={tipo.idTipoProducto} value={tipo.idTipoProducto}>
                 {tipo.nombre}
@@ -278,7 +280,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onChange={(e) => handleFilterChange("marca", e.target.value)}
             className="quick-filter"
           >
-            <option value="">Todas las marcas</option>
+            <option value="">{t("products.allBrands")}</option>
             {availableBrands.map((brand) => (
               <option key={brand} value={brand}>
                 {brand}
@@ -303,7 +305,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onClick={() => setShowFilters(!showFilters)}
           >
             <FaSlidersH />
-            Filtros
+            {t("products.filters")}
             {hasActiveFilters() && <span className="active-dot">●</span>}
             {showFilters ? <FaChevronUp /> : <FaChevronDown />}
           </button>
@@ -320,7 +322,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               <div className="price-range">
                 <input
                   type="number"
-                  placeholder="Mínimo"
+                  placeholder={t("additional.minimum")}
                   value={filters.minPrice}
                   onChange={(e) =>
                     handleFilterChange("minPrice", e.target.value)
@@ -329,7 +331,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 <span>-</span>
                 <input
                   type="number"
-                  placeholder="Máximo"
+                  placeholder={t("additional.maximum")}
                   value={filters.maxPrice}
                   onChange={(e) =>
                     handleFilterChange("maxPrice", e.target.value)

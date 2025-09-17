@@ -9,7 +9,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   FacebookAuthProvider,
-  TwitterAuthProvider,
+  OAuthProvider,
   sendEmailVerification,
   updatePassword,
   reauthenticateWithCredential,
@@ -35,6 +35,25 @@ export interface AuthError {
 class FirebaseAuthService {
   private auth = auth;
   private readonly SESSION_ID_KEY = "tekashi_session_id";
+
+  // Proveedores de autenticación social
+  private googleProvider: GoogleAuthProvider;
+  private facebookProvider: FacebookAuthProvider;
+  private microsoftProvider: OAuthProvider;
+
+  constructor() {
+    // Inicializar proveedores de autenticación social
+    this.googleProvider = new GoogleAuthProvider();
+    this.googleProvider.addScope("email");
+    this.googleProvider.addScope("profile");
+
+    this.facebookProvider = new FacebookAuthProvider();
+    this.facebookProvider.addScope("email");
+
+    this.microsoftProvider = new OAuthProvider("microsoft.com");
+    this.microsoftProvider.addScope("email");
+    this.microsoftProvider.addScope("profile");
+  }
 
   // Generar ID de sesión único
   private generateSessionId(): string {
@@ -100,11 +119,7 @@ class FirebaseAuthService {
   // Iniciar sesión con Google
   async signInWithGoogle(): Promise<UserProfile> {
     try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope("email");
-      provider.addScope("profile");
-
-      const result = await signInWithPopup(this.auth, provider);
+      const result = await signInWithPopup(this.auth, this.googleProvider);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
       throw this.mapFirebaseError(error);
@@ -114,10 +129,17 @@ class FirebaseAuthService {
   // Iniciar sesión con Facebook
   async signInWithFacebook(): Promise<UserProfile> {
     try {
-      const provider = new FacebookAuthProvider();
-      provider.addScope("email");
+      const result = await signInWithPopup(this.auth, this.facebookProvider);
+      return this.mapUserToProfile(result.user);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
+  }
 
-      const result = await signInWithPopup(this.auth, provider);
+  // Iniciar sesión con Microsoft
+  async signInWithMicrosoft(): Promise<UserProfile> {
+    try {
+      const result = await signInWithPopup(this.auth, this.microsoftProvider);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
       throw this.mapFirebaseError(error);

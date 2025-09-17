@@ -866,11 +866,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Funciones que se usarán en el futuro - referencia para evitar warning de TypeScript
-  if (false) {
-    handleEditProduct({} as Product);
-    handleDeleteUser(0);
-  }
+  // Funciones funcionales para el panel de administración
 
   if (!isOpen) return null;
 
@@ -1190,11 +1186,26 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                 </td>
                                 <td>
                                   <div className="action-buttons">
-                                    <button className="btn-icon">
+                                    <button
+                                      className="btn-icon"
+                                      title="Ver usuario"
+                                    >
                                       <FaEye />
                                     </button>
-                                    <button className="btn-icon">
+                                    <button
+                                      className="btn-icon"
+                                      title="Editar usuario"
+                                    >
                                       <FaEdit />
+                                    </button>
+                                    <button
+                                      className="btn-icon btn-danger"
+                                      onClick={() =>
+                                        handleDeleteUser(parseInt(user.id))
+                                      }
+                                      title="Eliminar usuario"
+                                    >
+                                      <FaTrash />
                                     </button>
                                   </div>
                                 </td>

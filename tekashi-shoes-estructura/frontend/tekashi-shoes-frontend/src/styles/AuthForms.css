@@ -526,3 +526,132 @@
     background: rgba(255, 255, 255, 0.05);
   }
 }
+
+/* Social Authentication Styles */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.auth-divider span {
+  padding: 0 15px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.social-auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.social-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.social-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.social-btn svg {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Google Button */
+.google-btn {
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.google-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3367d6 0%, #2d8f47 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Facebook Button */
+.facebook-btn {
+  background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.facebook-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #166fe5 0%, #1e88e5 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Microsoft Button */
+.microsoft-btn {
+  background: linear-gradient(135deg, #00a4ef 0%, #0078d4 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.microsoft-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0091ea 0%, #106ebe 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design for Social Buttons */
+@media (max-width: 480px) {
+  .social-auth-buttons {
+    gap: 10px;
+  }
+  
+  .social-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  
+  .social-btn svg {
+    font-size: 16px;
+  }
+  
+  .auth-divider {
+    margin: 15px 0;
+  }
+  
+  .auth-divider span {
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}

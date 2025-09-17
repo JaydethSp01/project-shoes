@@ -535,6 +535,22 @@ class AuthService {
       favoriteCategories: [], // Se obtendrá desde el backend
     };
   }
+
+  // Métodos de autenticación social que delegan a FirebaseAuthService
+  async signInWithGoogle() {
+    const { firebaseAuthService } = await import("./FirebaseAuthService");
+    return await firebaseAuthService.signInWithGoogle();
+  }
+
+  async signInWithFacebook() {
+    const { firebaseAuthService } = await import("./FirebaseAuthService");
+    return await firebaseAuthService.signInWithFacebook();
+  }
+
+  async signInWithMicrosoft() {
+    const { firebaseAuthService } = await import("./FirebaseAuthService");
+    return await firebaseAuthService.signInWithMicrosoft();
+  }
 }
 
 export const authService = new AuthService();

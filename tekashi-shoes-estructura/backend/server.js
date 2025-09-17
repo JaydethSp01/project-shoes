@@ -16,10 +16,11 @@ const favoritoRoutes = require("./routes/favoritoRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const notificacionRoutes = require("./routes/notificacionRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const pedidoRoutes = require("./routes/pedidoRoutes");
 
 // Import middleware
 const errorHandler = require("./middleware/errorHandler");
-const authMiddleware = require("./middleware/authMiddleware");
+const { initializeFirebase } = require("./middleware/authMiddleware");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -36,15 +37,26 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS configuration
+// CORS configuration - Allow all origins for development
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: true, // Allow all origins
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
+    exposedHeaders: ["X-Total-Count", "X-Page-Count"],
+    optionsSuccessStatus: 200, // For legacy browser support
   })
 );
+
+// Handle preflight requests
+app.options("*", cors());
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
@@ -59,21 +71,29 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // MongoDB connection
-mongoose
-  .connect(
-    process.env.MONGODB_URI || "mongodb://localhost:27017/tekashi_shoes",
-    {
+const connectDB = async () => {
+  try {
+    // Para desarrollo, usar MongoDB en memoria o local
+    const mongoUri =
+      process.env.MONGODB_URI || "mongodb://localhost:27017/tekashi_shoes";
+
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    }
-  )
-  .then(() => {
+    });
+
     console.log("✅ Connected to MongoDB");
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error("❌ MongoDB connection error:", error);
-    process.exit(1);
-  });
+    console.log("🔄 Trying to continue without database...");
+    // No salir del proceso, continuar sin base de datos para desarrollo
+  }
+};
+
+connectDB();
+
+// Inicializar Firebase después de conectar a la base de datos
+initializeFirebase();
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -97,6 +117,7 @@ app.use("/api/favoritos", favoritoRoutes);
 app.use("/api/wishlists", wishlistRoutes);
 app.use("/api/notificaciones", notificacionRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/pedidos", pedidoRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -112,6 +133,7 @@ app.get("/", (req, res) => {
       wishlists: "/api/wishlists",
       notificaciones: "/api/notificaciones",
       admin: "/api/admin",
+      pedidos: "/api/pedidos",
     },
   });
 });
@@ -136,12 +158,15 @@ process.on("SIGTERM", () => {
   });
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
   console.log("SIGINT received. Shutting down gracefully...");
-  mongoose.connection.close(() => {
+  try {
+    await mongoose.connection.close();
     console.log("MongoDB connection closed.");
-    process.exit(0);
-  });
+  } catch (error) {
+    console.error("Error closing MongoDB connection:", error);
+  }
+  process.exit(0);
 });
 
 // Start server

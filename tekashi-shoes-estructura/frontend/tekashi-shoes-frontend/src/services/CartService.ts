@@ -29,6 +29,10 @@ export interface ShippingAddress {
   city: string;
   postalCode: string;
   country: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface PaymentInfo {
@@ -58,7 +62,7 @@ export interface OrderInfo {
 class CartService {
   private cartItems: CartItem[] = [];
   private listeners: ((items: CartItem[]) => void)[] = [];
-  private baseUrl = "http://localhost:8080";
+  private baseUrl = "http://localhost:8080/api";
 
   constructor() {
     this.loadFromStorage();
@@ -316,33 +320,83 @@ class CartService {
   // Enviar pedido al backend
   private async sendOrderToBackend(order: OrderInfo): Promise<void> {
     try {
+      // Preparar los detalles del pedido en el formato esperado por el backend
+      const detalles = order.items.map((item) => ({
+        productoId: item.product.id,
+        cantidad: item.quantity,
+        precioUnitario: item.product.precio,
+        subtotal: item.product.precio * item.quantity,
+      }));
+
+      // Preparar la dirección de envío
+      const direccionEnvio = {
+        nombre: order.shippingAddress.name,
+        email: order.shippingAddress.email,
+        telefono: order.shippingAddress.phone,
+        direccion: order.shippingAddress.address,
+        ciudad: order.shippingAddress.city,
+        codigoPostal: order.shippingAddress.postalCode,
+        pais: order.shippingAddress.country,
+        coordenadas: order.shippingAddress.coordinates || undefined,
+      };
+
+      // Preparar la información de pago
+      const informacionPago = {
+        metodo: order.paymentInfo.method,
+        numeroTarjeta: order.paymentInfo.cardNumber,
+        nombreTitular: order.paymentInfo.cardName,
+        fechaVencimiento: order.paymentInfo.expiryDate,
+        codigoSeguridad: order.paymentInfo.cvv,
+        transaccionId: order.paymentInfo.transactionId,
+      };
+
+      const pedidoData = {
+        detalles,
+        direccionEnvio,
+        informacionPago,
+        costoEnvio: order.shipping,
+        descuento: order.discount,
+        puntosFidelidadUsados: order.loyaltyPointsUsed || 0,
+        notas: order.notes || "",
+        metodoEnvio: "standard",
+      };
+
       const response = await fetch(`${this.baseUrl}/pedidos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Agregar token de autenticación si está disponible
+          ...(await this.getAuthHeaders()),
         },
-        body: JSON.stringify({
-          ...order,
-          items: this.getCartItems(),
-          total: this.getTotal(),
-          subtotal: this.getSubtotal(),
-          shipping: this.getShippingCost(),
-          tax: this.getTax(),
-          paymentData: {},
-        }),
+        body: JSON.stringify(pedidoData),
       });
 
       if (!response.ok) {
-        throw new Error("Error al procesar el pedido en el servidor");
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || "Error al procesar el pedido en el servidor"
+        );
       }
 
       const result = await response.json();
       console.log("Order sent to backend:", result);
     } catch (error) {
       console.error("Error sending order to backend:", error);
-      // Fallback: simular éxito localmente
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Order processed locally:", order);
+      throw error; // Re-lanzar el error para que sea manejado por el componente
+    }
+  }
+
+  // Obtener headers de autenticación
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    try {
+      const { firebaseAuthService } = await import("./FirebaseAuthService");
+      const token = await firebaseAuthService.getIdToken();
+      return {
+        Authorization: `Bearer ${token}`,
+      };
+    } catch (error) {
+      console.warn("No se pudo obtener token de autenticación");
+      return {};
     }
   }
 

@@ -135,10 +135,7 @@ const RealDashboard: React.FC<RealDashboardProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // Función que se usará en el futuro - referencia para evitar warning de TypeScript
-  if (false) {
-    getStatusColor("pending");
-  }
+  // Función funcional para colorear estados de órdenes
 
   if (!isOpen || !authService.isAdmin()) return null;
 
@@ -328,7 +325,11 @@ const RealDashboard: React.FC<RealDashboardProps> = ({ isOpen, onClose }) => {
                             <span className="order-total">
                               {formatPrice(order.finalTotal)}
                             </span>
-                            <span className={`order-status ${order.status}`}>
+                            <span
+                              className={`order-status ${getStatusColor(
+                                order.status
+                              )}`}
+                            >
                               {order.status}
                             </span>
                           </div>
@@ -389,7 +390,11 @@ const RealDashboard: React.FC<RealDashboardProps> = ({ isOpen, onClose }) => {
                             </span>
                           </td>
                           <td>
-                            <span className={`status-badge ${order.status}`}>
+                            <span
+                              className={`status-badge ${getStatusColor(
+                                order.status
+                              )}`}
+                            >
                               {order.status}
                             </span>
                           </td>

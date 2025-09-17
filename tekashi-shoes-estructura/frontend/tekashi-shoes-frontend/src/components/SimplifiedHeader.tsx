@@ -3,6 +3,7 @@ import { FaBell, FaShoppingCart, FaTimes } from "react-icons/fa";
 import { cartService } from "../services/CartService";
 import { notificationService } from "../services/NotificationService";
 import { authService } from "../services/AuthService";
+import LanguageSelector from "./LanguageSelector";
 import "../styles/SimplifiedHeader.css";
 
 // Definir interfaces
@@ -162,6 +163,9 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
     <>
       <div className="simplified-header">
         <div className="header-actions">
+          {/* Selector de idioma */}
+          <LanguageSelector />
+
           {/* Notificaciones */}
           <div className="notification-container">
             <button

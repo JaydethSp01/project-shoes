@@ -8,6 +8,9 @@ import {
   FaSignInAlt,
   FaUserShield,
   FaShoppingBag,
+  FaGoogle,
+  FaFacebook,
+  FaMicrosoft,
 } from "react-icons/fa";
 import { authService, LoginCredentials } from "../services/AuthService";
 import { useTranslation } from "../hooks/useTranslation";
@@ -57,7 +60,38 @@ const LoginModal: React.FC<LoginModalProps> = ({
       onClose();
       setCredentials({ email: "", password: "" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+      setError(err instanceof Error ? err.message : t("additional.loginError"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (
+    provider: "google" | "facebook" | "microsoft"
+  ) => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      switch (provider) {
+        case "google":
+          await authService.signInWithGoogle();
+          break;
+        case "facebook":
+          await authService.signInWithFacebook();
+          break;
+        case "microsoft":
+          await authService.signInWithMicrosoft();
+          break;
+      }
+      onLogin();
+      onClose();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Error al iniciar sesión con ${provider}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -152,6 +186,44 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 </>
               )}
             </button>
+
+            {/* Separador */}
+            <div className="auth-divider">
+              <span>{t("auth.or")}</span>
+            </div>
+
+            {/* Botones de autenticación social */}
+            <div className="social-auth-buttons">
+              <button
+                type="button"
+                className="social-btn google-btn"
+                onClick={() => handleSocialLogin("google")}
+                disabled={isLoading}
+              >
+                <FaGoogle />
+                {t("auth.continueWithGoogle")}
+              </button>
+
+              <button
+                type="button"
+                className="social-btn facebook-btn"
+                onClick={() => handleSocialLogin("facebook")}
+                disabled={isLoading}
+              >
+                <FaFacebook />
+                {t("auth.continueWithFacebook")}
+              </button>
+
+              <button
+                type="button"
+                className="social-btn microsoft-btn"
+                onClick={() => handleSocialLogin("microsoft")}
+                disabled={isLoading}
+              >
+                <FaMicrosoft />
+                {t("auth.continueWithMicrosoft")}
+              </button>
+            </div>
           </form>
 
           <div className="auth-info">

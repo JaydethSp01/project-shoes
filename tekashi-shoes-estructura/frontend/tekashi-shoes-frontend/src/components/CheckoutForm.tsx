@@ -22,23 +22,31 @@ import {
 } from "../services/CartService";
 import { authService } from "../services/AuthService";
 import { useGeolocation } from "../hooks/useGeolocation";
+import { useTranslation } from "../hooks/useTranslation";
+// import InteractiveMap from "./InteractiveMap"; // No se usa actualmente
+import AddressSelectorModal from "./AddressSelectorModal";
 // import PaymentSystem from "./PaymentSystem"; // Ya no se usa
 
 interface CheckoutFormProps {
   isOpen: boolean;
   onClose: () => void;
   onOrderComplete: (order: OrderInfo) => void;
+  onShowError?: (title: string, message: string) => void;
+  onShowSuccess?: (title: string, message: string) => void;
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({
   isOpen,
   onClose,
   onOrderComplete,
+  onShowError,
+  onShowSuccess,
 }) => {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [cartSummary, setCartSummary] = useState<CartSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  // const [error, setError] = useState(""); // No se muestra en el UI actualmente
   // const [showPaymentSystem, setShowPaymentSystem] = useState(false); // Ya no se usa
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
@@ -50,7 +58,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     address: "",
     city: "",
     postalCode: "",
-    country: "Colombia",
+    country: t("additional.colombia"),
   });
 
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
@@ -65,19 +73,21 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [loyaltyPointsUsed, setLoyaltyPointsUsed] = useState(0);
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  // const [showMap, setShowMap] = useState(false); // No se usa actualmente
+  const [showAddressModal, setShowAddressModal] = useState(false);
 
   // Hook para geolocalización
   const {
-    // location,
+    location,
     address,
-    error: _locationError,
+    // error: _locationError, // No se usa actualmente
     getCurrentLocation,
   } = useGeolocation();
 
   const steps = [
-    { id: 1, title: "Envío", icon: FaTruck },
-    { id: 2, title: "Pago", icon: FaCreditCard },
-    { id: 3, title: "Confirmación", icon: FaCheck },
+    { id: 1, title: t("additional.shipping"), icon: FaTruck },
+    { id: 2, title: t("additional.payment"), icon: FaCreditCard },
+    { id: 3, title: t("additional.confirmation"), icon: FaCheck },
   ];
 
   useEffect(() => {
@@ -103,6 +113,48 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setShippingAddress((prev) => ({ ...prev, [field]: value }));
   };
 
+  // const handleMapLocationSelect = (mapLocation: {
+  //   lat: number;
+  //   lng: number;
+  //   address?: string;
+  // }) => {
+  //   setShippingAddress((prev) => ({
+  //     ...prev,
+  //     coordinates: {
+  //       latitude: mapLocation.lat,
+  //       longitude: mapLocation.lng,
+  //     },
+  //     address: mapLocation.address || prev.address,
+  //   }));
+  //   setShowMap(false);
+  // }; // No se usa actualmente
+
+  const handleAddressModalSelect = (addressData: {
+    lat: number;
+    lng: number;
+    address: string;
+    city: string;
+    country: string;
+    postalCode: string;
+  }) => {
+    setShippingAddress((prev) => ({
+      ...prev,
+      address: addressData.address,
+      city: addressData.city,
+      country: addressData.country,
+      postalCode: addressData.postalCode,
+      coordinates: {
+        latitude: addressData.lat,
+        longitude: addressData.lng,
+      },
+    }));
+    setShowAddressModal(false);
+    onShowSuccess?.(
+      "Dirección Actualizada",
+      t("additional.addressSelectedSuccessfully")
+    );
+  };
+
   const handlePaymentChange = (field: keyof PaymentInfo, value: string) => {
     setPaymentInfo((prev) => ({ ...prev, [field]: value }));
   };
@@ -113,9 +165,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     const result = cartService.applyDiscountCode(discountCode);
     if (result.valid) {
       setAppliedDiscount(result.discount);
-      setError("");
+      // setError(""); // No se muestra en el UI actualmente
     } else {
-      setError(result.message);
+      // setError(result.message); // No se muestra en el UI actualmente
     }
   };
 
@@ -154,15 +206,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep((prev) => Math.min(prev + 1, 3));
-      setError("");
+      // setError(""); // No se muestra en el UI actualmente
     } else {
-      setError("Por favor completa todos los campos requeridos");
+      // setError(t("additional.pleaseCompleteAllFields")); // No se muestra en el UI actualmente
     }
   };
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
-    setError("");
+    // setError(""); // No se muestra en el UI actualmente
   };
 
   const processOrder = async () => {
@@ -171,15 +223,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     // Verificar si el usuario está logueado
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
-      setError(
-        "Debes iniciar sesión para proceder con el pago. Haz clic en 'Iniciar Sesión' en el menú superior."
-      );
+      // setError( // No se muestra en el UI actualmente
+      //   "Debes iniciar sesión para proceder con el pago. Haz clic en 'Iniciar Sesión' en el menú superior."
+      // );
       return;
     }
 
     // Verificar que no sea un administrador intentando comprar
     if (authService.isAdmin()) {
-      setError(
+      onShowError?.(
+        "Acceso Denegado",
         "Los administradores no pueden realizar compras. Usa una cuenta de usuario regular."
       );
       return;
@@ -191,7 +244,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   const handleDirectPayment = async () => {
     setIsLoading(true);
-    setError("");
 
     try {
       // Simular procesamiento de pago
@@ -203,11 +255,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
       if (!isSuccess) {
         const errorMessages = [
-          "Tarjeta rechazada por el banco",
-          "Fondos insuficientes",
-          "Tarjeta expirada",
-          "Error en el procesador de pagos",
-          "Tarjeta bloqueada",
+          t("additional.cardRejectedByBank"),
+          t("additional.insufficientFunds"),
+          t("additional.cardExpired"),
+          t("additional.paymentProcessorError"),
+          t("additional.cardBlocked"),
         ];
         throw new Error(
           errorMessages[Math.floor(Math.random() * errorMessages.length)]
@@ -245,9 +297,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       setTimeout(() => {
         onClose();
       }, 2000);
-    } catch (err: any) {
-      setError(
-        err.message ||
+    } catch (err: unknown) {
+      onShowError?.(
+        "Error de Pago",
+        (err instanceof Error ? err.message : "Error desconocido") ||
           "Error al procesar el pago. Por favor intenta nuevamente."
       );
     } finally {
@@ -368,7 +421,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     doc.text(
       `Envío: ${
         cartSummary.shipping === 0
-          ? "Gratis"
+          ? t("additional.free")
           : `$${cartSummary.shipping.toLocaleString()}`
       }`,
       20,
@@ -476,13 +529,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             })}
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="error-message">
-              <FaTimes />
-              {error}
-            </div>
-          )}
+          {/* Error messages now shown as global alerts */}
 
           {/* Step Content */}
           <div className="step-content">
@@ -498,7 +545,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       onChange={(e) =>
                         handleShippingChange("name", e.target.value)
                       }
-                      placeholder="Tu nombre completo"
+                      placeholder={t("additional.yourFullName")}
                     />
                   </div>
 
@@ -537,31 +584,49 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         }
                         placeholder="Calle 123 #45-67"
                       />
-                      <button
-                        type="button"
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={async () => {
-                          try {
-                            await getCurrentLocation();
-                            if (address) {
-                              setShippingAddress((prev) => ({
-                                ...prev,
-                                address: address.address,
-                                city: address.city,
-                                country: address.country,
-                                postalCode: address.postalCode,
-                              }));
+                      <div className="location-buttons">
+                        <button
+                          type="button"
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={async () => {
+                            try {
+                              await getCurrentLocation();
+                              if (address && location) {
+                                setShippingAddress((prev) => ({
+                                  ...prev,
+                                  address: address.address,
+                                  city: address.city,
+                                  country: address.country,
+                                  postalCode: address.postalCode,
+                                  coordinates: {
+                                    latitude: location.latitude,
+                                    longitude: location.longitude,
+                                  },
+                                }));
+                              }
+                            } catch (error) {
+                              console.error(
+                                "Error obteniendo ubicación:",
+                                error
+                              );
                             }
-                          } catch (error) {
-                            console.error("Error obteniendo ubicación:", error);
-                          }
-                        }}
-                        disabled={false}
-                      >
-                        {"📍"} Usar mi ubicación
-                      </button>
+                          }}
+                          disabled={false}
+                        >
+                          {"📍"} Usar mi ubicación
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm"
+                          onClick={() => setShowAddressModal(true)}
+                        >
+                          🗺️ Seleccionar en mapa
+                        </button>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Mapa interactivo removido - ahora se usa el modal */}
 
                   <div className="form-group">
                     <label>Ciudad *</label>
@@ -571,7 +636,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       onChange={(e) =>
                         handleShippingChange("city", e.target.value)
                       }
-                      placeholder="Bogotá"
+                      placeholder={t("additional.bogota")}
                     />
                   </div>
 
@@ -595,11 +660,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         handleShippingChange("country", e.target.value)
                       }
                     >
-                      <option value="Colombia">Colombia</option>
-                      <option value="México">México</option>
-                      <option value="Argentina">Argentina</option>
-                      <option value="Chile">Chile</option>
-                      <option value="Perú">Perú</option>
+                      <option value="Colombia">
+                        {t("additional.colombia")}
+                      </option>
+                      <option value="México">{t("additional.mexico")}</option>
+                      <option value="Argentina">
+                        {t("additional.argentina")}
+                      </option>
+                      <option value="Chile">{t("additional.chile")}</option>
+                      <option value="Perú">{t("additional.peru")}</option>
                     </select>
                   </div>
                 </div>
@@ -695,7 +764,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         onChange={(e) =>
                           handlePaymentChange("cardholderName", e.target.value)
                         }
-                        placeholder="Como aparece en la tarjeta"
+                        placeholder={t("additional.asItAppearsOnCard")}
                       />
                     </div>
 
@@ -753,7 +822,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       type="text"
                       value={discountCode}
                       onChange={(e) => setDiscountCode(e.target.value)}
-                      placeholder="Ingresa tu código de descuento"
+                      placeholder={t("additional.enterDiscountCode")}
                     />
                     <button onClick={applyDiscountCode} className="apply-btn">
                       Aplicar
@@ -777,7 +846,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       onChange={(e) =>
                         handleLoyaltyPointsChange(Number(e.target.value))
                       }
-                      placeholder="Puntos a usar"
+                      placeholder={t("additional.pointsToUse")}
                       min={0}
                       max={Math.floor(cartSummary.subtotal / 1000)}
                     />
@@ -895,7 +964,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <span>Envío</span>
                 <span>
                   {cartSummary.shipping === 0
-                    ? "Gratis"
+                    ? t("additional.free")
                     : `$${cartSummary.shipping.toLocaleString()}`}
                 </span>
               </div>
@@ -1002,6 +1071,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </div>
         </div>
       )}
+
+      {/* Address Selector Modal */}
+      <AddressSelectorModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onAddressSelect={handleAddressModalSelect}
+        initialAddress={
+          shippingAddress.coordinates
+            ? {
+                lat: shippingAddress.coordinates.latitude,
+                lng: shippingAddress.coordinates.longitude,
+                address: shippingAddress.address,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 };

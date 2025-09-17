@@ -6,9 +6,13 @@ import {
   FaCheck,
   FaEdit,
 } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 // import ProductForm from "../componets/ProductForm";
 // import { useProductForm } from "../hooks/useProductForm";
 import Chatbot from "../components/Chatbot";
+import GlobalAlert from "../components/GlobalAlert";
+import { useGlobalAlert } from "../hooks/useGlobalAlert";
+import LanguageSelector from "../components/LanguageSelector";
 import ShoppingCart from "../components/ShoppingCart";
 import AdvancedSearch from "../components/AdvancedSearch";
 import ProductFilters from "../components/ProductFilters";
@@ -44,8 +48,13 @@ import "../styles/FavoritesManager.css";
 import "../styles/WishlistManager.css";
 import "../styles/Pagination.css";
 import "../styles/LocationBanner.css";
+import "../styles/ProductCards.css";
+import "../styles/HomeAnimations.css";
 
 const Home = () => {
+  const { t } = useTranslation();
+  const { alert, showError, showSuccess, hideAlert } = useGlobalAlert();
+
   // const {
   //   isEditing,
   //   selectedProduct,
@@ -95,11 +104,7 @@ const Home = () => {
   // const [totalSearchResults, setTotalSearchResults] = useState(0);
 
   // Hook para geolocalización
-  const {
-    location,
-    error: _locationError,
-    getCurrentLocation,
-  } = useGeolocation();
+  const { location, getCurrentLocation } = useGeolocation();
 
   // Función para cargar productos
   const loadProducts = async () => {
@@ -133,7 +138,7 @@ const Home = () => {
     };
 
     initializeLocation();
-  }, []);
+  }, [getCurrentLocation]);
 
   // Cargar imágenes de productos
   useEffect(() => {
@@ -371,6 +376,8 @@ const Home = () => {
 
   return (
     <div className="ecommerce-container">
+      {/* Global Alert */}
+      <GlobalAlert alert={alert} onClose={hideAlert} />
       {/* Header Moderno */}
       <header className="modern-header">
         <div className="header-top">
@@ -378,14 +385,15 @@ const Home = () => {
             <div className="row align-items-center">
               <div className="col-md-6">
                 <div className="header-info">
-                  <span>🚚 Envío gratis en compras superiores a $200.000</span>
+                  <span>🚚 {t("header.freeShipping")}</span>
                 </div>
               </div>
               <div className="col-md-6 text-end">
                 <div className="header-links">
-                  <a href="#ayuda">Ayuda</a>
-                  <a href="#soporte">Soporte</a>
-                  <a href="#contacto">Contacto</a>
+                  <a href="#ayuda">{t("header.help")}</a>
+                  <a href="#soporte">{t("header.support")}</a>
+                  <a href="#contacto">{t("header.contact")}</a>
+                  <LanguageSelector />
                 </div>
               </div>
             </div>
@@ -401,8 +409,10 @@ const Home = () => {
                   <div className="logo-container">
                     <div className="logo-icon">👟</div>
                     <div className="logo-text">
-                      <h1 className="brand-name">Tekashi Shoes</h1>
-                      <p className="brand-tagline">Premium Footwear</p>
+                      <h1 className="brand-name">{t("header.brandName")}</h1>
+                      <p className="brand-tagline">
+                        {t("header.brandTagline")}
+                      </p>
                     </div>
                   </div>
                 </a>
@@ -451,10 +461,8 @@ const Home = () => {
         <div className="container">
           <div className="hero-content">
             <div className="hero-text">
-              <h1 className="hero-title">Encuentra tu par perfecto</h1>
-              <p className="hero-subtitle">
-                Descubre nuestra colección premium de zapatos para cada ocasión
-              </p>
+              <h1 className="hero-title">{t("hero.title")}</h1>
+              <p className="hero-subtitle">{t("hero.subtitle")}</p>
               <div className="hero-buttons">
                 <button
                   className="btn btn-primary btn-lg"
@@ -464,7 +472,7 @@ const Home = () => {
                       ?.scrollIntoView({ behavior: "smooth" });
                   }}
                 >
-                  Ver Colección
+                  {t("hero.viewCollection")}
                 </button>
                 <button
                   className="btn btn-outline-light btn-lg"
@@ -474,12 +482,16 @@ const Home = () => {
                       ?.scrollIntoView({ behavior: "smooth" });
                   }}
                 >
-                  Ofertas Especiales
+                  {t("hero.specialOffers")}
                 </button>
               </div>
             </div>
             <div className="hero-image">
-              <img src="/img-1.png" alt="Hero" className="hero-img" />
+              <img
+                src="/img-1.png"
+                alt={t("additional.heroImage")}
+                className="hero-img"
+              />
             </div>
           </div>
         </div>
@@ -489,7 +501,7 @@ const Home = () => {
       <section className="filters-section">
         <div className="container">
           <div className="filters-header">
-            <h2>Nuestros Productos</h2>
+            <h2>{t("products.ourProducts")}</h2>
           </div>
 
           {/* Filtros Avanzados */}
@@ -511,7 +523,7 @@ const Home = () => {
                 console.log("Filtrar todos los productos");
               }}
             >
-              Todos
+              {t("products.all")}
             </button>
             {/* Eliminar duplicados de tipos de producto */}
             {tiposProducto
@@ -577,7 +589,7 @@ const Home = () => {
                   onClick={async () => {
                     try {
                       await getCurrentLocation();
-                      alert(`Dirección obtenida exitosamente`);
+                      showSuccess("Éxito", "Dirección obtenida exitosamente");
                     } catch (error) {
                       console.error("Error obteniendo dirección:", error);
                     }
@@ -595,9 +607,9 @@ const Home = () => {
       <section className="products-section">
         <div className="container">
           <div className="products-header">
-            <h3>Productos Destacados</h3>
+            <h3>{t("products.featuredProducts")}</h3>
             <div className="products-count">
-              {filteredProducts.length} productos encontrados
+              {filteredProducts.length} {t("products.productsFound")}
             </div>
           </div>
 
@@ -617,7 +629,7 @@ const Home = () => {
                       <button
                         className="overlay-btn"
                         onClick={() => handleViewReviews(product)}
-                        title="Ver reseñas"
+                        title={t("additional.viewReviews")}
                       >
                         <FaEye />
                       </button>
@@ -628,7 +640,7 @@ const Home = () => {
                             : ""
                         }`}
                         onClick={() => handleToggleFavorite(product.idProducto)}
-                        title="Agregar a favoritos"
+                        title={t("additional.addToFavorites")}
                       >
                         <FaHeart />
                       </button>
@@ -725,7 +737,11 @@ const Home = () => {
           <div className="offers-content">
             <div className="offer-card">
               <div className="offer-image">
-                <img src="/img2.png" alt="Oferta" className="offer-img" />
+                <img
+                  src="/img2.png"
+                  alt={t("additional.offerImage")}
+                  className="offer-img"
+                />
               </div>
               <div className="offer-info">
                 <h3>Encuentra tu tenis perfecto</h3>
@@ -834,6 +850,8 @@ const Home = () => {
           isOpen={showCheckout}
           onClose={() => setShowCheckout(false)}
           onOrderComplete={handleOrderComplete}
+          onShowError={showError}
+          onShowSuccess={showSuccess}
         />
       )}
 

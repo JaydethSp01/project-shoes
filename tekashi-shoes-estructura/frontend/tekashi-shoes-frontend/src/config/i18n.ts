@@ -7,7 +7,7 @@ const resources = {
     translation: {
       // Navegación
       home: "Inicio",
-      products: "Productos",
+      productsNav: "Productos",
       about: "Acerca de",
       contact: "Contacto",
       login: "Iniciar Sesión",
@@ -19,7 +19,37 @@ const resources = {
       wishlist: "Lista de Deseos",
       admin: "Administración",
 
+      // Header
+      header: {
+        freeShipping: "Envío gratis en compras superiores a $200.000",
+        help: "Ayuda",
+        support: "Soporte",
+        contact: "Contacto",
+        brandName: "Tekashi Shoes",
+        brandTagline: "Premium Footwear",
+      },
+
+      // Hero Section
+      hero: {
+        title: "Encuentra tu par perfecto",
+        subtitle:
+          "Descubre nuestra colección premium de zapatos para cada ocasión",
+        viewCollection: "Ver Colección",
+        specialOffers: "Ofertas Especiales",
+      },
+
       // Productos
+      products: {
+        ourProducts: "Nuestros Productos",
+        searchPlaceholder: "Buscar productos...",
+        allCategories: "Todas las categorías",
+        allBrands: "Todas las marcas",
+        sortBy: "Ordenar por...",
+        filters: "Filtros",
+        all: "Todos",
+        featuredProducts: "Productos Destacados",
+        productsFound: "productos encontrados",
+      },
       product: "Producto",
       price: "Precio",
       stock: "Stock",
@@ -186,7 +216,7 @@ const resources = {
           exportReports: "Exportar Reportes",
           importProducts: "Importar Productos",
         },
-        products: {
+        productManagement: {
           management: "Gestión de Productos",
           searchPlaceholder: "Buscar productos...",
           newProduct: "Nuevo Producto",
@@ -367,13 +397,66 @@ const resources = {
         create: "Crear",
         update: "Actualizar",
       },
+
+      // Additional translations for hardcoded text
+      additional: {
+        // Language selector
+        selectLanguage: "Seleccionar idioma",
+        spanish: "Español",
+        english: "English",
+        french: "French",
+        portuguese: "Portuguese",
+
+        // Product filters
+        minimum: "Mínimo",
+        maximum: "Máximo",
+
+        // Checkout form
+        colombia: "Colombia",
+        mexico: "México",
+        argentina: "Argentina",
+        chile: "Chile",
+        peru: "Perú",
+        bogota: "Bogotá",
+        shipping: "Envío",
+        payment: "Pago",
+        confirmation: "Confirmación",
+        addressSelectedSuccessfully:
+          "La dirección ha sido seleccionada correctamente",
+        pleaseCompleteAllFields:
+          "Por favor completa todos los campos requeridos",
+        cardRejectedByBank: "Tarjeta rechazada por el banco",
+        insufficientFunds: "Fondos insuficientes",
+        cardExpired: "Tarjeta expirada",
+        paymentProcessorError: "Error en el procesador de pagos",
+        cardBlocked: "Tarjeta bloqueada",
+        free: "Gratis",
+        yourFullName: "Tu nombre completo",
+        asItAppearsOnCard: "Como aparece en la tarjeta",
+        enterDiscountCode: "Ingresa tu código de descuento",
+        pointsToUse: "Puntos a usar",
+
+        // Product actions
+        viewReviews: "Ver reseñas",
+        addToFavorites: "Agregar a favoritos",
+        productAdded: "Producto agregado",
+        favoriteAddedFromHome: "Favorito agregado desde la página principal",
+        filterAllProducts: "Filtrar todos los productos",
+
+        // Login
+        loginError: "Error al iniciar sesión",
+
+        // Alt text
+        heroImage: "Hero",
+        offerImage: "Oferta",
+      },
     },
   },
   en: {
     translation: {
       // Navigation
       home: "Home",
-      products: "Products",
+      productsNav: "Products",
       about: "About",
       contact: "Contact",
       login: "Login",
@@ -385,7 +468,36 @@ const resources = {
       wishlist: "Wishlist",
       admin: "Administration",
 
+      // Header
+      header: {
+        freeShipping: "Free shipping on orders over $200,000",
+        help: "Help",
+        support: "Support",
+        contact: "Contact",
+        brandName: "Tekashi Shoes",
+        brandTagline: "Premium Footwear",
+      },
+
+      // Hero Section
+      hero: {
+        title: "Find your perfect pair",
+        subtitle: "Discover our premium collection of shoes for every occasion",
+        viewCollection: "View Collection",
+        specialOffers: "Special Offers",
+      },
+
       // Products
+      products: {
+        ourProducts: "Our Products",
+        searchPlaceholder: "Search products...",
+        allCategories: "All categories",
+        allBrands: "All brands",
+        sortBy: "Sort by...",
+        filters: "Filters",
+        all: "All",
+        featuredProducts: "Featured Products",
+        productsFound: "products found",
+      },
       product: "Product",
       price: "Price",
       stock: "Stock",
@@ -552,7 +664,7 @@ const resources = {
           exportReports: "Export Reports",
           importProducts: "Import Products",
         },
-        products: {
+        productManagement: {
           management: "Product Management",
           searchPlaceholder: "Search products...",
           newProduct: "New Product",
@@ -732,6 +844,758 @@ const resources = {
         create: "Create",
         update: "Update",
       },
+
+      // Additional translations for hardcoded text
+      additional: {
+        // Language selector
+        selectLanguage: "Select language",
+        spanish: "Spanish",
+        english: "English",
+        french: "French",
+        portuguese: "Portuguese",
+
+        // Product filters
+        minimum: "Minimum",
+        maximum: "Maximum",
+
+        // Checkout form
+        colombia: "Colombia",
+        mexico: "Mexico",
+        argentina: "Argentina",
+        chile: "Chile",
+        peru: "Peru",
+        bogota: "Bogota",
+        shipping: "Shipping",
+        payment: "Payment",
+        confirmation: "Confirmation",
+        addressSelectedSuccessfully: "Address has been selected successfully",
+        pleaseCompleteAllFields: "Please complete all required fields",
+        cardRejectedByBank: "Card rejected by bank",
+        insufficientFunds: "Insufficient funds",
+        cardExpired: "Card expired",
+        paymentProcessorError: "Payment processor error",
+        cardBlocked: "Card blocked",
+        free: "Free",
+        yourFullName: "Your full name",
+        asItAppearsOnCard: "As it appears on card",
+        enterDiscountCode: "Enter your discount code",
+        pointsToUse: "Points to use",
+
+        // Product actions
+        viewReviews: "View reviews",
+        addToFavorites: "Add to favorites",
+        productAdded: "Product added",
+        favoriteAddedFromHome: "Favorite added from home page",
+        filterAllProducts: "Filter all products",
+
+        // Login
+        loginError: "Login error",
+
+        // Alt text
+        heroImage: "Hero",
+        offerImage: "Offer",
+      },
+    },
+  },
+
+  // French
+  fr: {
+    translation: {
+      // Navigation
+      home: "Accueil",
+      productsNav: "Produits",
+      about: "À propos",
+      contact: "Contact",
+      login: "Connexion",
+      register: "S'inscrire",
+      logout: "Déconnexion",
+      profile: "Profil",
+      cart: "Panier",
+      favorites: "Favoris",
+      wishlist: "Liste de souhaits",
+      admin: "Administration",
+
+      // Header
+      header: {
+        freeShipping:
+          "Livraison gratuite pour les commandes supérieures à 200 000 $",
+        help: "Aide",
+        support: "Support",
+        contact: "Contact",
+        brandName: "Tekashi Shoes",
+        brandTagline: "Chaussures Premium",
+      },
+
+      // Hero Section
+      hero: {
+        title: "Trouvez votre paire parfaite",
+        subtitle:
+          "Découvrez notre collection premium de chaussures pour chaque occasion",
+        viewCollection: "Voir la Collection",
+        specialOffers: "Offres Spéciales",
+      },
+
+      // Products
+      products: {
+        ourProducts: "Nos Produits",
+        searchPlaceholder: "Rechercher des produits...",
+        allCategories: "Toutes les catégories",
+        allBrands: "Toutes les marques",
+        sortBy: "Trier par...",
+        filters: "Filtres",
+        all: "Tous",
+        featuredProducts: "Produits Vedettes",
+        productsFound: "produits trouvés",
+      },
+      product: "Produit",
+      price: "Prix",
+      stock: "Stock",
+      brand: "Marque",
+      model: "Modèle",
+      size: "Taille",
+      color: "Couleur",
+      material: "Matériau",
+      gender: "Genre",
+      age: "Âge",
+      season: "Saison",
+      description: "Description",
+      addToCart: "Ajouter au Panier",
+      addToFavorites: "Ajouter aux Favoris",
+      addToWishlist: "Ajouter à la Liste de Souhaits",
+      removeFromFavorites: "Retirer des Favoris",
+      removeFromWishlist: "Retirer de la Liste de Souhaits",
+      outOfStock: "Rupture de Stock",
+      inStock: "En Stock",
+      onSale: "En Promotion",
+      featured: "Vedette",
+      new: "Nouveau",
+
+      // Genders
+      men: "Homme",
+      women: "Femme",
+      unisex: "Unisexe",
+      kids: "Enfants",
+      girls: "Filles",
+
+      // Ages
+      adult: "Adulte",
+      child: "Enfant",
+      baby: "Bébé",
+
+      // Seasons
+      spring: "Printemps",
+      summer: "Été",
+      autumn: "Automne",
+      winter: "Hiver",
+      allYear: "Toute l'Année",
+
+      // User
+      user: "Utilisateur",
+      users: "Utilisateurs",
+      name: "Nom",
+      email: "Email",
+      password: "Mot de passe",
+      confirmPassword: "Confirmer le Mot de passe",
+      phone: "Téléphone",
+      address: "Adresse",
+      role: "Rôle",
+      adminRole: "Administrateur",
+      client: "Client",
+      active: "Actif",
+      inactive: "Inactif",
+      lastLogin: "Dernière Connexion",
+      registrationDate: "Date d'Inscription",
+
+      // Authentication
+      auth: {
+        loginTitle: "Connexion",
+        registerTitle: "Créer un Compte",
+        forgotPassword: "Mot de passe oublié ?",
+        rememberMe: "Se souvenir de moi",
+        loginButton: "Se connecter",
+        registerButton: "S'inscrire",
+        loginSuccess: "Connexion réussie",
+        registerSuccess: "Inscription réussie",
+        logoutSuccess: "Déconnexion réussie",
+        loginError: "Erreur de connexion",
+        registerError: "Erreur d'inscription",
+        invalidCredentials: "Identifiants invalides",
+        emailAlreadyExists: "L'email existe déjà",
+        weakPassword: "Le mot de passe est trop faible",
+        userNotFound: "Utilisateur non trouvé",
+        email: "Email",
+        emailPlaceholder: "votre@email.com",
+        password: "Mot de passe",
+        loggingIn: "Connexion en cours...",
+        demoAccounts: "Comptes de démonstration :",
+        user: "Utilisateur",
+        admin: "Admin",
+        noAccount: "Pas de compte ?",
+        createNewAccount: "Créer un nouveau compte",
+      },
+
+      // Cart
+      shoppingCart: "Panier d'Achat",
+      cartEmpty: "Votre panier est vide",
+      cartTotal: "Total",
+      quantity: "Quantité",
+      subtotal: "Sous-total",
+      tax: "Taxe",
+      shipping: "Livraison",
+      checkout: "Commander",
+      removeItem: "Supprimer",
+      updateQuantity: "Mettre à jour la Quantité",
+
+      // Favorites
+      favoritesTitle: "Mes Favoris",
+      favoritesEmpty: "Vous n'avez pas de produits favoris",
+      addedToFavorites: "Ajouté aux favoris",
+      removedFromFavorites: "Retiré des favoris",
+
+      // Wishlist
+      wishlistTitle: "Liste de Souhaits",
+      wishlistEmpty: "Votre liste de souhaits est vide",
+      createWishlist: "Créer une Liste de Souhaits",
+      wishlistName: "Nom de la Liste",
+      wishlistDescription: "Description",
+      publicWishlist: "Liste Publique",
+      shareWishlist: "Partager la Liste",
+      addedToWishlist: "Ajouté à la liste de souhaits",
+      removedFromWishlist: "Retiré de la liste de souhaits",
+
+      // Notifications
+      notifications: "Notifications",
+      noNotifications: "Vous n'avez pas de notifications",
+      markAsRead: "Marquer comme Lu",
+      markAllAsRead: "Tout Marquer comme Lu",
+      deleteNotification: "Supprimer la Notification",
+      notificationTypes: {
+        info: "Information",
+        success: "Succès",
+        warning: "Avertissement",
+        error: "Erreur",
+        promotion: "Promotion",
+        stock: "Stock",
+        offer: "Offre",
+        system: "Système",
+      },
+
+      // Administration
+      dashboard: "Tableau de Bord",
+      statistics: "Statistiques",
+      userManagement: "Gestion des Utilisateurs",
+      productManagement: "Gestion des Produits",
+      orderManagement: "Gestion des Commandes",
+      systemSettings: "Paramètres du Système",
+      totalUsers: "Total Utilisateurs",
+      totalProducts: "Total Produits",
+      totalOrders: "Total Commandes",
+      totalSales: "Total Ventes",
+      newUsers: "Nouveaux Utilisateurs",
+      activeUsers: "Utilisateurs Actifs",
+      popularProducts: "Produits Populaires",
+      recentOrders: "Commandes Récentes",
+
+      // Search
+      search: "Rechercher",
+      searchPlaceholder: "Rechercher des produits...",
+      searchResults: "Résultats de Recherche",
+      noResults: "Aucun résultat trouvé",
+      filters: "Filtres",
+      sortBy: "Trier par",
+      priceRange: "Gamme de Prix",
+      brandFilter: "Marque",
+      category: "Catégorie",
+      clearFilters: "Effacer les Filtres",
+      applyFilters: "Appliquer les Filtres",
+
+      // Geolocation
+      location: "Emplacement",
+      currentLocation: "Emplacement Actuel",
+      selectLocation: "Sélectionner l'Emplacement",
+      locationPermission: "Permission d'Emplacement",
+      locationPermissionDenied: "Permission d'emplacement refusée",
+      locationUnavailable: "Emplacement indisponible",
+      nearbyStores: "Magasins à Proximité",
+      deliveryArea: "Zone de Livraison",
+
+      // General messages
+      loading: "Chargement...",
+      error: "Erreur",
+      success: "Succès",
+      warning: "Avertissement",
+      info: "Information",
+      confirm: "Confirmer",
+      cancel: "Annuler",
+      save: "Enregistrer",
+      edit: "Modifier",
+      delete: "Supprimer",
+      create: "Créer",
+      update: "Mettre à jour",
+      close: "Fermer",
+      retry: "Réessayer",
+      back: "Retour",
+      next: "Suivant",
+      previous: "Précédent",
+      finish: "Terminer",
+      continue: "Continuer",
+      yes: "Oui",
+      no: "Non",
+      ok: "OK",
+
+      // Forms
+      required: "Requis",
+      optional: "Optionnel",
+      invalidEmail: "Email invalide",
+      passwordTooShort: "Le mot de passe est trop court",
+      passwordsDoNotMatch: "Les mots de passe ne correspondent pas",
+      fieldRequired: "Ce champ est requis",
+
+      // Errors
+      errorOccurred: "Une erreur s'est produite",
+      networkError: "Erreur de réseau",
+      serverError: "Erreur du serveur",
+      notFound: "Non trouvé",
+      unauthorized: "Non autorisé",
+      forbidden: "Interdit",
+      validationError: "Erreur de validation",
+
+      // Footer
+      aboutUs: "À Propos de Nous",
+      contactUs: "Nous Contacter",
+      privacyPolicy: "Politique de Confidentialité",
+      termsOfService: "Conditions d'Utilisation",
+      shippingInfo: "Informations de Livraison",
+      returnPolicy: "Politique de Retour",
+      faq: "FAQ",
+      support: "Support",
+      followUs: "Suivez-nous",
+      newsletter: "Newsletter",
+      subscribe: "S'abonner",
+      unsubscribe: "Se désabonner",
+
+      // Copyright
+      copyright: "© 2024 Tekashi Shoes. Tous droits réservés.",
+      poweredBy: "Développé avec ❤️ par l'équipe Tekashi Shoes",
+
+      // Dashboard
+      userDashboard: {
+        overview: "Aperçu",
+        overviewDescription: "Vue d'ensemble de votre compte",
+        purchases: "Mes Commandes",
+        purchasesDescription: "Historique et statut des achats",
+        favorites: "Favoris",
+        favoritesDescription: "Produits que vous aimez",
+        wishlists: "Listes de Souhaits",
+        wishlistsDescription: "Produits à acheter plus tard",
+        notifications: "Notifications",
+        notificationsDescription: "Alertes et mises à jour",
+        profile: "Mon Profil",
+        profileDescription: "Informations personnelles et paramètres",
+      },
+
+      // Common
+      common: {
+        loading: "Chargement...",
+        retry: "Réessayer",
+        cancel: "Annuler",
+        create: "Créer",
+        update: "Mettre à jour",
+      },
+
+      // Additional translations for hardcoded text
+      additional: {
+        // Language selector
+        selectLanguage: "Sélectionner la langue",
+        spanish: "Espagnol",
+        english: "Anglais",
+        french: "Français",
+        portuguese: "Portugais",
+
+        // Product filters
+        minimum: "Minimum",
+        maximum: "Maximum",
+
+        // Checkout form
+        colombia: "Colombie",
+        mexico: "Mexique",
+        argentina: "Argentine",
+        chile: "Chili",
+        peru: "Pérou",
+        bogota: "Bogota",
+        shipping: "Livraison",
+        payment: "Paiement",
+        confirmation: "Confirmation",
+        addressSelectedSuccessfully: "L'adresse a été sélectionnée avec succès",
+        pleaseCompleteAllFields: "Veuillez compléter tous les champs requis",
+        cardRejectedByBank: "Carte rejetée par la banque",
+        insufficientFunds: "Fonds insuffisants",
+        cardExpired: "Carte expirée",
+        paymentProcessorError: "Erreur du processeur de paiement",
+        cardBlocked: "Carte bloquée",
+        free: "Gratuit",
+        yourFullName: "Votre nom complet",
+        asItAppearsOnCard: "Comme il apparaît sur la carte",
+        enterDiscountCode: "Entrez votre code de réduction",
+        pointsToUse: "Points à utiliser",
+
+        // Product actions
+        viewReviews: "Voir les avis",
+        addToFavorites: "Ajouter aux favoris",
+        productAdded: "Produit ajouté",
+        favoriteAddedFromHome: "Favori ajouté depuis la page d'accueil",
+        filterAllProducts: "Filtrer tous les produits",
+
+        // Login
+        loginError: "Erreur de connexion",
+
+        // Alt text
+        heroImage: "Héros",
+        offerImage: "Offre",
+      },
+    },
+  },
+
+  // Portuguese
+  pt: {
+    translation: {
+      // Header
+      header: {
+        freeShipping: "Frete grátis em compras superiores a $200.000",
+        help: "Ajuda",
+        support: "Suporte",
+        contact: "Contato",
+        brandName: "Tekashi Shoes",
+        brandTagline: "Calçados Premium",
+      },
+
+      // Hero Section
+      hero: {
+        title: "Encontre seu par perfeito",
+        subtitle: "Descubra nossa coleção premium de sapatos para cada ocasião",
+        viewCollection: "Ver Coleção",
+        specialOffers: "Ofertas Especiais",
+      },
+
+      // Products
+      products: {
+        ourProducts: "Nossos Produtos",
+        searchPlaceholder: "Buscar produtos...",
+        allCategories: "Todas as categorias",
+        allBrands: "Todas as marcas",
+        sortBy: "Ordenar por...",
+        filters: "Filtros",
+        all: "Todos",
+        featuredProducts: "Produtos em Destaque",
+        productsFound: "produtos encontrados",
+      },
+      product: "Produto",
+      price: "Preço",
+      stock: "Estoque",
+      brand: "Marca",
+      model: "Modelo",
+      size: "Tamanho",
+      color: "Cor",
+      material: "Material",
+      gender: "Gênero",
+      age: "Idade",
+      season: "Temporada",
+      description: "Descrição",
+      addToCart: "Adicionar ao Carrinho",
+      addToFavorites: "Adicionar aos Favoritos",
+      addToWishlist: "Adicionar à Lista de Desejos",
+      removeFromFavorites: "Remover dos Favoritos",
+      removeFromWishlist: "Remover da Lista de Desejos",
+      outOfStock: "Fora de Estoque",
+      inStock: "Em Estoque",
+      onSale: "Em Promoção",
+      featured: "Destaque",
+      new: "Novo",
+
+      // Genders
+      men: "Homem",
+      women: "Mulher",
+      unisex: "Unissex",
+      kids: "Crianças",
+      girls: "Meninas",
+
+      // Ages
+      adult: "Adulto",
+      child: "Criança",
+      baby: "Bebê",
+
+      // Seasons
+      spring: "Primavera",
+      summer: "Verão",
+      autumn: "Outono",
+      winter: "Inverno",
+      allYear: "Ano Todo",
+
+      // User
+      user: "Usuário",
+      users: "Usuários",
+      name: "Nome",
+      email: "Email",
+      password: "Senha",
+      confirmPassword: "Confirmar Senha",
+      phone: "Telefone",
+      address: "Endereço",
+      role: "Função",
+      adminRole: "Administrador",
+      client: "Cliente",
+      active: "Ativo",
+      inactive: "Inativo",
+      lastLogin: "Último Acesso",
+      registrationDate: "Data de Registro",
+
+      // Authentication
+      auth: {
+        loginTitle: "Entrar",
+        registerTitle: "Criar Conta",
+        forgotPassword: "Esqueceu sua senha?",
+        rememberMe: "Lembrar de mim",
+        loginButton: "Entrar",
+        registerButton: "Registrar",
+        loginSuccess: "Login realizado com sucesso",
+        registerSuccess: "Registro realizado com sucesso",
+        logoutSuccess: "Logout realizado com sucesso",
+        loginError: "Erro ao fazer login",
+        registerError: "Erro ao registrar",
+        invalidCredentials: "Credenciais inválidas",
+        emailAlreadyExists: "Email já existe",
+        weakPassword: "Senha muito fraca",
+        userNotFound: "Usuário não encontrado",
+        email: "Email",
+        emailPlaceholder: "seu@email.com",
+        password: "Senha",
+        loggingIn: "Entrando...",
+        demoAccounts: "Contas de demonstração:",
+        user: "Usuário",
+        admin: "Admin",
+        noAccount: "Não tem uma conta?",
+        createNewAccount: "Criar nova conta",
+      },
+
+      // Cart
+      shoppingCart: "Carrinho de Compras",
+      cartEmpty: "Seu carrinho está vazio",
+      cartTotal: "Total",
+      quantity: "Quantidade",
+      subtotal: "Subtotal",
+      tax: "Imposto",
+      shipping: "Frete",
+      checkout: "Finalizar Compra",
+      removeItem: "Remover",
+      updateQuantity: "Atualizar Quantidade",
+
+      // Favorites
+      favoritesTitle: "Meus Favoritos",
+      favoritesEmpty: "Você não tem produtos favoritos",
+      addedToFavorites: "Adicionado aos favoritos",
+      removedFromFavorites: "Removido dos favoritos",
+
+      // Wishlist
+      wishlistTitle: "Lista de Desejos",
+      wishlistEmpty: "Sua lista de desejos está vazia",
+      createWishlist: "Criar Lista de Desejos",
+      wishlistName: "Nome da Lista",
+      wishlistDescription: "Descrição",
+      publicWishlist: "Lista Pública",
+      shareWishlist: "Compartilhar Lista",
+      addedToWishlist: "Adicionado à lista de desejos",
+      removedFromWishlist: "Removido da lista de desejos",
+
+      // Notifications
+      notifications: "Notificações",
+      noNotifications: "Você não tem notificações",
+      markAsRead: "Marcar como Lido",
+      markAllAsRead: "Marcar Todas como Lidas",
+      deleteNotification: "Excluir Notificação",
+      notificationTypes: {
+        info: "Informação",
+        success: "Sucesso",
+        warning: "Aviso",
+        error: "Erro",
+        promotion: "Promoção",
+        stock: "Estoque",
+        offer: "Oferta",
+        system: "Sistema",
+      },
+
+      // Administration
+      dashboard: "Painel",
+      statistics: "Estatísticas",
+      userManagement: "Gestão de Usuários",
+      productManagement: "Gestão de Produtos",
+      orderManagement: "Gestão de Pedidos",
+      systemSettings: "Configurações do Sistema",
+      totalUsers: "Total de Usuários",
+      totalProducts: "Total de Produtos",
+      totalOrders: "Total de Pedidos",
+      totalSales: "Total de Vendas",
+      newUsers: "Novos Usuários",
+      activeUsers: "Usuários Ativos",
+      popularProducts: "Produtos Populares",
+      recentOrders: "Pedidos Recentes",
+
+      // Search
+      search: "Buscar",
+      searchPlaceholder: "Buscar produtos...",
+      searchResults: "Resultados da Busca",
+      noResults: "Nenhum resultado encontrado",
+      filters: "Filtros",
+      sortBy: "Ordenar por",
+      priceRange: "Faixa de Preço",
+      brandFilter: "Marca",
+      category: "Categoria",
+      clearFilters: "Limpar Filtros",
+      applyFilters: "Aplicar Filtros",
+
+      // Geolocation
+      location: "Localização",
+      currentLocation: "Localização Atual",
+      selectLocation: "Selecionar Localização",
+      locationPermission: "Permissão de Localização",
+      locationPermissionDenied: "Permissão de localização negada",
+      locationUnavailable: "Localização indisponível",
+      nearbyStores: "Lojas Próximas",
+      deliveryArea: "Área de Entrega",
+
+      // General messages
+      loading: "Carregando...",
+      error: "Erro",
+      success: "Sucesso",
+      warning: "Aviso",
+      info: "Informação",
+      confirm: "Confirmar",
+      cancel: "Cancelar",
+      save: "Salvar",
+      edit: "Editar",
+      delete: "Excluir",
+      create: "Criar",
+      update: "Atualizar",
+      close: "Fechar",
+      retry: "Tentar Novamente",
+      back: "Voltar",
+      next: "Próximo",
+      previous: "Anterior",
+      finish: "Finalizar",
+      continue: "Continuar",
+      yes: "Sim",
+      no: "Não",
+      ok: "OK",
+
+      // Forms
+      required: "Obrigatório",
+      optional: "Opcional",
+      invalidEmail: "Email inválido",
+      passwordTooShort: "Senha muito curta",
+      passwordsDoNotMatch: "As senhas não coincidem",
+      fieldRequired: "Este campo é obrigatório",
+
+      // Errors
+      errorOccurred: "Ocorreu um erro",
+      networkError: "Erro de rede",
+      serverError: "Erro do servidor",
+      notFound: "Não encontrado",
+      unauthorized: "Não autorizado",
+      forbidden: "Proibido",
+      validationError: "Erro de validação",
+
+      // Footer
+      aboutUs: "Sobre Nós",
+      contactUs: "Entre em Contato",
+      privacyPolicy: "Política de Privacidade",
+      termsOfService: "Termos de Serviço",
+      shippingInfo: "Informações de Frete",
+      returnPolicy: "Política de Devolução",
+      faq: "FAQ",
+      support: "Suporte",
+      followUs: "Siga-nos",
+      newsletter: "Newsletter",
+      subscribe: "Inscrever-se",
+      unsubscribe: "Cancelar Inscrição",
+
+      // Copyright
+      copyright: "© 2024 Tekashi Shoes. Todos os direitos reservados.",
+      poweredBy: "Desenvolvido com ❤️ pela equipe Tekashi Shoes",
+
+      // Dashboard
+      userDashboard: {
+        overview: "Visão Geral",
+        overviewDescription: "Visão geral da sua conta",
+        purchases: "Meus Pedidos",
+        purchasesDescription: "Histórico e status de compras",
+        favorites: "Favoritos",
+        favoritesDescription: "Produtos que você gosta",
+        wishlists: "Listas de Desejos",
+        wishlistsDescription: "Produtos para comprar depois",
+        notifications: "Notificações",
+        notificationsDescription: "Alertas e atualizações",
+        profile: "Meu Perfil",
+        profileDescription: "Informações pessoais e configurações",
+      },
+
+      // Common
+      common: {
+        loading: "Carregando...",
+        retry: "Tentar Novamente",
+        cancel: "Cancelar",
+        create: "Criar",
+        update: "Atualizar",
+      },
+
+      // Additional translations for hardcoded text
+      additional: {
+        // Language selector
+        selectLanguage: "Selecionar idioma",
+        spanish: "Espanhol",
+        english: "Inglês",
+        french: "Francês",
+        portuguese: "Português",
+
+        // Product filters
+        minimum: "Mínimo",
+        maximum: "Máximo",
+
+        // Checkout form
+        colombia: "Colômbia",
+        mexico: "México",
+        argentina: "Argentina",
+        chile: "Chile",
+        peru: "Peru",
+        bogota: "Bogotá",
+        shipping: "Frete",
+        payment: "Pagamento",
+        confirmation: "Confirmação",
+        addressSelectedSuccessfully: "Endereço foi selecionado com sucesso",
+        pleaseCompleteAllFields:
+          "Por favor, complete todos os campos obrigatórios",
+        cardRejectedByBank: "Cartão rejeitado pelo banco",
+        insufficientFunds: "Fundos insuficientes",
+        cardExpired: "Cartão expirado",
+        paymentProcessorError: "Erro no processador de pagamento",
+        cardBlocked: "Cartão bloqueado",
+        free: "Grátis",
+        yourFullName: "Seu nome completo",
+        asItAppearsOnCard: "Como aparece no cartão",
+        enterDiscountCode: "Digite seu código de desconto",
+        pointsToUse: "Pontos a usar",
+
+        // Product actions
+        viewReviews: "Ver avaliações",
+        addToFavorites: "Adicionar aos favoritos",
+        productAdded: "Produto adicionado",
+        favoriteAddedFromHome: "Favorito adicionado da página inicial",
+        filterAllProducts: "Filtrar todos os produtos",
+
+        // Login
+        loginError: "Erro ao fazer login",
+
+        // Alt text
+        heroImage: "Herói",
+        offerImage: "Oferta",
+      },
     },
   },
 };
@@ -739,7 +1603,7 @@ const resources = {
 // Configuración de i18next
 i18n.use(initReactI18next).init({
   resources,
-  lng: "es", // idioma por defecto
+  lng: localStorage.getItem("preferred-language") || "es", // idioma por defecto
   fallbackLng: "es",
   interpolation: {
     escapeValue: false, // React ya escapa los valores
@@ -747,6 +1611,7 @@ i18n.use(initReactI18next).init({
   detection: {
     order: ["localStorage", "navigator", "htmlTag"],
     caches: ["localStorage"],
+    lookupLocalStorage: "preferred-language",
   },
 });
 

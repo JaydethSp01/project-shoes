@@ -2,246 +2,311 @@ const admin = require("firebase-admin");
 const jwt = require("jsonwebtoken");
 const Usuario = require("../models/Usuario");
 
-// Inicializar Firebase Admin si no está inicializado
-if (!admin.apps.length) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        clientId: process.env.FIREBASE_CLIENT_ID,
-        authUri: process.env.FIREBASE_AUTH_URI,
-        tokenUri: process.env.FIREBASE_TOKEN_URI,
-        authProviderX509CertUrl:
-          process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-        clientX509CertUrl: process.env.FIREBASE_CLIENT_X509_CERT_URL,
-      }),
-    });
-  } catch (error) {
-    console.error("Error initializing Firebase Admin:", error);
+// Inicializar Firebase Admin solo si las credenciales están disponibles
+let firebaseInitialized = false;
+
+const initializeFirebase = () => {
+  if (
+    !firebaseInitialized &&
+    process.env.FIREBASE_PROJECT_ID &&
+    process.env.FIREBASE_PRIVATE_KEY
+  ) {
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          clientId: process.env.FIREBASE_CLIENT_ID,
+          authUri: process.env.FIREBASE_AUTH_URI,
+          tokenUri: process.env.FIREBASE_TOKEN_URI,
+          authProviderX509CertUrl:
+            process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+          clientX509CertUrl: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+        }),
+      });
+      firebaseInitialized = true;
+      console.log("✅ Firebase Admin initialized successfully");
+    } catch (error) {
+      console.error("❌ Error initializing Firebase Admin:", error.message);
+      firebaseInitialized = false;
+    }
   }
-}
+};
+
+// Inicializar Firebase al cargar el módulo
+initializeFirebase();
 
 // Middleware para verificar autenticación con Firebase
 const verificarFirebaseAuth = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    if (!firebaseInitialized) {
+      return res.status(503).json({
+        success: false,
+        error: "Firebase authentication not available",
+        message: "El servicio de autenticación no está disponible",
+      });
+    }
 
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
         error: "Token de autorización requerido",
+        message: "Debe proporcionar un token de autorización válido",
       });
     }
 
     const token = authHeader.split(" ")[1];
 
-    // Verificar token con Firebase
+    // Verificar el token con Firebase Admin
     const decodedToken = await admin.auth().verifyIdToken(token);
 
-    // Buscar o crear usuario en la base de datos
+    // Buscar o crear el usuario en la base de datos
     let usuario = await Usuario.findOne({ firebaseUid: decodedToken.uid });
 
     if (!usuario) {
       // Crear usuario si no existe
       usuario = new Usuario({
         firebaseUid: decodedToken.uid,
+        nombre: decodedToken.name || "Usuario",
         email: decodedToken.email,
-        nombre: decodedToken.name || decodedToken.email.split("@")[0],
         rol: "CLIENTE",
         activo: true,
+        fechaRegistro: new Date(),
       });
       await usuario.save();
     }
 
-    req.usuario = usuario;
-    req.firebaseUser = decodedToken;
+    // Agregar información del usuario a la request
+    req.usuario = {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      name: decodedToken.name,
+      userId: usuario._id,
+    };
+
     next();
   } catch (error) {
-    console.error("Error verifying Firebase token:", error);
+    console.error("Error en verificarFirebaseAuth:", error);
+
+    if (error.code === "auth/id-token-expired") {
+      return res.status(401).json({
+        success: false,
+        error: "Token expirado",
+        message: "Su sesión ha expirado, por favor inicie sesión nuevamente",
+      });
+    }
+
+    if (error.code === "auth/invalid-id-token") {
+      return res.status(401).json({
+        success: false,
+        error: "Token inválido",
+        message: "El token de autorización no es válido",
+      });
+    }
+
     return res.status(401).json({
       success: false,
-      error: "Token inválido o expirado",
+      error: "Error de autenticación",
+      message: "No se pudo verificar la autenticación",
     });
   }
 };
 
-// Middleware para verificar autenticación con JWT (fallback)
-const verificarJWT = async (req, res, next) => {
+// Middleware para verificar si el usuario es administrador
+const verificarAdmin = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!req.usuario) {
       return res.status(401).json({
         success: false,
-        error: "Token de autorización requerido",
+        error: "Usuario no autenticado",
+        message: "Debe estar autenticado para acceder a esta funcionalidad",
       });
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const usuario = await Usuario.findOne({ firebaseUid: req.usuario.uid });
 
-    const usuario = await Usuario.findById(decoded.id);
-
-    if (!usuario || !usuario.activo) {
-      return res.status(401).json({
+    if (!usuario || usuario.rol !== "ADMIN") {
+      return res.status(403).json({
         success: false,
-        error: "Usuario no encontrado o inactivo",
+        error: "Acceso denegado",
+        message:
+          "No tiene permisos de administrador para acceder a esta funcionalidad",
       });
     }
 
-    req.usuario = usuario;
     next();
   } catch (error) {
-    console.error("Error verifying JWT:", error);
-    return res.status(401).json({
+    console.error("Error en verificarAdmin:", error);
+    return res.status(500).json({
       success: false,
-      error: "Token inválido o expirado",
+      error: "Error interno del servidor",
+      message: "Error al verificar permisos de administrador",
     });
   }
-};
-
-// Middleware para verificar roles de administrador
-const verificarAdmin = (req, res, next) => {
-  if (!req.usuario) {
-    return res.status(401).json({
-      success: false,
-      error: "Usuario no autenticado",
-    });
-  }
-
-  if (req.usuario.rol !== "ADMIN") {
-    return res.status(403).json({
-      success: false,
-      error: "Acceso denegado. Se requieren permisos de administrador",
-    });
-  }
-
-  next();
 };
 
 // Middleware para verificar si el usuario es propietario del recurso
-const verificarPropietario = (req, res, next) => {
-  if (!req.usuario) {
-    return res.status(401).json({
-      success: false,
-      error: "Usuario no autenticado",
-    });
-  }
+const verificarPropietario = async (req, res, next) => {
+  try {
+    if (!req.usuario) {
+      return res.status(401).json({
+        success: false,
+        error: "Usuario no autenticado",
+        message: "Debe estar autenticado para acceder a esta funcionalidad",
+      });
+    }
 
-  const resourceUserId = req.params.usuarioId || req.body.usuarioId;
+    const resourceId = req.params.id;
+    const usuario = await Usuario.findOne({ firebaseUid: req.usuario.uid });
 
-  if (
-    req.usuario.rol === "ADMIN" ||
-    req.usuario._id.toString() === resourceUserId
-  ) {
+    if (!usuario) {
+      return res.status(404).json({
+        success: false,
+        error: "Usuario no encontrado",
+        message: "El usuario no existe en la base de datos",
+      });
+    }
+
+    // Verificar si el usuario es propietario del recurso o es administrador
+    if (usuario._id.toString() !== resourceId && usuario.rol !== "ADMIN") {
+      return res.status(403).json({
+        success: false,
+        error: "Acceso denegado",
+        message: "No tiene permisos para acceder a este recurso",
+      });
+    }
+
     next();
-  } else {
-    return res.status(403).json({
+  } catch (error) {
+    console.error("Error en verificarPropietario:", error);
+    return res.status(500).json({
       success: false,
-      error: "Acceso denegado. No tienes permisos para acceder a este recurso",
+      error: "Error interno del servidor",
+      message: "Error al verificar permisos de propietario",
     });
   }
 };
 
-// Middleware opcional de autenticación (no falla si no hay token)
+// Middleware para autenticación opcional (permite acceso sin autenticación)
 const autenticacionOpcional = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.split(" ")[1];
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      // No hay token, continuar sin autenticación
+      req.usuario = null;
+      return next();
+    }
 
-      try {
-        // Intentar con Firebase primero
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        let usuario = await Usuario.findOne({ firebaseUid: decodedToken.uid });
+    if (!firebaseInitialized) {
+      // Firebase no disponible, continuar sin autenticación
+      req.usuario = null;
+      return next();
+    }
 
-        if (usuario) {
-          req.usuario = usuario;
-          req.firebaseUser = decodedToken;
-        }
-      } catch (firebaseError) {
-        try {
-          // Fallback a JWT
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
-          const usuario = await Usuario.findById(decoded.id);
+    const token = authHeader.split(" ")[1];
 
-          if (usuario && usuario.activo) {
-            req.usuario = usuario;
-          }
-        } catch (jwtError) {
-          // Ignorar errores de token en autenticación opcional
-        }
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(token);
+
+      // Buscar el usuario en la base de datos
+      const usuario = await Usuario.findOne({ firebaseUid: decodedToken.uid });
+
+      if (usuario) {
+        req.usuario = {
+          uid: decodedToken.uid,
+          email: decodedToken.email,
+          name: decodedToken.name,
+          userId: usuario._id,
+        };
+      } else {
+        req.usuario = null;
       }
+    } catch (tokenError) {
+      // Token inválido, continuar sin autenticación
+      req.usuario = null;
     }
 
     next();
   } catch (error) {
-    // En autenticación opcional, continuar sin usuario
+    console.error("Error en autenticacionOpcional:", error);
+    // En caso de error, continuar sin autenticación
+    req.usuario = null;
     next();
   }
 };
 
-// Middleware para validar datos de entrada
+// Middleware para validar datos con Joi
 const validarDatos = (schema) => {
   return (req, res, next) => {
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
 
     if (error) {
+      const errores = error.details.map((detail) => ({
+        campo: detail.path.join("."),
+        mensaje: detail.message,
+      }));
+
       return res.status(400).json({
         success: false,
         error: "Datos de entrada inválidos",
-        detalles: error.details.map((detail) => detail.message),
+        message: "Los datos proporcionados no son válidos",
+        detalles: errores,
       });
     }
 
+    req.body = value;
     next();
   };
 };
 
-// Middleware para verificar límites de rate limiting personalizados
-const rateLimitPersonalizado = (opciones = {}) => {
-  const { windowMs = 15 * 60 * 1000, max = 100, keyGenerator } = opciones;
-  const requests = new Map();
+// Middleware para manejar errores de autenticación
+const manejarErrorAuth = (error, req, res, next) => {
+  console.error("Error de autenticación:", error);
 
-  return (req, res, next) => {
-    const key = keyGenerator ? keyGenerator(req) : req.ip;
-    const now = Date.now();
-    const windowStart = now - windowMs;
+  if (error.code === "auth/id-token-expired") {
+    return res.status(401).json({
+      success: false,
+      error: "Token expirado",
+      message: "Su sesión ha expirado, por favor inicie sesión nuevamente",
+    });
+  }
 
-    // Limpiar requests antiguos
-    if (requests.has(key)) {
-      const userRequests = requests
-        .get(key)
-        .filter((time) => time > windowStart);
-      requests.set(key, userRequests);
-    } else {
-      requests.set(key, []);
-    }
+  if (error.code === "auth/invalid-id-token") {
+    return res.status(401).json({
+      success: false,
+      error: "Token inválido",
+      message: "El token de autorización no es válido",
+    });
+  }
 
-    const userRequests = requests.get(key);
+  if (error.code === "auth/user-not-found") {
+    return res.status(404).json({
+      success: false,
+      error: "Usuario no encontrado",
+      message: "El usuario especificado no existe",
+    });
+  }
 
-    if (userRequests.length >= max) {
-      return res.status(429).json({
-        success: false,
-        error: "Demasiadas solicitudes. Intenta de nuevo más tarde.",
-      });
-    }
-
-    userRequests.push(now);
-    next();
-  };
+  return res.status(500).json({
+    success: false,
+    error: "Error interno del servidor",
+    message: "Error de autenticación",
+  });
 };
 
 module.exports = {
   verificarFirebaseAuth,
-  verificarJWT,
   verificarAdmin,
   verificarPropietario,
   autenticacionOpcional,
   validarDatos,
-  rateLimitPersonalizado,
+  manejarErrorAuth,
+  initializeFirebase,
 };
