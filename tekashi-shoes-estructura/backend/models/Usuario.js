@@ -141,3 +141,4 @@ usuarioSchema.methods.actualizarUltimoLogin = function () {
 };
 
 module.exports = mongoose.model("Usuario", usuarioSchema);
+

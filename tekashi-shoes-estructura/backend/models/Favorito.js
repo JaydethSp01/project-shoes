@@ -239,3 +239,4 @@ favoritoSchema.methods.actualizarNotificaciones = function (configuracion) {
 };
 
 module.exports = mongoose.model("Favorito", favoritoSchema);
+

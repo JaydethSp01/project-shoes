@@ -289,3 +289,4 @@ export const useNearbyStores = (userLocation: LocationData | null) => {
     findNearbyStores,
   };
 };
+

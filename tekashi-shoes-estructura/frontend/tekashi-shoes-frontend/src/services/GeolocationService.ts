@@ -383,3 +383,4 @@ class GeolocationService {
 // Instancia singleton del servicio
 export const geolocationService = new GeolocationService();
 export default geolocationService;
+

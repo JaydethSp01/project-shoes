@@ -401,3 +401,4 @@ notificacionSchema.methods.obtenerTextoTraducido = function (
 };
 
 module.exports = mongoose.model("Notificacion", notificacionSchema);
+

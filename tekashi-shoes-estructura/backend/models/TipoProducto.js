@@ -108,3 +108,4 @@ tipoProductoSchema.methods.actualizarContadorProductos = async function () {
 };
 
 module.exports = mongoose.model("TipoProducto", tipoProductoSchema);
+

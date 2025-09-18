@@ -1,0 +1,56 @@
+{
+  "name": "tekashi-shoes",
+  "version": "1.0.0",
+  "description": "E-commerce platform for shoes with modern technologies",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd tekashi-shoes-estructura/backend && npm run dev",
+    "dev:frontend": "cd tekashi-shoes-estructura/frontend/tekashi-shoes-frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd tekashi-shoes-estructura/backend && npm run build",
+    "build:frontend": "cd tekashi-shoes-estructura/frontend/tekashi-shoes-frontend && npm run build",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd tekashi-shoes-estructura/backend && npm start",
+    "start:frontend": "cd tekashi-shoes-estructura/frontend/tekashi-shoes-frontend && npm run preview",
+    "install:all": "npm install && cd tekashi-shoes-estructura/backend && npm install && cd ../frontend/tekashi-shoes-frontend && npm install",
+    "docker:up": "cd tekashi-shoes-estructura && docker-compose up -d",
+    "docker:down": "cd tekashi-shoes-estructura && docker-compose down",
+    "docker:build": "cd tekashi-shoes-estructura && docker-compose build",
+    "seed": "cd tekashi-shoes-estructura/backend && npm run seed",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd tekashi-shoes-estructura/backend && npm test",
+    "test:frontend": "cd tekashi-shoes-estructura/frontend/tekashi-shoes-frontend && npm test",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd tekashi-shoes-estructura/backend && npm run lint",
+    "lint:frontend": "cd tekashi-shoes-estructura/frontend/tekashi-shoes-frontend && npm run lint",
+    "clean": "rm -rf node_modules tekashi-shoes-estructura/backend/node_modules tekashi-shoes-estructura/frontend/tekashi-shoes-frontend/node_modules"
+  },
+  "keywords": [
+    "ecommerce",
+    "shoes",
+    "react",
+    "nodejs",
+    "mongodb",
+    "firebase",
+    "typescript",
+    "docker"
+  ],
+  "author": "Tekashi Shoes Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/tekashi-shoes.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/tekashi-shoes/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/tekashi-shoes#readme"
+}

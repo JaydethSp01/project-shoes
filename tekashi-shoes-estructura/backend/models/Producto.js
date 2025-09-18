@@ -267,3 +267,4 @@ productoSchema.statics.obtenerEnOferta = function (limite = 10) {
 };
 
 module.exports = mongoose.model("Producto", productoSchema);
+

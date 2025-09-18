@@ -373,3 +373,4 @@ router.get("/stock-bajo", verificarFirebaseAuth, async (req, res, next) => {
 });
 
 module.exports = router;
+

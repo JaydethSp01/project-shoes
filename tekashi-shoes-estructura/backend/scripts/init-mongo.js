@@ -58,3 +58,4 @@ db.tiposproducto.insertMany([
 ]);
 
 print("MongoDB initialization completed successfully!");
+

@@ -344,3 +344,4 @@ wishlistSchema.methods.obtenerProductosEnOferta = async function () {
 };
 
 module.exports = mongoose.model("Wishlist", wishlistSchema);
+

@@ -519,3 +519,4 @@ router.get("/:id/ofertas", verificarFirebaseAuth, async (req, res, next) => {
 });
 
 module.exports = router;
+

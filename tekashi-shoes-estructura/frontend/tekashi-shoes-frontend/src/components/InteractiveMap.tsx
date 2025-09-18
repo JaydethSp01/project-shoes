@@ -239,3 +239,5 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
 };
 
 export default InteractiveMap;
+
+

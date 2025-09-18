@@ -221,3 +221,4 @@ imagenSchema.methods.generarUrlsOptimizadas = function () {
 };
 
 module.exports = mongoose.model("Imagen", imagenSchema);
+
