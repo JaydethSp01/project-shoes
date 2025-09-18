@@ -10,40 +10,6 @@ const {
 const { validarDatos } = require("../middleware/authMiddleware");
 const Joi = require("joi");
 
-// Endpoint de debug para verificar la conexión a la base de datos
-router.get("/debug", async (req, res) => {
-  try {
-    const mongoose = require("mongoose");
-    const connectionState = mongoose.connection.readyState;
-    const dbName = mongoose.connection.db ? mongoose.connection.db.databaseName : "No connected";
-    
-    // Intentar contar productos
-    const productCount = await Producto.countDocuments();
-    const tipoCount = await TipoProducto.countDocuments();
-    
-    res.json({
-      success: true,
-      debug: {
-        connectionState: connectionState, // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
-        dbName: dbName,
-        productCount: productCount,
-        tipoCount: tipoCount,
-        env: process.env.NODE_ENV,
-        mongodbUri: process.env.MONGODB_URI ? "Set" : "Not set"
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      debug: {
-        connectionState: mongoose.connection.readyState,
-        env: process.env.NODE_ENV
-      }
-    });
-  }
-});
-
 // Endpoint simple sin middleware para probar
 router.get("/test", async (req, res) => {
   res.json({ message: "API funcionando", timestamp: new Date().toISOString() });
