@@ -225,19 +225,13 @@ const autenticacionOpcional = async (req, res, next) => {
     try {
       const decodedToken = await admin.auth().verifyIdToken(token);
 
-      // Buscar el usuario en la base de datos
-      const usuario = await Usuario.findOne({ firebaseUid: decodedToken.uid });
-
-      if (usuario) {
-        req.usuario = {
-          uid: decodedToken.uid,
-          email: decodedToken.email,
-          name: decodedToken.name,
-          userId: usuario._id,
-        };
-      } else {
-        req.usuario = null;
-      }
+      // Simplificado: no hacer consulta a la base de datos
+      req.usuario = {
+        uid: decodedToken.uid,
+        email: decodedToken.email,
+        name: decodedToken.name,
+        userId: null,
+      };
     } catch (tokenError) {
       // Token inválido, continuar sin autenticación
       req.usuario = null;
