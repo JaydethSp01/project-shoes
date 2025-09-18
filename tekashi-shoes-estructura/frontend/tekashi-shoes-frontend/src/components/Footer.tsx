@@ -8,9 +8,12 @@ import {
   FaCode,
   FaRocket,
 } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import "../styles/Footer.css";
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="footer">
       <div className="container">
@@ -20,13 +23,9 @@ const Footer: React.FC = () => {
               <div className="footer-section">
                 <h5>
                   <FaRocket className="me-2" />
-                  Tekashi Shoes
+                  {t("header.brandName")}
                 </h5>
-                <p>
-                  La mejor plataforma de e-commerce para calzado deportivo y
-                  casual. Encuentra los zapatos perfectos para cada ocasión con
-                  la mejor calidad y precios.
-                </p>
+                <p>{t("additional.footer.description")}</p>
                 <div className="social-links mt-3">
                   <a href="#" className="me-3">
                     <FaGithub size={20} />
@@ -46,22 +45,22 @@ const Footer: React.FC = () => {
 
             <div className="col-md-2">
               <div className="footer-section">
-                <h5>Productos</h5>
+                <h5>{t("additional.footer.products")}</h5>
                 <ul className="list-unstyled">
                   <li>
-                    <a href="#">Tenis Deportivos</a>
+                    <a href="#">{t("additional.footer.sportsSneakers")}</a>
                   </li>
                   <li>
-                    <a href="#">Zapatillas</a>
+                    <a href="#">{t("additional.footer.sneakers")}</a>
                   </li>
                   <li>
-                    <a href="#">Tacones</a>
+                    <a href="#">{t("additional.footer.heels")}</a>
                   </li>
                   <li>
-                    <a href="#">Botas</a>
+                    <a href="#">{t("additional.footer.boots")}</a>
                   </li>
                   <li>
-                    <a href="#">Mocasines</a>
+                    <a href="#">{t("additional.footer.loafers")}</a>
                   </li>
                 </ul>
               </div>
@@ -69,22 +68,22 @@ const Footer: React.FC = () => {
 
             <div className="col-md-2">
               <div className="footer-section">
-                <h5>Empresa</h5>
+                <h5>{t("additional.footer.company")}</h5>
                 <ul className="list-unstyled">
                   <li>
-                    <a href="#">Sobre Nosotros</a>
+                    <a href="#">{t("additional.footer.aboutUs")}</a>
                   </li>
                   <li>
-                    <a href="#">Nuestra Historia</a>
+                    <a href="#">{t("additional.footer.ourHistory")}</a>
                   </li>
                   <li>
-                    <a href="#">Carreras</a>
+                    <a href="#">{t("additional.footer.careers")}</a>
                   </li>
                   <li>
-                    <a href="#">Prensa</a>
+                    <a href="#">{t("additional.footer.press")}</a>
                   </li>
                   <li>
-                    <a href="#">Contacto</a>
+                    <a href="#">{t("additional.footer.contact")}</a>
                   </li>
                 </ul>
               </div>
@@ -92,22 +91,22 @@ const Footer: React.FC = () => {
 
             <div className="col-md-2">
               <div className="footer-section">
-                <h5>Soporte</h5>
+                <h5>{t("additional.footer.support")}</h5>
                 <ul className="list-unstyled">
                   <li>
-                    <a href="#">Centro de Ayuda</a>
+                    <a href="#">{t("additional.footer.helpCenter")}</a>
                   </li>
                   <li>
-                    <a href="#">Guía de Tallas</a>
+                    <a href="#">{t("additional.footer.sizeGuide")}</a>
                   </li>
                   <li>
-                    <a href="#">Envíos</a>
+                    <a href="#">{t("additional.footer.shipping")}</a>
                   </li>
                   <li>
-                    <a href="#">Devoluciones</a>
+                    <a href="#">{t("additional.footer.returns")}</a>
                   </li>
                   <li>
-                    <a href="#">Garantía</a>
+                    <a href="#">{t("additional.footer.warranty")}</a>
                   </li>
                 </ul>
               </div>
@@ -115,19 +114,19 @@ const Footer: React.FC = () => {
 
             <div className="col-md-2">
               <div className="footer-section">
-                <h5>Legal</h5>
+                <h5>{t("additional.footer.legal")}</h5>
                 <ul className="list-unstyled">
                   <li>
-                    <a href="#">Términos de Uso</a>
+                    <a href="#">{t("additional.footer.termsOfUse")}</a>
                   </li>
                   <li>
-                    <a href="#">Política de Privacidad</a>
+                    <a href="#">{t("additional.footer.privacyPolicy")}</a>
                   </li>
                   <li>
-                    <a href="#">Cookies</a>
+                    <a href="#">{t("additional.footer.cookies")}</a>
                   </li>
                   <li>
-                    <a href="#">Aviso Legal</a>
+                    <a href="#">{t("additional.footer.legalNotice")}</a>
                   </li>
                 </ul>
               </div>
@@ -139,24 +138,24 @@ const Footer: React.FC = () => {
               <div className="col-md-6">
                 <h6>
                   <FaCode className="me-2" />
-                  Desarrollado con ❤️ por
+                  {t("additional.footer.developedWith")}
                 </h6>
                 <p>
-                  <strong>David Santiago Sallas Pérez</strong>
+                  <strong>{t("additional.footer.developerName")}</strong>
                 </p>
-                <p>Ingeniero de Sistemas | Uniempresarial</p>
-                <p>Desarrollador Full Stack Especializado</p>
-                <p>React, Node.js, Java, MySQL, TypeScript</p>
+                <p>{t("additional.footer.developerTitle")}</p>
+                <p>{t("additional.footer.developerSpecialty")}</p>
+                <p>{t("additional.footer.developerSkills")}</p>
               </div>
               <div className="col-md-6">
                 <h6>
                   <FaRocket className="me-2" />
-                  Tecnologías Utilizadas
+                  {t("additional.footer.technologiesUsed")}
                 </h6>
-                <p>Frontend: React 18, TypeScript, Vite, Bootstrap 5</p>
-                <p>Backend: Java 17, Maven, HTTP Server</p>
-                <p>Base de Datos: MySQL 8.0, JDBC</p>
-                <p>Herramientas: Git, Maven, npm, Vite</p>
+                <p>{t("additional.footer.frontend")}</p>
+                <p>{t("additional.footer.backend")}</p>
+                <p>{t("additional.footer.database")}</p>
+                <p>{t("additional.footer.tools")}</p>
               </div>
             </div>
           </div>
@@ -164,11 +163,12 @@ const Footer: React.FC = () => {
           <div className="footer-bottom">
             <div className="row">
               <div className="col-md-6">
-                <p>© 2024 Tekashi Shoes. Todos los derechos reservados.</p>
+                <p>{t("copyright")}</p>
               </div>
               <div className="col-md-6 text-end">
                 <p>
-                  Hecho con <FaHeart className="text-danger" /> en Colombia 🇨🇴
+                  {t("additional.footer.madeIn")}{" "}
+                  <FaHeart className="text-danger" />
                 </p>
               </div>
             </div>

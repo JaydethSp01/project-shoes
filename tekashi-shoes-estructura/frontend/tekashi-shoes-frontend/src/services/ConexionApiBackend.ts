@@ -2,7 +2,7 @@ import { Imagen, Product } from "../modelos/productTypes";
 import { firebaseAuthService } from "./FirebaseAuthService";
 
 const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+  import.meta.env.VITE_API_BASE_URL || "https://project-shoes.onrender.com/api";
 
 // Función para obtener headers con autenticación
 const getAuthHeaders = async () => {

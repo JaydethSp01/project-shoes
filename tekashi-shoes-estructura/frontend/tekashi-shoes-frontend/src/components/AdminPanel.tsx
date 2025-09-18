@@ -125,12 +125,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const loadUsers = async (): Promise<AdminUser[]> => {
     try {
-      const response = await fetch("http://localhost:8080/usuarios", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/usuarios",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -183,12 +186,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const loadAdminStats = async (): Promise<AdminStats> => {
     try {
-      const response = await fetch("http://localhost:8080/admin/stats", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/stats",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -288,12 +294,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   // Funciones para gestión de base de datos
   const handleBackupDatabase = async () => {
     try {
-      const response = await fetch("http://localhost:8080/admin/backup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/backup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         showSuccess(
@@ -311,12 +320,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleOptimizeDatabase = async () => {
     try {
-      const response = await fetch("http://localhost:8080/admin/optimize", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/optimize",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         showSuccess(
@@ -334,12 +346,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleViewDatabaseStats = async () => {
     try {
-      const response = await fetch("http://localhost:8080/admin/stats", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/stats",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const stats = await response.json();
@@ -379,18 +394,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
 
     try {
-      const response = await fetch("http://localhost:8080/admin/create-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre,
-          email,
-          password,
-          role: role.toUpperCase(),
-        }),
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/create-user",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nombre,
+            email,
+            password,
+            role: role.toUpperCase(),
+          }),
+        }
+      );
 
       const result = await response.json();
       if (result.success) {
@@ -411,7 +429,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       async () => {
         try {
           const response = await fetch(
-            "http://localhost:8080/admin/delete-user",
+            "https://project-shoes.onrender.com/admin/delete-user",
             {
               method: "POST",
               headers: {
@@ -449,16 +467,19 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
 
     try {
-      const response = await fetch("http://localhost:8080/admin/update-role", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: parseInt(userId),
-          newRole: newRole.toUpperCase(),
-        }),
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/update-role",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: parseInt(userId),
+            newRole: newRole.toUpperCase(),
+          }),
+        }
+      );
 
       const result = await response.json();
       if (result.success) {
@@ -474,12 +495,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleViewLogs = async () => {
     try {
-      const response = await fetch("http://localhost:8080/admin/logs", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/admin/logs",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const logs = await response.json();
@@ -514,7 +538,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           const content = e.target?.result as string;
           try {
             const response = await fetch(
-              "http://localhost:8080/admin/import-products",
+              "https://project-shoes.onrender.com/admin/import-products",
               {
                 method: "POST",
                 headers: {
@@ -545,7 +569,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleExportCatalog = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/admin/export-catalog",
+        "https://project-shoes.onrender.com/admin/export-catalog",
         {
           method: "POST",
           headers: {
@@ -585,7 +609,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       async () => {
         try {
           const response = await fetch(
-            "http://localhost:8080/admin/delete-product",
+            "https://project-shoes.onrender.com/admin/delete-product",
             {
               method: "POST",
               headers: {
@@ -616,12 +640,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleManageTypes = async () => {
     try {
       // Obtener tipos existentes
-      const response = await fetch("http://localhost:8080/tipo_producto", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/tipo_producto",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         const tipos = await response.json();
@@ -640,7 +667,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           );
           if (nombreTipo) {
             const createResponse = await fetch(
-              "http://localhost:8080/tipo_producto",
+              "https://project-shoes.onrender.com/tipo_producto",
               {
                 method: "POST",
                 headers: {
@@ -683,7 +710,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
       if (smtpHost && smtpPort && email) {
         const response = await fetch(
-          "http://localhost:8080/admin/config/email",
+          "https://project-shoes.onrender.com/admin/config/email",
           {
             method: "POST",
             headers: {
@@ -724,7 +751,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
       if (paymentMethods && currency && taxRate) {
         const response = await fetch(
-          "http://localhost:8080/admin/config/payments",
+          "https://project-shoes.onrender.com/admin/config/payments",
           {
             method: "POST",
             headers: {
@@ -768,7 +795,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         expressShippingCost
       ) {
         const response = await fetch(
-          "http://localhost:8080/admin/config/shipping",
+          "https://project-shoes.onrender.com/admin/config/shipping",
           {
             method: "POST",
             headers: {

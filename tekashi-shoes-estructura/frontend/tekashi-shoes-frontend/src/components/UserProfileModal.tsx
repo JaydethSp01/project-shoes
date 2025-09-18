@@ -71,7 +71,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:8080/usuarios/${user.id}`,
+        `https://project-shoes.onrender.com/usuarios/${user.id}`,
         {
           method: "PUT",
           headers: {
@@ -110,7 +110,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     const confirmPassword = prompt("Confirma tu nueva contraseña:");
     if (newPassword !== confirmPassword) {
-      showError("❌ Error de Validación", "Las contraseñas no coinciden. Por favor, intenta nuevamente.");
+      showError(
+        "❌ Error de Validación",
+        "Las contraseñas no coinciden. Por favor, intenta nuevamente."
+      );
       return;
     }
 
@@ -120,7 +123,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:8080/usuarios/${user.id}/password`,
+        `https://project-shoes.onrender.com/usuarios/${user.id}/password`,
         {
           method: "PUT",
           headers: {

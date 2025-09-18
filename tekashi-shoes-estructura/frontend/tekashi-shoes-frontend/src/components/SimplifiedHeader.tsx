@@ -1,22 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaBell, FaShoppingCart, FaTimes } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { cartService } from "../services/CartService";
-import { notificationService } from "../services/NotificationService";
+import {
+  notificationService,
+  Notification as ServiceNotification,
+} from "../services/NotificationService";
 import { authService } from "../services/AuthService";
 import LanguageSelector from "./LanguageSelector";
 import "../styles/SimplifiedHeader.css";
 
-// Definir interfaces
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  isRead: boolean;
-  read: boolean; // Para compatibilidad con diferentes propiedades
-  createdAt: string;
-  type?: string;
-  data?: Record<string, unknown>;
-}
+// Usar la interfaz del servicio
 
 // interface CartItem {
 //   id: number;
@@ -29,10 +23,11 @@ interface SimplifiedHeaderProps {
 }
 
 const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
+  const { t } = useTranslation();
   const [cartItemCount, setCartItemCount] = useState<number>(0);
   const [notificationCount, setNotificationCount] = useState<number>(0);
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<ServiceNotification[]>([]);
   const [currentUser] = useState(authService.getCurrentUser());
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -40,7 +35,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
     try {
       setIsLoading(true);
       const userNotifications = await notificationService.getNotifications();
-      setNotifications(userNotifications as any);
+      setNotifications(userNotifications as ServiceNotification[]);
       // Usar tanto 'read' como 'isRead' para compatibilidad
       const unreadCount = userNotifications.filter((n) => !n.read).length;
       setNotificationCount(unreadCount);
@@ -57,10 +52,12 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
 
     // Verificar si los servicios existen antes de suscribirse
     if (cartService && typeof cartService.subscribe === "function") {
-      unsubscribeCart = cartService.subscribe((cart: any[]) => {
-        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-        setCartItemCount(totalItems);
-      });
+      unsubscribeCart = cartService.subscribe(
+        (cart: { quantity: number }[]) => {
+          const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+          setCartItemCount(totalItems);
+        }
+      );
     }
 
     if (
@@ -68,7 +65,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
       typeof notificationService.subscribe === "function"
     ) {
       unsubscribeNotifications = notificationService.subscribe(
-        (notifications: any[]) => {
+        (notifications: ServiceNotification[]) => {
           setNotifications(notifications);
           // Usar tanto 'read' como 'isRead' para compatibilidad
           const unreadCount = notifications.filter((n) => !n.read).length;
@@ -90,15 +87,13 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
     };
   }, [loadNotifications]);
 
-  const handleNotificationClick = async (notification: Notification) => {
-    if (!notification.isRead && !notification.read) {
+  const handleNotificationClick = async (notification: ServiceNotification) => {
+    if (!notification.read) {
       try {
         await notificationService.markAsRead(notification.id.toString());
         // Actualizar estado local
         setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === notification.id ? { ...n, isRead: true, read: true } : n
-          )
+          prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
         );
         setNotificationCount((prev) => Math.max(0, prev - 1));
       } catch (error) {
@@ -109,9 +104,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
 
   const handleMarkAllAsRead = async () => {
     try {
-      const unreadNotifications = notifications.filter(
-        (n) => !n.isRead && !n.read
-      );
+      const unreadNotifications = notifications.filter((n) => !n.read);
 
       // Marcar todas como leídas
       await Promise.all(
@@ -121,9 +114,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
       );
 
       // Actualizar estado local
-      setNotifications((prev) =>
-        prev.map((n) => ({ ...n, isRead: true, read: true }))
-      );
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       setNotificationCount(0);
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
@@ -171,8 +162,10 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
             <button
               className="notification-btn"
               onClick={handleToggleNotifications}
-              title="Notificaciones"
-              aria-label={`Notificaciones (${notificationCount} sin leer)`}
+              title={t("additional.notifications")}
+              aria-label={t("additional.notificationsUnread", {
+                count: notificationCount,
+              })}
             >
               <FaBell />
               {notificationCount > 0 && (
@@ -187,7 +180,7 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="notifications-header">
-                  <h3>Notificaciones</h3>
+                  <h3>{t("additional.notifications")}</h3>
                   <div className="notifications-actions">
                     {notificationCount > 0 && (
                       <button
@@ -195,13 +188,13 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
                         onClick={handleMarkAllAsRead}
                         disabled={isLoading}
                       >
-                        Marcar todas como leídas
+                        {t("additional.markAllAsRead")}
                       </button>
                     )}
                     <button
                       className="close-notifications-btn"
                       onClick={handleCloseNotifications}
-                      aria-label="Cerrar notificaciones"
+                      aria-label={t("additional.closeNotifications")}
                     >
                       <FaTimes />
                     </button>
@@ -211,20 +204,18 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
                 <div className="notifications-list">
                   {isLoading ? (
                     <div className="loading-notifications">
-                      <p>Cargando notificaciones...</p>
+                      <p>{t("additional.loadingNotifications")}</p>
                     </div>
                   ) : notifications.length === 0 ? (
                     <div className="no-notifications">
-                      <p>No tienes notificaciones</p>
+                      <p>{t("additional.noNotifications")}</p>
                     </div>
                   ) : (
                     notifications.map((notification) => (
                       <div
                         key={notification.id}
                         className={`notification-item ${
-                          !notification.isRead && !notification.read
-                            ? "unread"
-                            : ""
+                          !notification.read ? "unread" : ""
                         }`}
                         onClick={() => handleNotificationClick(notification)}
                         role="button"
@@ -239,10 +230,10 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
                           <h4>{notification.title}</h4>
                           <p>{notification.message}</p>
                           <span className="notification-date">
-                            {formatDate(notification.createdAt)}
+                            {formatDate(notification.timestamp.toString())}
                           </span>
                         </div>
-                        {!notification.isRead && !notification.read && (
+                        {!notification.read && (
                           <div
                             className="unread-indicator"
                             aria-hidden="true"
@@ -260,8 +251,10 @@ const SimplifiedHeader: React.FC<SimplifiedHeaderProps> = ({ onCartOpen }) => {
           <button
             className="cart-btn"
             onClick={onCartOpen}
-            title="Carrito de Compras"
-            aria-label={`Carrito de Compras (${cartItemCount} productos)`}
+            title={t("additional.shoppingCart")}
+            aria-label={t("additional.shoppingCartItems", {
+              count: cartItemCount,
+            })}
           >
             <FaShoppingCart />
             {cartItemCount > 0 && (

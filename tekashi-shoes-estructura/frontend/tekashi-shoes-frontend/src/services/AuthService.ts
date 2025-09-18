@@ -91,20 +91,23 @@ class AuthService {
     address?: string;
   }): Promise<User> {
     try {
-      const response = await fetch("http://localhost:8080/usuarios/registro", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre: registerData.name,
-          email: registerData.email,
-          password: registerData.password,
-          telefono: registerData.phone || "",
-          direccion: registerData.address || "",
-          rol: registerData.role,
-        }),
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/usuarios/registro",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nombre: registerData.name,
+            email: registerData.email,
+            password: registerData.password,
+            telefono: registerData.phone || "",
+            direccion: registerData.address || "",
+            rol: registerData.role,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -164,13 +167,16 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<User> {
     try {
-      const response = await fetch("http://localhost:8080/usuarios/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/usuarios/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(credentials),
+        }
+      );
 
       const data = await response.json();
 

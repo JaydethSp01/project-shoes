@@ -62,7 +62,7 @@ export interface OrderInfo {
 class CartService {
   private cartItems: CartItem[] = [];
   private listeners: ((items: CartItem[]) => void)[] = [];
-  private baseUrl = "http://localhost:8080/api";
+  private baseUrl = "https://project-shoes.onrender.com/api";
 
   constructor() {
     this.loadFromStorage();

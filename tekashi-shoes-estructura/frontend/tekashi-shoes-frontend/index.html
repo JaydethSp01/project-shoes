@@ -1,13 +1,137 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Tekashi shoes</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#764ba2" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Tekashi Shoes" />
+    <meta name="msapplication-TileColor" content="#667eea" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Tekashi Shoes - La mejor tienda de zapatos con tecnología avanzada y diseño moderno. Encuentra los zapatos perfectos para ti." />
+    <meta name="keywords" content="zapatos, calzado, moda, tienda online, compras, tecnología" />
+    <meta name="author" content="Tekashi Shoes" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Tekashi Shoes - Tienda de Zapatos" />
+    <meta property="og:description" content="La mejor tienda de zapatos con tecnología avanzada y diseño moderno" />
+    <meta property="og:image" content="/logo.png" />
+    <meta property="og:url" content="https://tekashi-shoes.vercel.app" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tekashi Shoes" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tekashi Shoes - Tienda de Zapatos" />
+    <meta name="twitter:description" content="La mejor tienda de zapatos con tecnología avanzada y diseño moderno" />
+    <meta name="twitter:image" content="/logo.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/logo.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+    
+    <title>Tekashi Shoes - Tienda de Zapatos</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registrado:', registration);
+              
+              // Verificar actualizaciones
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nueva versión disponible
+                    if (confirm('¡Nueva versión disponible! ¿Deseas actualizar?')) {
+                      newWorker.postMessage({ type: 'SKIP_WAITING' });
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((error) => {
+              console.error('❌ Error registrando Service Worker:', error);
+            });
+        });
+      }
+      
+      // PWA Install Prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Mostrar botón de instalación
+        const installButton = document.createElement('button');
+        installButton.textContent = '📱 Instalar App';
+        installButton.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          z-index: 1000;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 25px;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+          transition: transform 0.2s ease;
+        `;
+        
+        installButton.addEventListener('click', () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('✅ Usuario aceptó la instalación');
+            } else {
+              console.log('❌ Usuario rechazó la instalación');
+            }
+            deferredPrompt = null;
+            installButton.remove();
+          });
+        });
+        
+        document.body.appendChild(installButton);
+        
+        // Auto-ocultar después de 10 segundos
+        setTimeout(() => {
+          if (installButton.parentNode) {
+            installButton.remove();
+          }
+        }, 10000);
+      });
+      
+      // Detectar cuando la app se instala
+      window.addEventListener('appinstalled', () => {
+        console.log('🎉 PWA instalada correctamente');
+        deferredPrompt = null;
+      });
+    </script>
   </body>
 </html>

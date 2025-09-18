@@ -56,7 +56,7 @@ export interface Notification {
 }
 
 class DashboardService {
-  private baseUrl = "http://localhost:8080";
+  private baseUrl = "https://project-shoes.onrender.com";
 
   // Obtener estadísticas del dashboard
   async getDashboardStats(userId: string): Promise<DashboardStats> {
@@ -140,7 +140,7 @@ class DashboardService {
   async getFavorites(userId: number): Promise<Favorite[]> {
     try {
       const response = await fetch(
-        `http://localhost:8080/favoritos/usuario/${userId}`
+        `https://project-shoes.onrender.com/favoritos/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo favoritos");
@@ -170,16 +170,19 @@ class DashboardService {
   // Agregar a favoritos
   async addToFavorites(userId: number, productId: number): Promise<void> {
     try {
-      const response = await fetch("http://localhost:8080/favoritos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          usuarioId: userId,
-          productoId: productId,
-        }),
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/favoritos",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            usuarioId: userId,
+            productoId: productId,
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -196,7 +199,7 @@ class DashboardService {
   async removeFromFavorites(userId: number, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        `http://localhost:8080/favoritos/${userId}/${productId}`,
+        `https://project-shoes.onrender.com/favoritos/${userId}/${productId}`,
         {
           method: "DELETE",
         }
@@ -217,7 +220,7 @@ class DashboardService {
   async getWishlists(userId: number): Promise<Wishlist[]> {
     try {
       const response = await fetch(
-        `http://localhost:8080/wishlists/usuario/${userId}`
+        `https://project-shoes.onrender.com/wishlists/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo listas de deseos");
@@ -247,17 +250,20 @@ class DashboardService {
     description?: string
   ): Promise<Wishlist> {
     try {
-      const response = await fetch("http://localhost:8080/wishlists", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          usuarioId: userId,
-          nombre: name,
-          descripcion: description || "",
-        }),
-      });
+      const response = await fetch(
+        "https://project-shoes.onrender.com/wishlists",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            usuarioId: userId,
+            nombre: name,
+            descripcion: description || "",
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -285,7 +291,7 @@ class DashboardService {
   async addToWishlist(wishlistId: number, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        `http://localhost:8080/wishlists/${wishlistId}/productos`,
+        `https://project-shoes.onrender.com/wishlists/${wishlistId}/productos`,
         {
           method: "POST",
           headers: {
@@ -314,7 +320,7 @@ class DashboardService {
   async getNotifications(userId: number): Promise<Notification[]> {
     try {
       const response = await fetch(
-        `http://localhost:8080/notificaciones/usuario/${userId}`
+        `https://project-shoes.onrender.com/notificaciones/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo notificaciones");
@@ -342,7 +348,7 @@ class DashboardService {
   async markNotificationAsRead(notificationId: number): Promise<void> {
     try {
       const response = await fetch(
-        `http://localhost:8080/notificaciones/${notificationId}/marcar-leida`,
+        `https://project-shoes.onrender.com/notificaciones/${notificationId}/marcar-leida`,
         {
           method: "PUT",
         }

@@ -47,7 +47,7 @@ const AdminHeader: React.FC = () => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        "http://localhost:8080/admin/notifications",
+        "https://project-shoes.onrender.com/admin/notifications",
         {
           method: "GET",
           headers: {
@@ -135,7 +135,7 @@ const AdminHeader: React.FC = () => {
     if (!notification.isRead) {
       try {
         const response = await fetch(
-          "http://localhost:8080/admin/mark-notification-read",
+          "https://project-shoes.onrender.com/admin/mark-notification-read",
           {
             method: "POST",
             headers: {
@@ -173,7 +173,7 @@ const AdminHeader: React.FC = () => {
   const handleMarkAllAsRead = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8080/admin/mark-all-notifications-read",
+        "https://project-shoes.onrender.com/admin/mark-all-notifications-read",
         {
           method: "POST",
           headers: {

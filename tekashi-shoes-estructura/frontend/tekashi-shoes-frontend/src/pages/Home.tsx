@@ -32,7 +32,7 @@ import Pagination from "../components/Pagination";
 import SimplifiedHeader from "../components/SimplifiedHeader";
 import AdminHeader from "../components/AdminHeader";
 import { authService, User } from "../services/AuthService";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Product, TipoProducto } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import { cartService } from "../services/CartService";
@@ -107,24 +107,22 @@ const Home = () => {
   const { location, getCurrentLocation } = useGeolocation();
 
   // Función para cargar productos
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       const productos = await ConexionApiBackend.obtenerProductos();
-      console.log("Productos cargados:", productos);
+      console.log(t("additional.console.productsLoaded"), productos);
       setProducts(productos);
     } catch (error) {
-      console.error("Error cargando productos:", error);
+      console.error(t("additional.console.errorLoadingProducts"), error);
       // Mostrar mensaje de error al usuario
-      console.error(
-        "Error de conexión: No se pudieron cargar los productos. Verifique que el servidor esté ejecutándose."
-      );
+      console.error(t("additional.console.connectionError"));
     }
-  };
+  }, [t]);
 
   // Cargar productos
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [loadProducts]);
 
   // Obtener ubicación del usuario al cargar la página
   useEffect(() => {
@@ -132,45 +130,45 @@ const Home = () => {
       try {
         await getCurrentLocation();
       } catch (error) {
-        console.log("No se pudo obtener la ubicación del usuario:", error);
+        console.log(t("additional.console.locationError"), error);
         // No es crítico si no se puede obtener la ubicación
       }
     };
 
     initializeLocation();
-  }, [getCurrentLocation]);
+  }, [getCurrentLocation, t]);
 
   // Cargar imágenes de productos
   useEffect(() => {
     const loadImages = async () => {
       try {
         const imagenes = await ConexionApiBackend.obtenerImagenes();
-        console.log("Imágenes cargadas:", imagenes);
+        console.log(t("additional.console.imagesLoaded"), imagenes);
         setImages(imagenes);
       } catch (error) {
-        console.error("Error cargando imágenes:", error);
+        console.error(t("additional.console.errorLoadingImages"), error);
         // Continuar sin imágenes si hay error
         setImages({});
       }
     };
     loadImages();
-  }, []);
+  }, [t]);
 
   // Cargar tipos de producto
   useEffect(() => {
     const loadTipos = async () => {
       try {
         const tipos = await ConexionApiBackend.obtenerTiposProducto();
-        console.log("Tipos de producto cargados:", tipos);
+        console.log(t("additional.console.productTypesLoaded"), tipos);
         setTiposProducto(tipos);
       } catch (error) {
-        console.error("Error cargando tipos de producto:", error);
+        console.error(t("additional.console.errorLoadingProductTypes"), error);
         // Continuar sin tipos si hay error
         setTiposProducto([]);
       }
     };
     loadTipos();
-  }, []);
+  }, [t]);
 
   // Actualizar productos filtrados cuando cambien los productos
   useEffect(() => {
@@ -221,7 +219,7 @@ const Home = () => {
           );
           setFavorites(favoriteIds);
         } catch (error) {
-          console.error("Error cargando favoritos del usuario:", error);
+          console.error(t("additional.console.errorLoadingFavorites"), error);
         }
       } else {
         setFavorites([]);
@@ -229,7 +227,7 @@ const Home = () => {
     };
 
     loadUserFavorites();
-  }, [currentUser]);
+  }, [currentUser, t]);
 
   // Función para manejar resultados de búsqueda
   const handleSearchResults = (products: Product[]) => {
@@ -271,7 +269,7 @@ const Home = () => {
     total: number;
     status: string;
   }) => {
-    console.log("Pedido completado:", order);
+    console.log(t("additional.console.orderCompleted"), order);
     // Aquí podrías mostrar una notificación de éxito o redirigir a una página de confirmación
   };
 
@@ -313,7 +311,7 @@ const Home = () => {
       } else {
         // Agregar a favoritos
         await ConexionApiBackend.agregarAFavoritos(productId.toString(), {
-          notas: "Favorito agregado desde la página principal",
+          notas: t("additional.favoriteAddedFromHome"),
           prioridad: 1,
           notificarOferta: true,
           notificarStock: true,
@@ -322,7 +320,7 @@ const Home = () => {
         notificationService.favoriteNotification(product.marca, true);
       }
     } catch (error) {
-      console.error("Error al manejar favoritos:", error);
+      console.error(t("additional.console.errorHandlingFavorites"), error);
       // Fallback: manejar localmente si falla la API
       setFavorites((prev) =>
         isCurrentlyFavorite
