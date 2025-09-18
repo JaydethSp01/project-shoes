@@ -44,6 +44,11 @@ router.get("/debug", async (req, res) => {
   }
 });
 
+// Endpoint simple sin middleware para probar
+router.get("/test", async (req, res) => {
+  res.json({ message: "API funcionando", timestamp: new Date().toISOString() });
+});
+
 // Esquemas de validación
 const esquemaProducto = Joi.object({
   nombre: Joi.string().required().max(200),
