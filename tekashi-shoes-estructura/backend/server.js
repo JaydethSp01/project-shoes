@@ -119,6 +119,11 @@ app.get("/api/debug", (req, res) => {
   });
 });
 
+// Simple test endpoint
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Test OK", time: new Date().toISOString() });
+});
+
 // API Routes
 app.use("/api/producto", productoRoutes);
 app.use("/api/tipo_producto", tipoProductoRoutes);
