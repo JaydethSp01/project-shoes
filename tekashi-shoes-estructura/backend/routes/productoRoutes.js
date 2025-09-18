@@ -81,7 +81,7 @@ const esquemaProducto = Joi.object({
 });
 
 // GET /api/producto - Obtener todos los productos
-router.get("/", autenticacionOpcional, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const {
       pagina = 1,
