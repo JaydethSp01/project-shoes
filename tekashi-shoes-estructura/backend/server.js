@@ -108,6 +108,17 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Debug endpoint
+app.get("/api/debug", (req, res) => {
+  res.json({
+    message: "Debug endpoint working",
+    timestamp: new Date().toISOString(),
+    mongooseState: mongoose.connection.readyState,
+    env: process.env.NODE_ENV,
+    mongodbUri: process.env.MONGODB_URI ? "Set" : "Not set"
+  });
+});
+
 // API Routes
 app.use("/api/producto", productoRoutes);
 app.use("/api/tipo_producto", tipoProductoRoutes);
