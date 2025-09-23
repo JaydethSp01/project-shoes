@@ -23,6 +23,7 @@ import {
 import { authService } from "../services/AuthService";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useTranslation } from "../hooks/useTranslation";
+import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
 // import InteractiveMap from "./InteractiveMap"; // No se usa actualmente
 import AddressSelectorModal from "./AddressSelectorModal";
 import InlineNotification from "./InlineNotification";
@@ -49,6 +50,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // const [error, setError] = useState(""); // No se muestra en el UI actualmente
   // const [showPaymentSystem, setShowPaymentSystem] = useState(false); // Ya no se usa
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  // Hook para alertas
+  const { showAlert } = useBeautifulAlert();
 
   // Datos del formulario
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
@@ -296,6 +300,30 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setIsLoading(true);
 
     try {
+      // Validar dirección de envío
+      if (
+        !shippingAddress.name ||
+        !shippingAddress.email ||
+        !shippingAddress.phone ||
+        !shippingAddress.address
+      ) {
+        throw new Error(
+          "Por favor completa todos los campos de la dirección de envío"
+        );
+      }
+
+      // Validar información de pago solo si es tarjeta de crédito
+      if (paymentInfo.method === "credit_card") {
+        const paymentValidation = validatePaymentInfo(paymentInfo);
+        if (!paymentValidation.isValid) {
+          throw new Error(
+            `Errores en la información de pago:\n${paymentValidation.errors.join(
+              "\n"
+            )}`
+          );
+        }
+      }
+
       // Simular procesamiento de pago
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -349,6 +377,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       }, 2000);
     } catch (err: unknown) {
       console.error("Error de Pago:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Error al procesar el pago";
+
+      // Mostrar alerta con el error
+      showAlert("error", "Error en el Pago", errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -694,7 +727,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // const handlePaymentError = (error: string) => { ... }
 
   const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const v = value.replace(/\s+/g, "").replace(/[^00-9]/gi, "");
     const matches = v.match(/\d{4,16}/g);
     const match = (matches && matches[0]) || "";
     const parts = [];
@@ -706,6 +739,69 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     } else {
       return v;
     }
+  };
+
+  // Validar información de pago
+  const validatePaymentInfo = (
+    paymentInfo: PaymentInfo
+  ): { isValid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+
+    // Validar número de tarjeta (mínimo 12 dígitos)
+    const cardNumber = paymentInfo.cardNumber?.replace(/\s/g, "") || "";
+    if (!cardNumber || cardNumber.length < 12) {
+      errors.push("Número de tarjeta inválido (mínimo 12 dígitos)");
+    } else if (!/^\d+$/.test(cardNumber)) {
+      errors.push("El número de tarjeta solo puede contener dígitos");
+    }
+
+    // Validar fecha de vencimiento
+    if (
+      !paymentInfo.expiryDate ||
+      !/^\d{2}\/\d{2}$/.test(paymentInfo.expiryDate)
+    ) {
+      errors.push("Fecha de vencimiento inválida (formato: MM/AA)");
+    } else {
+      const [month, year] = paymentInfo.expiryDate.split("/");
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear() % 100;
+      const currentMonth = currentDate.getMonth() + 1;
+
+      if (parseInt(month) < 1 || parseInt(month) > 12) {
+        errors.push("Mes de vencimiento inválido (01-12)");
+      }
+
+      if (
+        parseInt(year) < currentYear ||
+        (parseInt(year) === currentYear && parseInt(month) < currentMonth)
+      ) {
+        errors.push("La tarjeta ha expirado");
+      }
+    }
+
+    // Validar CVV
+    if (
+      !paymentInfo.cvv ||
+      paymentInfo.cvv.length < 3 ||
+      paymentInfo.cvv.length > 4
+    ) {
+      errors.push("Código de seguridad inválido (3-4 dígitos)");
+    } else if (!/^\d+$/.test(paymentInfo.cvv)) {
+      errors.push("El código de seguridad solo puede contener dígitos");
+    }
+
+    // Validar nombre del titular
+    if (
+      !paymentInfo.cardholderName ||
+      paymentInfo.cardholderName.trim().length < 2
+    ) {
+      errors.push("Nombre del titular inválido (mínimo 2 caracteres)");
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
   };
 
   if (!isOpen || !cartSummary) return null;

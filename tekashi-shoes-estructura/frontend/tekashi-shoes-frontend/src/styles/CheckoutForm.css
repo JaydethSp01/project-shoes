@@ -1726,6 +1726,61 @@
   }
 }
 
+/* Payment Info Notice */
+.payment-info-notice {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.1));
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  color: #e0e0e0;
+}
+
+.payment-info-notice p {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.payment-info-notice p:last-child {
+  margin-bottom: 0;
+  font-style: italic;
+  color: #b0b0b0;
+}
+
+.payment-info-notice ul {
+  margin: 10px 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.payment-info-notice li {
+  margin: 5px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #00ff88;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #00ff88;
+}
+
+.payment-info-notice strong {
+  color: #00ff88;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payment-info-notice {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .payment-info-notice li {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
 /* ========================================
    DISEÑO MÓVIL COMPLETAMENTE NUEVO
    ======================================== */
@@ -2081,5 +2136,60 @@
   .checkout-actions .btn {
     padding: 16px;
     font-size: 15px;
+  }
+}
+
+/* Payment Info Notice */
+.payment-info-notice {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 212, 255, 0.1));
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  color: #e0e0e0;
+}
+
+.payment-info-notice p {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.payment-info-notice p:last-child {
+  margin-bottom: 0;
+  font-style: italic;
+  color: #b0b0b0;
+}
+
+.payment-info-notice ul {
+  margin: 10px 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.payment-info-notice li {
+  margin: 5px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #00ff88;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #00ff88;
+}
+
+.payment-info-notice strong {
+  color: #00ff88;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payment-info-notice {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .payment-info-notice li {
+    font-size: 12px;
+    padding: 4px 8px;
   }
 }

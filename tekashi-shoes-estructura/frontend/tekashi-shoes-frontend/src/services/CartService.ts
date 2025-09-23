@@ -343,12 +343,20 @@ class CartService {
         return {
           productoId: productoId,
           cantidad: item.quantity,
-          precioUnitario: item.product.precio,
-          subtotal: item.product.precio * item.quantity,
+          precioUnitario: item.product.precio || 0,
+          subtotal: (item.product.precio || 0) * item.quantity,
         };
       });
 
-      // Preparar la dirección de envío
+      // Calcular subtotal total
+      const subtotalTotal = detalles.reduce(
+        (sum, item) => sum + item.subtotal,
+        0
+      );
+      const impuestos = subtotalTotal * 0.19;
+      const total = subtotalTotal + impuestos + order.shipping - order.discount;
+
+      // Preparar la dirección de envío con coordenadas en formato correcto
       const direccionEnvio = {
         nombre: order.shippingAddress.name,
         email: order.shippingAddress.email,
@@ -357,7 +365,12 @@ class CartService {
         ciudad: order.shippingAddress.city,
         codigoPostal: order.shippingAddress.postalCode,
         pais: order.shippingAddress.country,
-        coordenadas: order.shippingAddress.coordinates || undefined,
+        coordenadas: order.shippingAddress.coordinates
+          ? {
+              latitud: order.shippingAddress.coordinates.latitude,
+              longitud: order.shippingAddress.coordinates.longitude,
+            }
+          : undefined,
       };
 
       // Preparar la información de pago
@@ -380,8 +393,9 @@ class CartService {
         if (order.paymentInfo.cardNumber?.trim()) {
           informacionPago.numeroTarjeta = order.paymentInfo.cardNumber.trim();
         }
-        if (order.paymentInfo.cardName?.trim()) {
-          informacionPago.nombreTitular = order.paymentInfo.cardName.trim();
+        if (order.paymentInfo.cardholderName?.trim()) {
+          informacionPago.nombreTitular =
+            order.paymentInfo.cardholderName.trim();
         }
         if (order.paymentInfo.expiryDate?.trim()) {
           informacionPago.fechaVencimiento =
@@ -397,7 +411,11 @@ class CartService {
         informacionPago.transaccionId = order.paymentInfo.transactionId.trim();
       }
 
+      // Obtener información del usuario actual (si está autenticado)
+      const currentUser = await this.getCurrentUser();
+
       const pedidoData: {
+        numeroPedido: string;
         detalles: Array<{
           productoId: string | number;
           cantidad: number;
@@ -412,7 +430,7 @@ class CartService {
           ciudad: string;
           codigoPostal: string;
           pais: string;
-          coordenadas?: { latitude: number; longitude: number };
+          coordenadas?: { latitud: number; longitud: number };
         };
         informacionPago: {
           metodo: string;
@@ -422,20 +440,42 @@ class CartService {
           codigoSeguridad?: string;
           transaccionId?: string;
         };
+        subtotal: number;
+        impuestos: number;
         costoEnvio: number;
         descuento: number;
-        puntosFidelidadUsados: number;
+        total: number;
+        estado: string;
         metodoEnvio: string;
+        puntosFidelidadUsados: number;
+        puntosFidelidadGanados: number;
         notas?: string;
+        usuarioId?: string | number;
       } = {
+        numeroPedido: this.generateOrderId(),
         detalles,
         direccionEnvio,
         informacionPago,
+        subtotal: subtotalTotal,
+        impuestos: impuestos,
         costoEnvio: order.shipping,
         descuento: order.discount,
-        puntosFidelidadUsados: order.loyaltyPointsUsed || 0,
+        total: total,
+        estado: "pending",
         metodoEnvio: "standard",
+        puntosFidelidadUsados: order.loyaltyPointsUsed || 0,
+        puntosFidelidadGanados: Math.floor(subtotalTotal / 1000),
       };
+
+      // Solo agregar usuarioId si el usuario está autenticado Y es un usuario del backend (no Firebase)
+      if (
+        currentUser &&
+        currentUser.id &&
+        typeof currentUser.id === "number" &&
+        !currentUser.uid
+      ) {
+        pedidoData.usuarioId = currentUser.id;
+      }
 
       // Solo agregar notas si no están vacías
       if (order.notes?.trim()) {
@@ -470,6 +510,21 @@ class CartService {
     } catch (error) {
       console.error("Error sending order to backend:", error);
       throw error; // Re-lanzar el error para que sea manejado por el componente
+    }
+  }
+
+  // Obtener usuario actual
+  private async getCurrentUser(): Promise<any> {
+    try {
+      const { authService } = await import("./AuthService");
+      return authService.getCurrentUser();
+    } catch {
+      try {
+        const { firebaseAuthService } = await import("./FirebaseAuthService");
+        return firebaseAuthService.getCurrentUserProfile();
+      } catch {
+        return null;
+      }
     }
   }
 

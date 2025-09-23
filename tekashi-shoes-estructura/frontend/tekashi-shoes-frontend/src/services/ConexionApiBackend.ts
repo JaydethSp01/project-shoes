@@ -755,16 +755,29 @@ export const ConexionApiBackend = {
       ? `${BASE_URL}/api/reviews/usuario/${usuarioId}?${queryParams.toString()}`
       : `${BASE_URL}/api/reviews/usuario/${usuarioId}`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: await getAuthHeaders(),
-    });
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener reviews del usuario");
+      if (!response.ok) {
+        // Si es 401, retornar array vacío para modo invitado
+        if (response.status === 401) {
+          console.warn("Reviews de usuario no disponibles en modo invitado");
+          return { reviews: [], total: 0, pagina: 1, limite: 50 };
+        }
+        throw new Error("Error al obtener reviews del usuario");
+      }
+
+      const data = await response.json();
+      return data.success ? data.data : data;
+    } catch (error) {
+      console.warn("Error al cargar reviews de usuario:", error);
+      // Retornar datos vacíos en caso de error para modo invitado
+      return { reviews: [], total: 0, pagina: 1, limite: 50 };
     }
-
-    const data = await response.json();
-    return data.success ? data.data : data;
   },
 };
