@@ -27,7 +27,7 @@ export interface SearchSuggestion {
 }
 
 class SearchService {
-  // private _baseUrl = "https://project-shoes.onrender.com";
+  // private _baseUrl = "https://backend-ecommerce-6vi3.onrender.com/api";
   private searchHistory: string[] = [];
   private popularSearches: string[] = [
     "nike air max",

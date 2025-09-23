@@ -2,7 +2,8 @@ import { Imagen, Product } from "../modelos/productTypes";
 import { firebaseAuthService } from "./FirebaseAuthService";
 
 const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://project-shoes.onrender.com/api";
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://backend-ecommerce-6vi3.onrender.com";
 
 // Función para obtener headers con autenticación
 const getAuthHeaders = async () => {
@@ -47,21 +48,26 @@ export const ConexionApiBackend = {
       });
     }
 
-    const url = queryParams.toString()
-      ? `${BASE_URL}/producto?${queryParams.toString()}`
-      : `${BASE_URL}/producto`;
+    try {
+      const url = queryParams.toString()
+        ? `${BASE_URL}/api/producto?${queryParams.toString()}`
+        : `${BASE_URL}/api/producto`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: await getAuthHeaders(),
-    });
+      const response = await fetch(url, {
+        method: "GET",
+        headers: await getAuthHeaders(),
+      });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener productos");
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.success ? data.data : data;
+    } catch (error) {
+      console.error("Error al obtener productos:", error);
+      throw error; // Re-lanzar el error para que el componente maneje el loading
     }
-
-    const data = await response.json();
-    return data.success ? data.data : data;
   },
 
   // Obtener productos por tipo de producto
@@ -83,8 +89,8 @@ export const ConexionApiBackend = {
     }
 
     const url = queryParams.toString()
-      ? `${BASE_URL}/producto/tipo/${tipoProductoId}?${queryParams.toString()}`
-      : `${BASE_URL}/producto/tipo/${tipoProductoId}`;
+      ? `${BASE_URL}/api/producto/tipo/${tipoProductoId}?${queryParams.toString()}`
+      : `${BASE_URL}/api/producto/tipo/${tipoProductoId}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -101,7 +107,7 @@ export const ConexionApiBackend = {
 
   // Crear un nuevo producto
   agregarProducto: async (producto: Product) => {
-    const response = await fetch(`${BASE_URL}/producto`, {
+    const response = await fetch(`${BASE_URL}/api/producto`, {
       method: "POST",
       headers: await getAuthHeaders(),
       body: JSON.stringify(producto),
@@ -115,7 +121,7 @@ export const ConexionApiBackend = {
 
   // Actualizar producto existente
   actualizarProducto: async (id: string, producto: any) => {
-    const response = await fetch(`${BASE_URL}/producto/${id}`, {
+    const response = await fetch(`${BASE_URL}/api/producto/${id}`, {
       method: "PUT",
       headers: await getAuthHeaders(),
       body: JSON.stringify(producto),
@@ -129,7 +135,7 @@ export const ConexionApiBackend = {
 
   // Eliminar un producto
   eliminarProducto: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/producto/${id}`, {
+    const response = await fetch(`${BASE_URL}/api/producto/${id}`, {
       method: "DELETE",
       headers: await getAuthHeaders(),
     });
@@ -148,8 +154,8 @@ export const ConexionApiBackend = {
     }
 
     const url = queryParams.toString()
-      ? `${BASE_URL}/tipo_producto?${queryParams.toString()}`
-      : `${BASE_URL}/tipo_producto`;
+      ? `${BASE_URL}/api/tipo_producto?${queryParams.toString()}`
+      : `${BASE_URL}/api/tipo_producto`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -165,7 +171,7 @@ export const ConexionApiBackend = {
   // Obtener imagen por tipo de producto
   obtenerImagenPorTipoProducto: async (tipoProductoId: string) => {
     const response = await fetch(
-      `${BASE_URL}/imagenes/tipo-producto/${tipoProductoId}`,
+      `${BASE_URL}/api/imagenes/tipo-producto/${tipoProductoId}`,
       {
         method: "GET",
         headers: await getAuthHeaders(),
@@ -198,8 +204,8 @@ export const ConexionApiBackend = {
     }
 
     const url = queryParams.toString()
-      ? `${BASE_URL}/imagenes?${queryParams.toString()}`
-      : `${BASE_URL}/imagenes`;
+      ? `${BASE_URL}/api/imagenes?${queryParams.toString()}`
+      : `${BASE_URL}/api/imagenes`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -214,7 +220,7 @@ export const ConexionApiBackend = {
 
   // Obtener imagen por ID
   obtenerImagenPorId: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/imagenes/${id}`, {
+    const response = await fetch(`${BASE_URL}/api/imagenes/${id}`, {
       method: "GET",
       headers: await getAuthHeaders(),
     });
@@ -227,7 +233,7 @@ export const ConexionApiBackend = {
 
   // Crear nueva imagen
   agregarImagen: async (imagen: Imagen) => {
-    const response = await fetch(`${BASE_URL}/imagenes`, {
+    const response = await fetch(`${BASE_URL}/api/imagenes`, {
       method: "POST",
       headers: await getAuthHeaders(),
       body: JSON.stringify(imagen),
@@ -241,7 +247,7 @@ export const ConexionApiBackend = {
 
   // Eliminar una imagen
   eliminarImagen: async (id: string) => {
-    const response = await fetch(`${BASE_URL}/imagenes/${id}`, {
+    const response = await fetch(`${BASE_URL}/api/imagenes/${id}`, {
       method: "DELETE",
       headers: await getAuthHeaders(),
     });
@@ -271,8 +277,8 @@ export const ConexionApiBackend = {
     }
 
     const url = queryParams.toString()
-      ? `${BASE_URL}/favoritos?${queryParams.toString()}`
-      : `${BASE_URL}/favoritos`;
+      ? `${BASE_URL}/api/favoritos?${queryParams.toString()}`
+      : `${BASE_URL}/api/favoritos`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -297,7 +303,7 @@ export const ConexionApiBackend = {
       notificarStock?: boolean;
     }
   ) => {
-    const response = await fetch(`${BASE_URL}/favoritos`, {
+    const response = await fetch(`${BASE_URL}/api/favoritos`, {
       method: "POST",
       headers: await getAuthHeaders(),
       body: JSON.stringify({
@@ -320,7 +326,7 @@ export const ConexionApiBackend = {
 
   // Remover producto de favoritos
   removerDeFavoritos: async (productoId: string) => {
-    const response = await fetch(`${BASE_URL}/favoritos/${productoId}`, {
+    const response = await fetch(`${BASE_URL}/api/favoritos/${productoId}`, {
       method: "DELETE",
       headers: await getAuthHeaders(),
     });
@@ -340,7 +346,7 @@ export const ConexionApiBackend = {
   // Verificar si un producto está en favoritos
   verificarFavorito: async (productoId: string) => {
     const response = await fetch(
-      `${BASE_URL}/favoritos/verificar/${productoId}`,
+      `${BASE_URL}/api/favoritos/verificar/${productoId}`,
       {
         method: "GET",
         headers: await getAuthHeaders(),
@@ -373,8 +379,8 @@ export const ConexionApiBackend = {
     }
 
     const url = queryParams.toString()
-      ? `${BASE_URL}/wishlists?${queryParams.toString()}`
-      : `${BASE_URL}/wishlists`;
+      ? `${BASE_URL}/api/wishlists?${queryParams.toString()}`
+      : `${BASE_URL}/api/wishlists`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -400,7 +406,7 @@ export const ConexionApiBackend = {
       nuevosProductos?: boolean;
     };
   }) => {
-    const response = await fetch(`${BASE_URL}/wishlists`, {
+    const response = await fetch(`${BASE_URL}/api/wishlists`, {
       method: "POST",
       headers: await getAuthHeaders(),
       body: JSON.stringify(datos),
@@ -429,7 +435,7 @@ export const ConexionApiBackend = {
     }
   ) => {
     const response = await fetch(
-      `${BASE_URL}/wishlists/${wishlistId}/productos`,
+      `${BASE_URL}/api/wishlists/${wishlistId}/productos`,
       {
         method: "POST",
         headers: await getAuthHeaders(),
@@ -473,8 +479,8 @@ export const ConexionApiBackend = {
     }
 
     const url = queryParams.toString()
-      ? `${BASE_URL}/notificaciones?${queryParams.toString()}`
-      : `${BASE_URL}/notificaciones`;
+      ? `${BASE_URL}/api/notificaciones?${queryParams.toString()}`
+      : `${BASE_URL}/api/notificaciones`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -492,7 +498,7 @@ export const ConexionApiBackend = {
   // Marcar notificación como leída
   marcarNotificacionLeida: async (notificacionId: string) => {
     const response = await fetch(
-      `${BASE_URL}/notificaciones/${notificacionId}/leer`,
+      `${BASE_URL}/api/notificaciones/${notificacionId}/leer`,
       {
         method: "PUT",
         headers: await getAuthHeaders(),
@@ -509,5 +515,217 @@ export const ConexionApiBackend = {
     }
 
     return data;
+  },
+
+  // ========== MÉTODOS PARA REVIEWS ==========
+
+  // Obtener reviews de un producto
+  obtenerReviewsProducto: async (
+    productoId: string,
+    params?: {
+      pagina?: number;
+      limite?: number;
+      ordenar?: string;
+      direccion?: string;
+      calificacion?: number;
+      verificadas?: boolean;
+    }
+  ) => {
+    const queryParams = new URLSearchParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const url = queryParams.toString()
+      ? `${BASE_URL}/api/reviews/producto/${productoId}?${queryParams.toString()}`
+      : `${BASE_URL}/api/reviews/producto/${productoId}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: await getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener reviews del producto");
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : data;
+  },
+
+  // Obtener estadísticas de reviews de un producto
+  obtenerEstadisticasReviewsProducto: async (productoId: string) => {
+    const response = await fetch(
+      `${BASE_URL}/api/reviews/producto/${productoId}/estadisticas`,
+      {
+        method: "GET",
+        headers: await getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error al obtener estadísticas de reviews");
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : data;
+  },
+
+  // Crear una nueva review
+  crearReview: async (reviewData: {
+    productoId: string;
+    nombreUsuario: string;
+    emailUsuario: string;
+    calificacion: number;
+    titulo?: string;
+    comentario: string;
+  }) => {
+    const response = await fetch(`${BASE_URL}/api/reviews`, {
+      method: "POST",
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(reviewData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al crear review");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al crear review");
+    }
+
+    return data;
+  },
+
+  // Actualizar una review
+  actualizarReview: async (
+    reviewId: string,
+    reviewData: {
+      calificacion?: number;
+      titulo?: string;
+      comentario?: string;
+    }
+  ) => {
+    const response = await fetch(`${BASE_URL}/api/reviews/${reviewId}`, {
+      method: "PUT",
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(reviewData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al actualizar review");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al actualizar review");
+    }
+
+    return data;
+  },
+
+  // Eliminar una review
+  eliminarReview: async (reviewId: string) => {
+    const response = await fetch(`${BASE_URL}/api/reviews/${reviewId}`, {
+      method: "DELETE",
+      headers: await getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al eliminar review");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al eliminar review");
+    }
+
+    return data;
+  },
+
+  // Marcar review como útil o no útil
+  marcarReviewUtil: async (reviewId: string, esUtil: boolean) => {
+    const response = await fetch(`${BASE_URL}/api/reviews/${reviewId}/util`, {
+      method: "POST",
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ esUtil }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al marcar review");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al marcar review");
+    }
+
+    return data;
+  },
+
+  // Reportar una review
+  reportarReview: async (reviewId: string, motivo: string) => {
+    const response = await fetch(`${BASE_URL}/api/reviews/${reviewId}/reportar`, {
+      method: "POST",
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ motivo }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error al reportar review");
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Error al reportar review");
+    }
+
+    return data;
+  },
+
+  // Obtener reviews de un usuario
+  obtenerReviewsUsuario: async (
+    usuarioId: string,
+    params?: {
+      pagina?: number;
+      limite?: number;
+    }
+  ) => {
+    const queryParams = new URLSearchParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const url = queryParams.toString()
+      ? `${BASE_URL}/api/reviews/usuario/${usuarioId}?${queryParams.toString()}`
+      : `${BASE_URL}/api/reviews/usuario/${usuarioId}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: await getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener reviews del usuario");
+    }
+
+    const data = await response.json();
+    return data.success ? data.data : data;
   },
 };

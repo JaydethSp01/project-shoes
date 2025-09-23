@@ -38,6 +38,8 @@ import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import { cartService } from "../services/CartService";
 import { notificationService } from "../services/NotificationService";
 import { useGeolocation } from "../hooks/useGeolocation";
+import OnboardingModal from "../components/OnboardingModal";
+import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/UserDashboard.css";
 import "../styles/UserMenu.css";
 import "../styles/AdminPanel.css";
@@ -73,6 +75,11 @@ const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [images, setImages] = useState<{ [key: number]: string }>({});
 
+  // Estados de loading
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [isLoadingImages, setIsLoadingImages] = useState(true);
+  const [isLoadingTypes, setIsLoadingTypes] = useState(true);
+
   // Estados para funcionalidades
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
@@ -95,6 +102,8 @@ const Home = () => {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [showCart, setShowCart] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -109,6 +118,7 @@ const Home = () => {
   // Función para cargar productos
   const loadProducts = useCallback(async () => {
     try {
+      setIsLoadingProducts(true);
       const productos = await ConexionApiBackend.obtenerProductos();
       console.log(t("additional.console.productsLoaded"), productos);
       setProducts(productos);
@@ -116,6 +126,8 @@ const Home = () => {
       console.error(t("additional.console.errorLoadingProducts"), error);
       // Mostrar mensaje de error al usuario
       console.error(t("additional.console.connectionError"));
+    } finally {
+      setIsLoadingProducts(false);
     }
   }, [t]);
 
@@ -123,6 +135,14 @@ const Home = () => {
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
+
+  // Mostrar onboarding para nuevos usuarios
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem("tekashi-onboarding-seen");
+    if (!hasSeenOnboarding && products.length > 0) {
+      setShowOnboarding(true);
+    }
+  }, [products]);
 
   // Obtener ubicación del usuario al cargar la página
   useEffect(() => {
@@ -142,6 +162,7 @@ const Home = () => {
   useEffect(() => {
     const loadImages = async () => {
       try {
+        setIsLoadingImages(true);
         const imagenes = await ConexionApiBackend.obtenerImagenes();
         console.log(t("additional.console.imagesLoaded"), imagenes);
         setImages(imagenes);
@@ -149,6 +170,8 @@ const Home = () => {
         console.error(t("additional.console.errorLoadingImages"), error);
         // Continuar sin imágenes si hay error
         setImages({});
+      } finally {
+        setIsLoadingImages(false);
       }
     };
     loadImages();
@@ -158,6 +181,7 @@ const Home = () => {
   useEffect(() => {
     const loadTipos = async () => {
       try {
+        setIsLoadingTypes(true);
         const tipos = await ConexionApiBackend.obtenerTiposProducto();
         console.log(t("additional.console.productTypesLoaded"), tipos);
         setTiposProducto(tipos);
@@ -165,6 +189,8 @@ const Home = () => {
         console.error(t("additional.console.errorLoadingProductTypes"), error);
         // Continuar sin tipos si hay error
         setTiposProducto([]);
+      } finally {
+        setIsLoadingTypes(false);
       }
     };
     loadTipos();
@@ -372,6 +398,19 @@ const Home = () => {
   // return brandKey ? brandImages[brandKey] : "/shoe1.jpg";
   // };
 
+  // Funciones para el onboarding
+  const handleOnboardingNext = () => {
+    setOnboardingStep((prev) => prev + 1);
+  };
+
+  const handleOnboardingPrevious = () => {
+    setOnboardingStep((prev) => prev - 1);
+  };
+
+  const handleOnboardingClose = () => {
+    setShowOnboarding(false);
+  };
+
   return (
     <div className="ecommerce-container">
       {/* Global Alert */}
@@ -445,6 +484,9 @@ const Home = () => {
               />
 
               {/* Header específico según el rol */}
+              {!currentUser && (
+                <SimplifiedHeader onCartOpen={() => setShowCart(true)} />
+              )}
               {currentUser && !authService.isAdmin() && (
                 <SimplifiedHeader onCartOpen={() => setShowCart(true)} />
               )}
@@ -524,40 +566,44 @@ const Home = () => {
               {t("products.all")}
             </button>
             {/* Eliminar duplicados de tipos de producto */}
-            {tiposProducto
-              .filter(
-                (tipo, index, self) =>
-                  index === self.findIndex((t) => t.nombre === tipo.nombre)
-              )
-              .map((tipo) => (
-                <button
-                  key={tipo.idTipoProducto}
-                  className={`category-btn ${
-                    selectedCategory === tipo.nombre ? "active" : ""
-                  }`}
-                  onClick={async () => {
-                    setSelectedCategory(tipo.nombre);
-                    setCurrentPage(1); // Resetear a la primera página al filtrar
-                    console.log("Filtrar por tipo:", tipo.idTipoProducto);
-                    try {
-                      const productosFiltrados =
-                        await ConexionApiBackend.obtenerProductosPorTipo(
-                          tipo.idTipoProducto.toString()
+            {isLoadingTypes ? (
+              <LoadingSpinner size="small" text="Cargando categorías..." />
+            ) : (
+              tiposProducto
+                .filter(
+                  (tipo, index, self) =>
+                    index === self.findIndex((t) => t.nombre === tipo.nombre)
+                )
+                .map((tipo) => (
+                  <button
+                    key={tipo.idTipoProducto}
+                    className={`category-btn ${
+                      selectedCategory === tipo.nombre ? "active" : ""
+                    }`}
+                    onClick={async () => {
+                      setSelectedCategory(tipo.nombre);
+                      setCurrentPage(1); // Resetear a la primera página al filtrar
+                      console.log("Filtrar por tipo:", tipo.idTipoProducto);
+                      try {
+                        const productosFiltrados =
+                          await ConexionApiBackend.obtenerProductosPorTipo(
+                            tipo.idTipoProducto.toString()
+                          );
+                        setFilteredProducts(productosFiltrados);
+                      } catch (error) {
+                        console.error("Error filtrando productos:", error);
+                        // Fallback: filtrar localmente
+                        const productosFiltrados = products.filter(
+                          (p) => p.tipoProductoId === tipo.idTipoProducto
                         );
-                      setFilteredProducts(productosFiltrados);
-                    } catch (error) {
-                      console.error("Error filtrando productos:", error);
-                      // Fallback: filtrar localmente
-                      const productosFiltrados = products.filter(
-                        (p) => p.tipoProductoId === tipo.idTipoProducto
-                      );
-                      setFilteredProducts(productosFiltrados);
-                    }
-                  }}
-                >
-                  {tipo.nombre}
-                </button>
-              ))}
+                        setFilteredProducts(productosFiltrados);
+                      }
+                    }}
+                  >
+                    {tipo.nombre}
+                  </button>
+                ))
+            )}
           </div>
         </div>
       </section>
@@ -612,7 +658,13 @@ const Home = () => {
           </div>
 
           <div className="products-grid">
-            {getCurrentPageProducts().length > 0 ? (
+            {isLoadingProducts ? (
+              <LoadingSpinner
+                size="large"
+                text="Cargando productos..."
+                className="products-grid"
+              />
+            ) : getCurrentPageProducts().length > 0 ? (
               getCurrentPageProducts().map((product) => (
                 <div key={product.idProducto} className="product-card">
                   <div className="product-image-container">
@@ -852,6 +904,16 @@ const Home = () => {
           onShowSuccess={showSuccess}
         />
       )}
+
+      {/* Onboarding Modal */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={handleOnboardingClose}
+        currentStep={onboardingStep}
+        onNext={handleOnboardingNext}
+        onPrevious={handleOnboardingPrevious}
+        onSkip={handleOnboardingClose}
+      />
 
       {/* Footer */}
       <Footer />

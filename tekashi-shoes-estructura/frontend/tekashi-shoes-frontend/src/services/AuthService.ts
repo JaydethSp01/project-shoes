@@ -35,39 +35,8 @@ class AuthService {
   private currentUser: User | null = null;
   private listeners: Array<(user: User | null) => void> = [];
 
-  // Usuarios de prueba
-  private users: User[] = [
-    {
-      id: 1,
-      name: "Usuario Cliente",
-      nombre: "Usuario Cliente",
-      email: "user@tekashi.com",
-      role: "user",
-      rol: "user",
-      avatar: "/avatar-user.jpg",
-      phone: "+57 300 123 4567",
-      address: "Calle 123 #45-67, Bogotá",
-      registrationDate: "2024-01-01",
-      lastLogin: new Date().toISOString(),
-      status: "active",
-      loyaltyPoints: 150,
-      userLevel: "Silver",
-      totalPurchases: 5,
-      favoriteCategories: ["Sneakers", "Running", "Casual"],
-    },
-    {
-      id: 2,
-      name: "Administrador",
-      nombre: "Administrador",
-      email: "admin@tekashi.com",
-      role: "admin",
-      rol: "admin",
-      avatar: "/avatar-admin.jpg",
-      registrationDate: "2024-01-01",
-      lastLogin: new Date().toISOString(),
-      status: "active",
-    },
-  ];
+  // Los usuarios ahora se obtienen del backend
+  private users: User[] = [];
 
   constructor() {
     // Cargar usuario desde localStorage si existe
@@ -92,7 +61,7 @@ class AuthService {
   }): Promise<User> {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/usuarios/registro",
+        "https://backend-ecommerce-6vi3.onrender.com/api/usuarios/registro",
         {
           method: "POST",
           headers: {
@@ -168,7 +137,7 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<User> {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/usuarios/login",
+        "https://backend-ecommerce-6vi3.onrender.com/api/usuarios/login",
         {
           method: "POST",
           headers: {
@@ -191,27 +160,7 @@ class AuthService {
       }
     } catch (error) {
       console.error("Error during login:", error);
-      // Fallback a usuarios de prueba en caso de error
-      const user = this.users.find((u) => u.email === credentials.email);
-
-      if (!user) {
-        throw new Error("Usuario no encontrado");
-      }
-
-      // Validación básica de contraseña (en producción usar hash)
-      const validPasswords: { [key: string]: string } = {
-        "user@tekashi.com": "user123",
-        "admin@tekashi.com": "admin456",
-      };
-
-      if (credentials.password !== validPasswords[credentials.email]) {
-        throw new Error("Contraseña incorrecta");
-      }
-
-      this.currentUser = user;
-      localStorage.setItem("tekashi_user", JSON.stringify(user));
-      this.notifyListeners();
-      return user;
+      throw new Error("Error de conexión. Por favor intenta de nuevo.");
     }
   }
 

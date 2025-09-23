@@ -19,9 +19,9 @@ const STATIC_ASSETS = [
 
 // URLs de API para cache
 const API_URLS = [
-  "https://project-shoes.onrender.com/api/producto",
-  "https://project-shoes.onrender.com/api/tipo_producto",
-  "https://project-shoes.onrender.com/api/usuarios",
+  "https://backend-ecommerce-6vi3.onrender.com/api/producto",
+  "https://backend-ecommerce-6vi3.onrender.com/api/tipo_producto",
+  "https://backend-ecommerce-6vi3.onrender.com/api/usuarios",
 ];
 
 // Instalación del Service Worker
@@ -112,7 +112,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Estrategia para API calls
-  else if (url.hostname === "project-shoes.onrender.com") {
+  else if (url.hostname === "backend-ecommerce-6vi3.onrender.com") {
     event.respondWith(
       caches.open(API_CACHE_NAME).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
@@ -276,7 +276,7 @@ async function syncCartData(cartData) {
   // Sincronizar carrito con el servidor
   try {
     const response = await fetch(
-      "https://project-shoes.onrender.com/api/cart/sync",
+      "https://backend-ecommerce-6vi3.onrender.com/api/cart/sync",
       {
         method: "POST",
         headers: {
@@ -320,7 +320,7 @@ async function syncFavoritesData(favoritesData) {
   // Sincronizar favoritos con el servidor
   try {
     const response = await fetch(
-      "https://project-shoes.onrender.com/api/favoritos/sync",
+      "https://backend-ecommerce-6vi3.onrender.com/api/favoritos/sync",
       {
         method: "POST",
         headers: {

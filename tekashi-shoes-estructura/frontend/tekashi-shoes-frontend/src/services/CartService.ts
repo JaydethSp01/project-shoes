@@ -41,6 +41,8 @@ export interface PaymentInfo {
   expiryDate?: string;
   cvv?: string;
   cardholderName?: string;
+  cardName?: string;
+  transactionId?: string;
 }
 
 export interface OrderInfo {
@@ -48,6 +50,8 @@ export interface OrderInfo {
   items: CartItem[];
   shippingAddress: ShippingAddress;
   paymentInfo: PaymentInfo;
+  loyaltyPointsUsed?: number;
+  notes?: string;
   subtotal: number;
   tax: number;
   shipping: number;
@@ -62,7 +66,7 @@ export interface OrderInfo {
 class CartService {
   private cartItems: CartItem[] = [];
   private listeners: ((items: CartItem[]) => void)[] = [];
-  private baseUrl = "https://project-shoes.onrender.com/api";
+  private baseUrl = "https://backend-ecommerce-6vi3.onrender.com/api/api";
 
   constructor() {
     this.loadFromStorage();
@@ -90,7 +94,7 @@ class CartService {
       const stored = localStorage.getItem("tekashi_cart");
       if (stored) {
         const parsed = JSON.parse(stored);
-        this.cartItems = parsed.map((item: any) => ({
+        this.cartItems = parsed.map((item: CartItem) => ({
           ...item,
           addedAt: new Date(item.addedAt),
         }));
@@ -394,7 +398,7 @@ class CartService {
       return {
         Authorization: `Bearer ${token}`,
       };
-    } catch (error) {
+    } catch {
       console.warn("No se pudo obtener token de autenticación");
       return {};
     }
@@ -459,40 +463,23 @@ class CartService {
     };
   }
 
-  // Obtener historial de pedidos (simulado)
+  // Obtener historial de pedidos desde el backend
   async getOrderHistory(): Promise<OrderInfo[]> {
-    // Simular llamada al backend
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      // TODO: Implementar llamada real al backend
+      // const response = await fetch(`${BASE_URL}/api/pedidos/historial`, {
+      //   method: "GET",
+      //   headers: await getAuthHeaders(),
+      // });
+      // const data = await response.json();
+      // return data.success ? data.data : [];
 
-    // Datos simulados
-    return [
-      {
-        id: "TK-001-ABC123",
-        items: [],
-        shippingAddress: {
-          name: "Juan Pérez",
-          email: "juan@email.com",
-          phone: "+57 300 123 4567",
-          address: "Calle 123 #45-67",
-          city: "Bogotá",
-          postalCode: "110111",
-          country: "Colombia",
-        },
-        paymentInfo: {
-          method: "credit_card",
-          cardholderName: "Juan Pérez",
-        },
-        subtotal: 450000,
-        tax: 85500,
-        shipping: 0,
-        discount: 67500,
-        total: 468000,
-        status: "delivered",
-        createdAt: "2024-01-15T10:30:00Z",
-        estimatedDelivery: "2024-01-22",
-        trackingNumber: "TK123456789",
-      },
-    ];
+      // Por ahora, retornar array vacío
+      return [];
+    } catch (error) {
+      console.error("Error al obtener historial de pedidos:", error);
+      return [];
+    }
   }
 
   // Forzar actualización (para debugging)

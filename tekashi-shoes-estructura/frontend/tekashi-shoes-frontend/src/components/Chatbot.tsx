@@ -20,7 +20,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "1",
-      text: '¡Hola! 👋 Soy tu asistente personal de compras en Tekashi Shoes.\n\n🎯 **Te ayudo a encontrar el zapato perfecto para ti**\n\n**¿Por dónde empezamos? Elige una opción:**\n\n1️⃣ **🏷️ Buscar por marca** - "nike", "adidas", "puma"\n2️⃣ **👟 Ver por tipo** - "tenis", "zapatillas", "botas"\n3️⃣ **💰 Ver ofertas** - "descuentos", "promociones"\n4️⃣ **📏 Ayuda con tallas** - "talla 42", "medidas"\n5️⃣ **🛒 Ver carrito** - "carrito", "compras"\n6️⃣ **📞 Contactar soporte** - "soporte", "ayuda"\n\n**💡 Ejemplos de búsqueda:**\n• "nike negro" - Zapatos Nike en negro\n• "tenis baratos" - Tenis económicos\n• "talla 42" - Ayuda con tallas\n• "ofertas" - Ver promociones\n\n**🔄 Tip:** Puedes combinar palabras como "nike negro barato" para mejores resultados',
+      text: "¡Hola! 👋 Soy tu asistente personal de compras en Tekashi Shoes.\n\n🎯 **Te ayudo a encontrar el zapato perfecto para ti**\n\n**¿Por dónde empezamos? Elige una opción:**",
       isUser: false,
       timestamp: new Date(),
       type: "text",
@@ -38,12 +38,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputText.trim() || isTyping) return;
+  const handleSendMessage = async (message?: string) => {
+    const messageToSend = message || inputText;
+    if (!messageToSend.trim() || isTyping) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: inputText,
+      text: messageToSend,
       isUser: true,
       timestamp: new Date(),
       type: "text",
@@ -55,7 +56,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
 
     try {
       // Generar respuesta usando el servicio
-      const response = await chatbotService.generateResponse(inputText);
+      const response = await chatbotService.generateResponse(messageToSend);
 
       // Simular tiempo de escritura
       setTimeout(() => {
@@ -63,9 +64,12 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
         setIsTyping(false);
 
         // Notificar búsqueda si es relevante
-        if (inputText.length > 3 && !inputText.toLowerCase().includes("hola")) {
+        if (
+          messageToSend.length > 3 &&
+          !messageToSend.toLowerCase().includes("hola")
+        ) {
           notificationService.searchNotification(
-            inputText,
+            messageToSend,
             response.text.includes("Encontramos")
               ? parseInt(response.text.match(/(\d+)/)?.[1] || "0")
               : 0
@@ -84,6 +88,10 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
       setMessages((prev) => [...prev, errorMessage]);
       setIsTyping(false);
     }
+  };
+
+  const handleQuickAction = (action: string) => {
+    handleSendMessage(action);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -193,6 +201,101 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
           </div>
         )}
         <div ref={messagesEndRef} />
+
+        {/* Botones de acción rápida */}
+        {!isTyping && (
+          <div className="quick-actions">
+            <div className="quick-actions-grid">
+              <button
+                className="quick-action-btn primary"
+                onClick={() => handleQuickAction("Ver ofertas")}
+              >
+                <div className="btn-icon">💰</div>
+                <div className="btn-text">
+                  <span className="btn-title">Ofertas</span>
+                  <span className="btn-subtitle">Descuentos especiales</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Nike")}
+              >
+                <div className="btn-icon">🏷️</div>
+                <div className="btn-text">
+                  <span className="btn-title">Nike</span>
+                  <span className="btn-subtitle">Zapatos Nike</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Adidas")}
+              >
+                <div className="btn-icon">👟</div>
+                <div className="btn-text">
+                  <span className="btn-title">Adidas</span>
+                  <span className="btn-subtitle">Zapatos Adidas</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Puma")}
+              >
+                <div className="btn-icon">⚡</div>
+                <div className="btn-text">
+                  <span className="btn-title">Puma</span>
+                  <span className="btn-subtitle">Zapatos Puma</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Tenis deportivos")}
+              >
+                <div className="btn-icon">🏃</div>
+                <div className="btn-text">
+                  <span className="btn-title">Deportivos</span>
+                  <span className="btn-subtitle">Para deporte</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Zapatos casuales")}
+              >
+                <div className="btn-icon">👔</div>
+                <div className="btn-text">
+                  <span className="btn-title">Casuales</span>
+                  <span className="btn-subtitle">Para diario</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Ver carrito")}
+              >
+                <div className="btn-icon">🛒</div>
+                <div className="btn-text">
+                  <span className="btn-title">Carrito</span>
+                  <span className="btn-subtitle">Ver compras</span>
+                </div>
+              </button>
+
+              <button
+                className="quick-action-btn secondary"
+                onClick={() => handleQuickAction("Ayuda con tallas")}
+              >
+                <div className="btn-icon">📏</div>
+                <div className="btn-text">
+                  <span className="btn-title">Tallas</span>
+                  <span className="btn-subtitle">Guía de tallas</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="chatbot-input">

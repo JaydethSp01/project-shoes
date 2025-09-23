@@ -40,7 +40,7 @@ class ChatbotService {
     // Respuestas de saludo
     if (this.isGreeting(message)) {
       return this.createMessage(
-        `¡Hola! 👋 Soy tu asistente personal de compras en Tekashi Shoes.\n\n🎯 **Te ayudo a encontrar el zapato perfecto para ti**\n\n**¿Por dónde empezamos? Elige una opción:**\n\n1️⃣ **🏷️ Buscar por marca** - "nike", "adidas", "puma"\n2️⃣ **👟 Ver por tipo** - "tenis", "zapatillas", "botas"\n3️⃣ **💰 Ver ofertas** - "descuentos", "promociones"\n4️⃣ **📏 Ayuda con tallas** - "talla 42", "medidas"\n5️⃣ **🛒 Ver carrito** - "carrito", "compras"\n6️⃣ **📞 Contactar soporte** - "soporte", "ayuda"\n\n**💡 Ejemplos de búsqueda:**\n• "nike negro" - Zapatos Nike en negro\n• "tenis baratos" - Tenis económicos\n• "talla 42" - Ayuda con tallas\n• "ofertas" - Ver promociones\n\n**🔄 Tip:** Puedes combinar palabras como "nike negro barato" para mejores resultados`,
+        `¡Hola! 👋 Soy tu asistente personal de compras en Tekashi Shoes.\n\n🎯 **Te ayudo a encontrar el zapato perfecto para ti**\n\n**¿Por dónde empezamos? Elige una opción:**`,
         false
       );
     }
@@ -63,6 +63,11 @@ class ChatbotService {
     // Búsqueda por marca
     if (this.isBrandSearch(message)) {
       return this.handleBrandSearch(message);
+    }
+
+    // Búsqueda inteligente (combina marca, tipo, color, etc.)
+    if (this.isIntelligentSearch(message)) {
+      return this.handleIntelligentSearch(message);
     }
 
     // Información de stock
@@ -676,6 +681,169 @@ Puedes probar con:
       "🔥 **New Balance 990** - 15% OFF - Antes: $400,000 - Ahora: $340,000",
     ];
     return offers.join("\n\n");
+  }
+
+  // Nueva función para búsqueda inteligente
+  private isIntelligentSearch(message: string): boolean {
+    const words = message.toLowerCase().split(" ");
+    const hasBrand = words.some((word) =>
+      ["nike", "adidas", "puma", "new balance", "converse", "vans"].includes(
+        word
+      )
+    );
+    const hasType = words.some((word) =>
+      [
+        "tenis",
+        "zapatillas",
+        "deportivos",
+        "casuales",
+        "formales",
+        "botas",
+      ].includes(word)
+    );
+    const hasColor = words.some((word) =>
+      [
+        "negro",
+        "blanco",
+        "azul",
+        "rojo",
+        "verde",
+        "gris",
+        "negros",
+        "blancos",
+        "azules",
+        "rojos",
+      ].includes(word)
+    );
+    const hasPrice = words.some((word) =>
+      [
+        "barato",
+        "baratos",
+        "económico",
+        "económicos",
+        "caro",
+        "caros",
+        "oferta",
+        "ofertas",
+      ].includes(word)
+    );
+
+    return hasBrand || hasType || hasColor || hasPrice;
+  }
+
+  private handleIntelligentSearch(message: string): ChatMessage {
+    const words = message.toLowerCase().split(" ");
+
+    // Extraer criterios de búsqueda
+    const brand = words.find((word) =>
+      ["nike", "adidas", "puma", "new balance", "converse", "vans"].includes(
+        word
+      )
+    );
+    const type = words.find((word) =>
+      [
+        "tenis",
+        "zapatillas",
+        "deportivos",
+        "casuales",
+        "formales",
+        "botas",
+      ].includes(word)
+    );
+    const color = words.find((word) =>
+      [
+        "negro",
+        "blanco",
+        "azul",
+        "rojo",
+        "verde",
+        "gris",
+        "negros",
+        "blancos",
+        "azules",
+        "rojos",
+      ].includes(word)
+    );
+    const price = words.find((word) =>
+      [
+        "barato",
+        "baratos",
+        "económico",
+        "económicos",
+        "caro",
+        "caros",
+        "oferta",
+        "ofertas",
+      ].includes(word)
+    );
+
+    // Filtrar productos según criterios
+    let filteredProducts = this.products;
+
+    if (brand) {
+      filteredProducts = filteredProducts.filter((p) =>
+        p.marca.toLowerCase().includes(brand)
+      );
+    }
+
+    if (type) {
+      filteredProducts = filteredProducts.filter(
+        (p) =>
+          p.tipo.toLowerCase().includes(type) ||
+          p.descripcion.toLowerCase().includes(type)
+      );
+    }
+
+    if (color) {
+      filteredProducts = filteredProducts.filter(
+        (p) =>
+          p.descripcion.toLowerCase().includes(color) ||
+          p.colores.some((c) => c.toLowerCase().includes(color))
+      );
+    }
+
+    if (price) {
+      if (
+        [
+          "barato",
+          "baratos",
+          "económico",
+          "económicos",
+          "oferta",
+          "ofertas",
+        ].includes(price)
+      ) {
+        filteredProducts = filteredProducts.filter((p) => p.precio < 200000);
+      } else if (["caro", "caros"].includes(price)) {
+        filteredProducts = filteredProducts.filter((p) => p.precio > 300000);
+      }
+    }
+
+    if (filteredProducts.length === 0) {
+      return this.createMessage(
+        `😔 No encontré productos que coincidan con tu búsqueda "${message}".\n\n**💡 Sugerencias:**\n• Prueba con términos más generales\n• Usa los botones de acción rápida\n• Pregúntame por marcas específicas`,
+        false
+      );
+    }
+
+    // Mostrar resultados
+    const results = filteredProducts.slice(0, 5);
+    const resultText = results
+      .map(
+        (product, index) =>
+          `${index + 1}. **${product.nombre}** - ${
+            product.marca
+          }\n   💰 $${product.precio.toLocaleString()}\n   📝 ${product.descripcion.substring(
+            0,
+            100
+          )}...`
+      )
+      .join("\n\n");
+
+    return this.createMessage(
+      `🎯 **Encontré ${filteredProducts.length} productos** que coinciden con tu búsqueda:\n\n${resultText}\n\n**💡 Tip:** Haz clic en cualquier producto para ver más detalles y agregarlo al carrito.`,
+      false
+    );
   }
 }
 

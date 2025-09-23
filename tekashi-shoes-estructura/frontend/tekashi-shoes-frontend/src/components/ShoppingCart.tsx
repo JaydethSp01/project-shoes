@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
 import { cartService, CartItem } from "../services/CartService";
-// import { authService } from "../services/AuthService";
+import { authService } from "../services/AuthService";
 import CheckoutForm from "./CheckoutForm";
 import ProductImage from "./ProductImage";
 import BeautifulAlert from "./BeautifulAlert";
@@ -62,28 +62,31 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     cartService.clearCart();
   };
 
-  // const handleCheckout = async (_event?: any) => {
-  //   // Verificar si el usuario está logueado
-  //   const currentUser = authService.getCurrentUser();
-  //   if (!currentUser) {
-  //     showWarning(
-  //       "🔐 Inicio de Sesión Requerido",
-  //       "Debes iniciar sesión para proceder con el pago. Haz clic en 'Iniciar Sesión' en el menú superior."
-  //     );
-  //     return;
-  //   }
+  const handleCheckout = async (_event?: any) => {
+    // Verificar si el usuario está logueado
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) {
+      // Para invitados, mostrar opción de login o continuar como invitado
+      const shouldLogin = window.confirm(
+        "🔐 Para una mejor experiencia, te recomendamos iniciar sesión.\n\n" +
+          "¿Quieres iniciar sesión o continuar como invitado?\n\n" +
+          "• Aceptar: Ir al login\n" +
+          "• Cancelar: Continuar como invitado"
+      );
 
-  //   // Verificar que no sea un administrador intentando comprar
-  //   if (authService.isAdmin()) {
-  //     showWarning(
-  //       "⚠️ Acceso Restringido",
-  //       "Los administradores no pueden realizar compras. Usa una cuenta de usuario regular."
-  //     );
-  //     return;
-  //   }
-
-  //   setShowCheckout(true);
-  // };
+      if (shouldLogin) {
+        // Aquí podrías abrir el modal de login
+        // Por ahora, continuamos con checkout como invitado
+        setShowCheckout(true);
+      } else {
+        // Continuar como invitado
+        setShowCheckout(true);
+      }
+    } else {
+      // Usuario logueado, proceder normalmente
+      setShowCheckout(true);
+    }
+  };
 
   const handleCheckoutSuccess = () => {
     cartService.clearCart();
@@ -261,8 +264,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 </button>
                 <button
                   onClick={() => {
-                    onShowCheckout();
-                    onClose();
+                    handleCheckout();
                   }}
                   className="btn btn-primary btn-checkout"
                 >

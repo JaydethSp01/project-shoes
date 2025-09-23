@@ -99,22 +99,22 @@ class NotificationService {
     return newNotification;
   }
 
-  // Notificaciones en tiempo real basadas en eventos del backend
+  // Notificaciones en tiempo real basadas en eventos del backend (optimizado)
   private startRealTimeNotifications() {
-    // Simular eventos de e-commerce en tiempo real
+    // Simular eventos de e-commerce en tiempo real (reducido)
     setInterval(() => {
       this.generateRealTimeNotification();
-    }, 30000); // Cada 30 segundos
+    }, 300000); // Cada 5 minutos (reducido de 30 segundos)
 
-    // Simular eventos de stock
+    // Simular eventos de stock (reducido)
     setInterval(() => {
       this.checkStockAlerts();
-    }, 60000); // Cada minuto
+    }, 600000); // Cada 10 minutos (reducido de 1 minuto)
 
-    // Simular eventos de promociones
+    // Simular eventos de promociones (reducido)
     setInterval(() => {
       this.generatePromotionNotification();
-    }, 120000); // Cada 2 minutos
+    }, 900000); // Cada 15 minutos (reducido de 2 minutos)
   }
 
   private async generateRealTimeNotification() {

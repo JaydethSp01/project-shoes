@@ -4,6 +4,9 @@ import { Product } from "../modelos/productTypes";
 import ProductImage from "./ProductImage";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
+import LoadingSpinner from "./LoadingSpinner";
+import { ConexionApiBackend } from "../services/ConexionApiBackend";
+import { authService } from "../services/AuthService";
 import "../styles/ProductReviews.css";
 
 interface Review {
@@ -32,13 +35,14 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
   images = {},
 }) => {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [newReview, setNewReview] = useState({
     userName: "",
     rating: 0,
     comment: "",
   });
   const [showReviewForm, setShowReviewForm] = useState(false);
-  
+
   // Hook para alertas bonitas
   const { alertState, showError, hideAlert } = useBeautifulAlert();
   const [averageRating, setAverageRating] = useState(0);
@@ -46,131 +50,146 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
     0, 0, 0, 0, 0,
   ]);
 
-  // Generar reviews de ejemplo
+  // Cargar reviews desde el backend
   useEffect(() => {
-    const sampleReviews: Review[] = [
-      {
-        id: "1",
-        productId: product.idProducto,
-        userName: "María González",
-        rating: 5,
-        comment:
-          "Excelente calidad, muy cómodos y duraderos. Los recomiendo totalmente.",
-        date: "2024-01-15",
-        helpful: 12,
-        notHelpful: 1,
-        verified: true,
-      },
-      {
-        id: "2",
-        productId: product.idProducto,
-        userName: "Carlos Rodríguez",
-        rating: 4,
-        comment:
-          "Buen producto, se ajusta perfectamente. La entrega fue rápida.",
-        date: "2024-01-10",
-        helpful: 8,
-        notHelpful: 0,
-        verified: true,
-      },
-      {
-        id: "3",
-        productId: product.idProducto,
-        userName: "Ana Martínez",
-        rating: 5,
-        comment: "Super cómodos, perfectos para el día a día. Calidad premium.",
-        date: "2024-01-08",
-        helpful: 15,
-        notHelpful: 2,
-        verified: false,
-      },
-      {
-        id: "4",
-        productId: product.idProducto,
-        userName: "Luis Pérez",
-        rating: 3,
-        comment:
-          "Están bien, pero esperaba un poco más de calidad por el precio.",
-        date: "2024-01-05",
-        helpful: 5,
-        notHelpful: 3,
-        verified: true,
-      },
-    ];
+    const loadReviews = async () => {
+      try {
+        setIsLoadingReviews(true);
 
-    setReviews(sampleReviews);
+        // Cargar reviews del producto
+        const reviewsData = await ConexionApiBackend.obtenerReviewsProducto(
+          product.idProducto,
+          {
+            pagina: 1,
+            limite: 50,
+            ordenar: "fecha",
+            direccion: "desc",
+          }
+        );
 
-    // Calcular rating promedio
-    const avg =
-      sampleReviews.reduce((sum, review) => sum + review.rating, 0) /
-      sampleReviews.length;
-    setAverageRating(avg);
+        // Cargar estadísticas del producto
+        const estadisticas =
+          await ConexionApiBackend.obtenerEstadisticasReviewsProducto(
+            product.idProducto
+          );
 
-    // Calcular distribución de ratings
-    const distribution = [0, 0, 0, 0, 0];
-    sampleReviews.forEach((review) => {
-      distribution[review.rating - 1]++;
-    });
-    setRatingDistribution(distribution);
+        setReviews(reviewsData || []);
+        setAverageRating(estadisticas.promedioCalificacion || 0);
+        setRatingDistribution(
+          estadisticas.distribucionCalificaciones || [0, 0, 0, 0, 0]
+        );
+      } catch (error) {
+        console.error("Error al cargar reviews:", error);
+        setReviews([]);
+        setAverageRating(0);
+        setRatingDistribution([0, 0, 0, 0, 0]);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    loadReviews();
   }, [product.idProducto]);
 
   const handleStarClick = (rating: number) => {
     setNewReview((prev) => ({ ...prev, rating }));
   };
 
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!newReview.userName || !newReview.comment || newReview.rating === 0) {
-      showError("❌ Campos Incompletos", "Por favor completa todos los campos antes de enviar tu reseña.");
+      showError(
+        "❌ Campos Incompletos",
+        "Por favor completa todos los campos antes de enviar tu reseña."
+      );
       return;
     }
 
-    const review: Review = {
-      id: Date.now().toString(),
-      productId: product.idProducto,
-      userName: newReview.userName,
-      rating: newReview.rating,
-      comment: newReview.comment,
-      date: new Date().toISOString().split("T")[0],
-      helpful: 0,
-      notHelpful: 0,
-      verified: false,
-    };
+    try {
+      // Obtener usuario autenticado
+      const currentUser = authService.getCurrentUser();
 
-    setReviews((prev) => [review, ...prev]);
+      // Crear la review en el backend
+      const reviewData = {
+        productoId: product.idProducto,
+        nombreUsuario: newReview.userName,
+        emailUsuario: currentUser?.email || "usuario@example.com",
+        calificacion: newReview.rating,
+        titulo: "", // Opcional
+        comentario: newReview.comment,
+      };
 
-    // Recalcular estadísticas
-    const updatedReviews = [review, ...reviews];
-    const avg =
-      updatedReviews.reduce((sum, r) => sum + r.rating, 0) /
-      updatedReviews.length;
-    setAverageRating(avg);
+      const response = await ConexionApiBackend.crearReview(reviewData);
 
-    const distribution = [0, 0, 0, 0, 0];
-    updatedReviews.forEach((r) => {
-      distribution[r.rating - 1]++;
-    });
-    setRatingDistribution(distribution);
+      if (response.success) {
+        // Recargar reviews y estadísticas
+        const reviewsData = await ConexionApiBackend.obtenerReviewsProducto(
+          product.idProducto,
+          {
+            pagina: 1,
+            limite: 50,
+            ordenar: "fecha",
+            direccion: "desc",
+          }
+        );
 
-    setNewReview({ userName: "", rating: 0, comment: "" });
-    setShowReviewForm(false);
+        const estadisticas =
+          await ConexionApiBackend.obtenerEstadisticasReviewsProducto(
+            product.idProducto
+          );
+
+        setReviews(reviewsData || []);
+        setAverageRating(estadisticas.promedioCalificacion || 0);
+        setRatingDistribution(
+          estadisticas.distribucionCalificaciones || [0, 0, 0, 0, 0]
+        );
+
+        setNewReview({ userName: "", rating: 0, comment: "" });
+        setShowReviewForm(false);
+
+        showError(
+          "✅ Reseña Enviada",
+          "Tu reseña ha sido enviada exitosamente."
+        );
+      }
+    } catch (error) {
+      console.error("Error al enviar review:", error);
+      showError(
+        "❌ Error al Enviar",
+        "Hubo un problema al enviar tu reseña. Por favor intenta de nuevo."
+      );
+    }
   };
 
-  const handleHelpful = (reviewId: string, isHelpful: boolean) => {
-    setReviews((prev) =>
-      prev.map((review) =>
-        review.id === reviewId
-          ? {
-              ...review,
-              helpful: isHelpful ? review.helpful + 1 : review.helpful,
-              notHelpful: !isHelpful
-                ? review.notHelpful + 1
-                : review.notHelpful,
-            }
-          : review
-      )
-    );
+  const handleHelpful = async (reviewId: string, isHelpful: boolean) => {
+    try {
+      const response = await ConexionApiBackend.marcarReviewUtil(
+        reviewId,
+        isHelpful
+      );
+
+      if (response.success) {
+        // Actualizar la review local con los nuevos valores
+        setReviews((prev) =>
+          prev.map((review) =>
+            review.id === reviewId
+              ? {
+                  ...review,
+                  helpful: response.data.util,
+                  notHelpful: response.data.noUtil,
+                }
+              : review
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error al marcar review como útil:", error);
+      showError(
+        "❌ Error",
+        "No se pudo marcar la reseña. Por favor intenta de nuevo."
+      );
+    }
   };
 
   const renderStars = (rating: number, interactive: boolean = false) => {
@@ -213,9 +232,15 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
             />
             <div className="product-info-details">
               <h4>{product.marca}</h4>
-              <p><strong>Color:</strong> {product.color}</p>
-              <p><strong>Stock:</strong> {product.stock} unidades disponibles</p>
-              <p><strong>ID:</strong> #{product.idProducto}</p>
+              <p>
+                <strong>Color:</strong> {product.color}
+              </p>
+              <p>
+                <strong>Stock:</strong> {product.stock} unidades disponibles
+              </p>
+              <p>
+                <strong>ID:</strong> #{product.idProducto}
+              </p>
               <div className="product-price">
                 ${product.precio.toLocaleString()}
               </div>
@@ -325,45 +350,54 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
 
           {/* Lista de reseñas */}
           <div className="reviews-list">
-            {reviews.map((review) => (
-              <div key={review.id} className="review-item">
-                <div className="review-header">
-                  <div className="reviewer-info">
-                    <FaUser className="user-icon" />
-                    <div>
-                      <span className="reviewer-name">{review.userName}</span>
-                      {review.verified && (
-                        <span className="verified-badge">✓ Verificado</span>
-                      )}
+            {isLoadingReviews ? (
+              <LoadingSpinner size="medium" text="Cargando reseñas..." />
+            ) : reviews.length > 0 ? (
+              reviews.map((review) => (
+                <div key={review.id} className="review-item">
+                  <div className="review-header">
+                    <div className="reviewer-info">
+                      <FaUser className="user-icon" />
+                      <div>
+                        <span className="reviewer-name">{review.userName}</span>
+                        {review.verified && (
+                          <span className="verified-badge">✓ Verificado</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="review-rating">
+                      {renderStars(review.rating)}
+                      <span className="review-date">{review.date}</span>
                     </div>
                   </div>
-                  <div className="review-rating">
-                    {renderStars(review.rating)}
-                    <span className="review-date">{review.date}</span>
+
+                  <div className="review-content">
+                    <p>{review.comment}</p>
+                  </div>
+
+                  <div className="review-actions">
+                    <span>¿Te resultó útil esta reseña?</span>
+                    <button
+                      className="helpful-btn"
+                      onClick={() => handleHelpful(review.id, true)}
+                    >
+                      <FaThumbsUp /> Sí ({review.helpful})
+                    </button>
+                    <button
+                      className="not-helpful-btn"
+                      onClick={() => handleHelpful(review.id, false)}
+                    >
+                      <FaThumbsDown /> No ({review.notHelpful})
+                    </button>
                   </div>
                 </div>
-
-                <div className="review-content">
-                  <p>{review.comment}</p>
-                </div>
-
-                <div className="review-actions">
-                  <span>¿Te resultó útil esta reseña?</span>
-                  <button
-                    className="helpful-btn"
-                    onClick={() => handleHelpful(review.id, true)}
-                  >
-                    <FaThumbsUp /> Sí ({review.helpful})
-                  </button>
-                  <button
-                    className="not-helpful-btn"
-                    onClick={() => handleHelpful(review.id, false)}
-                  >
-                    <FaThumbsDown /> No ({review.notHelpful})
-                  </button>
-                </div>
+              ))
+            ) : (
+              <div className="no-reviews">
+                <p>No hay reseñas disponibles para este producto.</p>
+                <p>Sé el primero en escribir una reseña.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

@@ -47,7 +47,7 @@ const AdminHeader: React.FC = () => {
     try {
       setIsLoading(true);
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/notifications",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/notifications",
         {
           method: "GET",
           headers: {
@@ -135,7 +135,7 @@ const AdminHeader: React.FC = () => {
     if (!notification.isRead) {
       try {
         const response = await fetch(
-          "https://project-shoes.onrender.com/admin/mark-notification-read",
+          "https://backend-ecommerce-6vi3.onrender.com/api/admin/mark-notification-read",
           {
             method: "POST",
             headers: {
@@ -173,7 +173,7 @@ const AdminHeader: React.FC = () => {
   const handleMarkAllAsRead = async () => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/mark-all-notifications-read",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/mark-all-notifications-read",
         {
           method: "POST",
           headers: {

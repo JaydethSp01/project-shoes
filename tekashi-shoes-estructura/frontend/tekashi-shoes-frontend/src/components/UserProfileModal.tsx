@@ -71,7 +71,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/usuarios/${user.id}`,
+        `https://backend-ecommerce-6vi3.onrender.com/api/usuarios/${user.id}`,
         {
           method: "PUT",
           headers: {
@@ -123,7 +123,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/usuarios/${user.id}/password`,
+        `https://backend-ecommerce-6vi3.onrender.com/api/usuarios/${user.id}/password`,
         {
           method: "PUT",
           headers: {

@@ -34,7 +34,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     confirmPassword: "",
     phone: "",
     address: "",
-    role: "user" as "user" | "admin",
+    role: "user" as "user",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -256,37 +256,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 disabled={isLoading}
                 className="form-input"
               />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="role">
-                <FaUser className="input-icon" />
-                Tipo de Cuenta
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    role: e.target.value as "user" | "admin",
-                  }))
-                }
-                disabled={isLoading}
-                className="form-input"
-              >
-                <option value="user">
-                  Usuario - Acceso completo a funcionalidades
-                </option>
-                <option value="admin">
-                  Administrador - Panel de administración
-                </option>
-              </select>
-              <small className="form-help">
-                Los usuarios tienen acceso a dashboard personal, favoritos,
-                listas de deseos, puntos de fidelidad y más.
-              </small>
             </div>
 
             <div className="form-group">

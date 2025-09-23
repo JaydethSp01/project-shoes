@@ -17,6 +17,7 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 const notificacionRoutes = require("./routes/notificacionRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const pedidoRoutes = require("./routes/pedidoRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 // Import middleware
 const errorHandler = require("./middleware/errorHandler");
@@ -132,39 +133,27 @@ app.get("/api/simple", (req, res) => {
   res.json({ ok: true });
 });
 
-// Debug endpoint para verificar la base de datos
-app.get("/api/debug", async (req, res) => {
-  try {
-    const Producto = require("./models/Producto");
-    const TipoProducto = require("./models/TipoProducto");
-    const Usuario = require("./models/Usuario");
-    
-    const productCount = await Producto.countDocuments();
-    const tipoCount = await TipoProducto.countDocuments();
-    const userCount = await Usuario.countDocuments();
-    
-    res.json({
-      success: true,
-      debug: {
-        connectionState: mongoose.connection.readyState,
-        dbName: mongoose.connection.db ? mongoose.connection.db.databaseName : "No connected",
-        productCount: productCount,
-        tipoCount: tipoCount,
-        userCount: userCount,
-        env: process.env.NODE_ENV,
-        mongodbUri: process.env.MONGODB_URI ? "Set" : "Not set"
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      debug: {
-        connectionState: mongoose.connection.readyState,
-        env: process.env.NODE_ENV
-      }
-    });
-  }
+// Debug endpoint simple sin base de datos
+app.get("/api/debug", (req, res) => {
+  res.json({
+    success: true,
+    debug: {
+      connectionState: mongoose.connection.readyState,
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV,
+      mongodbUri: process.env.MONGODB_URI ? "Set" : "Not set",
+    },
+  });
+});
+
+// Endpoint de diagnóstico para productos sin base de datos
+app.get("/api/producto/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Producto endpoint funcionando",
+    timestamp: new Date().toISOString(),
+    connectionState: mongoose.connection.readyState
+  });
 });
 
 // API Routes
@@ -177,6 +166,7 @@ app.use("/api/wishlists", wishlistRoutes);
 app.use("/api/notificaciones", notificacionRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/pedidos", pedidoRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -193,6 +183,7 @@ app.get("/", (req, res) => {
       notificaciones: "/api/notificaciones",
       admin: "/api/admin",
       pedidos: "/api/pedidos",
+      reviews: "/api/reviews",
     },
   });
 });

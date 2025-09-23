@@ -56,7 +56,7 @@ export interface Notification {
 }
 
 class DashboardService {
-  private baseUrl = "https://project-shoes.onrender.com";
+  private baseUrl = "https://backend-ecommerce-6vi3.onrender.com/api";
 
   // Obtener estadísticas del dashboard
   async getDashboardStats(userId: string): Promise<DashboardStats> {
@@ -140,7 +140,7 @@ class DashboardService {
   async getFavorites(userId: number): Promise<Favorite[]> {
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/favoritos/usuario/${userId}`
+        `https://backend-ecommerce-6vi3.onrender.com/api/favoritos/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo favoritos");
@@ -171,7 +171,7 @@ class DashboardService {
   async addToFavorites(userId: number, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/favoritos",
+        "https://backend-ecommerce-6vi3.onrender.com/api/favoritos",
         {
           method: "POST",
           headers: {
@@ -199,7 +199,7 @@ class DashboardService {
   async removeFromFavorites(userId: number, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/favoritos/${userId}/${productId}`,
+        `https://backend-ecommerce-6vi3.onrender.com/api/favoritos/${userId}/${productId}`,
         {
           method: "DELETE",
         }
@@ -220,7 +220,7 @@ class DashboardService {
   async getWishlists(userId: number): Promise<Wishlist[]> {
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/wishlists/usuario/${userId}`
+        `https://backend-ecommerce-6vi3.onrender.com/api/wishlists/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo listas de deseos");
@@ -251,7 +251,7 @@ class DashboardService {
   ): Promise<Wishlist> {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/wishlists",
+        "https://backend-ecommerce-6vi3.onrender.com/api/wishlists",
         {
           method: "POST",
           headers: {
@@ -291,7 +291,7 @@ class DashboardService {
   async addToWishlist(wishlistId: number, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/wishlists/${wishlistId}/productos`,
+        `https://backend-ecommerce-6vi3.onrender.com/api/wishlists/${wishlistId}/productos`,
         {
           method: "POST",
           headers: {
@@ -320,7 +320,7 @@ class DashboardService {
   async getNotifications(userId: number): Promise<Notification[]> {
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/notificaciones/usuario/${userId}`
+        `https://backend-ecommerce-6vi3.onrender.com/api/notificaciones/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo notificaciones");
@@ -348,7 +348,7 @@ class DashboardService {
   async markNotificationAsRead(notificationId: number): Promise<void> {
     try {
       const response = await fetch(
-        `https://project-shoes.onrender.com/notificaciones/${notificationId}/marcar-leida`,
+        `https://backend-ecommerce-6vi3.onrender.com/api/notificaciones/${notificationId}/marcar-leida`,
         {
           method: "PUT",
         }

@@ -126,7 +126,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const loadUsers = async (): Promise<AdminUser[]> => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/usuarios",
+        "https://backend-ecommerce-6vi3.onrender.com/api/usuarios",
         {
           method: "GET",
           headers: {
@@ -151,43 +151,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       }
     } catch (error) {
       console.error("Error loading users:", error);
-      // Fallback a usuarios simulados
-      return [
-        {
-          id: "1",
-          name: "Juan Pérez",
-          email: "juan@email.com",
-          role: "user",
-          registrationDate: "2024-01-15",
-          status: "active",
-          totalPurchases: 5,
-        },
-        {
-          id: "2",
-          name: "María García",
-          email: "maria@email.com",
-          role: "user",
-          registrationDate: "2024-01-14",
-          status: "active",
-          totalPurchases: 3,
-        },
-        {
-          id: "3",
-          name: "Carlos López",
-          email: "carlos@email.com",
-          role: "admin",
-          registrationDate: "2024-01-10",
-          status: "active",
-          totalPurchases: 12,
-        },
-      ];
+      throw error; // Re-lanzar el error para manejo de loading
     }
   };
 
   const loadAdminStats = async (): Promise<AdminStats> => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/stats",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/stats",
         {
           method: "GET",
           headers: {
@@ -295,7 +266,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleBackupDatabase = async () => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/backup",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/backup",
         {
           method: "POST",
           headers: {
@@ -321,7 +292,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleOptimizeDatabase = async () => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/optimize",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/optimize",
         {
           method: "POST",
           headers: {
@@ -347,7 +318,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleViewDatabaseStats = async () => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/stats",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/stats",
         {
           method: "GET",
           headers: {
@@ -395,7 +366,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/create-user",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/create-user",
         {
           method: "POST",
           headers: {
@@ -429,7 +400,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       async () => {
         try {
           const response = await fetch(
-            "https://project-shoes.onrender.com/admin/delete-user",
+            "https://backend-ecommerce-6vi3.onrender.com/api/admin/delete-user",
             {
               method: "POST",
               headers: {
@@ -468,7 +439,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/update-role",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/update-role",
         {
           method: "POST",
           headers: {
@@ -496,7 +467,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleViewLogs = async () => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/logs",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/logs",
         {
           method: "GET",
           headers: {
@@ -538,7 +509,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           const content = e.target?.result as string;
           try {
             const response = await fetch(
-              "https://project-shoes.onrender.com/admin/import-products",
+              "https://backend-ecommerce-6vi3.onrender.com/api/admin/import-products",
               {
                 method: "POST",
                 headers: {
@@ -569,7 +540,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleExportCatalog = async () => {
     try {
       const response = await fetch(
-        "https://project-shoes.onrender.com/admin/export-catalog",
+        "https://backend-ecommerce-6vi3.onrender.com/api/admin/export-catalog",
         {
           method: "POST",
           headers: {
@@ -609,7 +580,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       async () => {
         try {
           const response = await fetch(
-            "https://project-shoes.onrender.com/admin/delete-product",
+            "https://backend-ecommerce-6vi3.onrender.com/api/admin/delete-product",
             {
               method: "POST",
               headers: {
@@ -641,7 +612,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     try {
       // Obtener tipos existentes
       const response = await fetch(
-        "https://project-shoes.onrender.com/tipo_producto",
+        "https://backend-ecommerce-6vi3.onrender.com/api/tipo_producto",
         {
           method: "GET",
           headers: {
@@ -667,7 +638,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           );
           if (nombreTipo) {
             const createResponse = await fetch(
-              "https://project-shoes.onrender.com/tipo_producto",
+              "https://backend-ecommerce-6vi3.onrender.com/api/tipo_producto",
               {
                 method: "POST",
                 headers: {
@@ -710,7 +681,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
       if (smtpHost && smtpPort && email) {
         const response = await fetch(
-          "https://project-shoes.onrender.com/admin/config/email",
+          "https://backend-ecommerce-6vi3.onrender.com/api/admin/config/email",
           {
             method: "POST",
             headers: {
@@ -751,7 +722,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
       if (paymentMethods && currency && taxRate) {
         const response = await fetch(
-          "https://project-shoes.onrender.com/admin/config/payments",
+          "https://backend-ecommerce-6vi3.onrender.com/api/admin/config/payments",
           {
             method: "POST",
             headers: {
@@ -795,7 +766,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         expressShippingCost
       ) {
         const response = await fetch(
-          "https://project-shoes.onrender.com/admin/config/shipping",
+          "https://backend-ecommerce-6vi3.onrender.com/api/admin/config/shipping",
           {
             method: "POST",
             headers: {

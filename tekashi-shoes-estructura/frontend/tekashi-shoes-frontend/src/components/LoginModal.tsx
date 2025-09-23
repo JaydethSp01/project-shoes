@@ -227,24 +227,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
           </form>
 
           <div className="auth-info">
-            <div className="demo-accounts">
-              <h4>{t("auth.demoAccounts")}</h4>
-              <div className="demo-account">
-                <FaShoppingBag className="demo-icon user" />
-                <div>
-                  <strong>{t("auth.user")}:</strong> user@tekashi.com
-                  <br />
-                  <small>{t("auth.password")}: user123</small>
-                </div>
-              </div>
-              <div className="demo-account">
-                <FaUserShield className="demo-icon admin" />
-                <div>
-                  <strong>{t("auth.admin")}:</strong> admin@tekashi.com
-                  <br />
-                  <small>{t("auth.password")}: admin456</small>
-                </div>
-              </div>
+            <div className="auth-help">
+              <h4>¿Necesitas ayuda?</h4>
+              <p>
+                Si tienes problemas para iniciar sesión, contacta con nuestro
+                soporte técnico.
+              </p>
             </div>
           </div>
 
