@@ -1013,3 +1013,1073 @@
   overflow: hidden;
   margin-top: 8px;
 }
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .checkout-modal {
+    width: 98vw;
+    height: 95vh;
+    max-width: none;
+    border-radius: 15px;
+  }
+  
+  .checkout-content {
+    padding: 20px;
+  }
+  
+  .checkout-main {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .checkout-form {
+    width: 100%;
+  }
+  
+  .checkout-summary {
+    width: 100%;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .form-group {
+    width: 100%;
+  }
+  
+  .location-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .location-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Mobile - Diseño completamente rediseñado */
+@media (max-width: 768px) {
+  .checkout-overlay {
+    padding: 0;
+    align-items: flex-start;
+    background: rgba(0, 0, 0, 0.95);
+  }
+  
+  .checkout-modal {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    max-width: none;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    background: #1a1a1a;
+  }
+  
+  .checkout-header {
+    padding: 20px;
+    border-radius: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    border-bottom: 2px solid #00ff88;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .checkout-header h2 {
+    font-size: 20px;
+    margin: 0;
+    color: #00ff88;
+    font-weight: 700;
+  }
+  
+  .close-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+  
+  .checkout-content {
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+    background: #1a1a1a;
+  }
+  
+  /* Rediseño completo del layout para móviles */
+  .checkout-main {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    min-height: calc(100vh - 120px);
+  }
+  
+  /* Steps indicator móvil */
+  .checkout-steps {
+    background: #2d2d2d;
+    padding: 20px;
+    border-bottom: 1px solid #444;
+  }
+  
+  .steps-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    gap: 8px;
+  }
+  
+  .step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 80px;
+    justify-content: center;
+  }
+  
+  .step.active {
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border-color: #00ff88;
+    color: #000;
+  }
+  
+  .step.completed {
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border-color: #00ff88;
+    color: #000;
+  }
+  
+  .step-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .step.active .step-icon,
+  .step.completed .step-icon {
+    background: rgba(0, 0, 0, 0.2);
+    color: #000;
+  }
+  
+  .step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .step-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 4px;
+  }
+  
+  /* Formulario móvil */
+  .checkout-form {
+    padding: 20px;
+    background: #1a1a1a;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00ff88;
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #444;
+    background: #2d2d2d;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: #00ff88;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Address input group móvil */
+  .address-input-group {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .address-input-group input {
+    width: 100%;
+  }
+  
+  /* Location buttons móvil */
+  .location-buttons {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .location-buttons .btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 14px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+  
+  /* Payment methods móvil */
+  .payment-methods-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .payment-method-card {
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #444;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .payment-method-card.selected {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+  }
+  
+  .method-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #00ff88;
+  }
+  
+  .method-info h4 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+    color: #fff;
+  }
+  
+  .method-info p {
+    font-size: 12px;
+    margin: 0;
+    color: #aaa;
+  }
+  
+  /* Card details móvil */
+  .card-details {
+    margin-top: 16px;
+    padding: 16px;
+    background: #2d2d2d;
+    border-radius: 12px;
+    border: 1px solid #444;
+  }
+  
+  /* Summary móvil */
+  .checkout-summary {
+    background: #2d2d2d;
+    border-radius: 0;
+    padding: 20px;
+    border-top: 2px solid #00ff88;
+    position: sticky;
+    bottom: 0;
+    margin: 0;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .summary-section {
+    margin-bottom: 16px;
+  }
+  
+  .summary-section h4 {
+    font-size: 16px;
+    color: #00ff88;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #fff;
+  }
+  
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #00ff88;
+    border-top: 2px solid #00ff88;
+    margin-top: 16px;
+  }
+  
+  /* Actions móvil */
+  .checkout-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: #1a1a1a;
+    border-top: 1px solid #444;
+    position: sticky;
+    bottom: 0;
+    z-index: 200;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  .checkout-actions .btn {
+    width: 100%;
+    padding: 18px;
+    font-size: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    z-index: 10;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border: none;
+    color: #000;
+  }
+  
+  .btn-secondary {
+    background: #444;
+    border: 1px solid #666;
+    color: #fff;
+  }
+  
+  /* Evitar superposición de elementos flotantes */
+  .checkout-modal {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .checkout-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Asegurar que no haya elementos flotantes interfiriendo */
+  .checkout-actions {
+    position: relative;
+    z-index: 999;
+  }
+  
+  .checkout-summary {
+    position: relative;
+    z-index: 998;
+  }
+  
+  /* Mejorar el scroll */
+  .checkout-content {
+    padding-bottom: 200px; /* Espacio para elementos sticky */
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .checkout-content {
+    padding: 12px;
+  }
+  
+  .checkout-form {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  .checkout-summary {
+    padding: 12px;
+    border-radius: 8px;
+    position: sticky;
+    bottom: 0;
+    margin-top: 16px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #444;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: #00ff88;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+  }
+  
+  .location-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .location-buttons .btn {
+    font-size: 14px;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .checkout-actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-secondary);
+    padding: 16px;
+    margin: 0 -12px -12px -12px;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .checkout-actions .btn {
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+  
+  .steps-indicator {
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+  
+  .step {
+    padding: 6px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  .step-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .step-number {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+  
+  .summary-item {
+    font-size: 14px;
+    padding: 8px 0;
+  }
+  
+  .summary-total {
+    font-size: 18px;
+    padding: 12px 0;
+    border-top: 2px solid #00ff88;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .checkout-modal {
+    height: 100vh;
+  }
+  
+  .checkout-content {
+    flex-direction: row;
+    gap: 16px;
+  }
+  
+  .checkout-form {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .checkout-summary {
+    width: 300px;
+    position: sticky;
+    top: 0;
+    height: fit-content;
+  }
+}
+
+/* Mejoras adicionales para móviles */
+@media (max-width: 768px) {
+  /* Mejorar scroll en iOS */
+  .checkout-content {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Evitar zoom en inputs */
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px !important;
+    transform: translateZ(0);
+  }
+  
+  /* Mejorar botones táctiles */
+  .btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Mejorar espaciado */
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-group label {
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 500;
+  }
+  
+  /* Mejorar visibilidad de elementos */
+  .checkout-summary {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  /* Mejorar indicador de pasos */
+  .steps-indicator {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  /* Mejorar botones de ubicación */
+  .location-buttons {
+    margin-top: 12px;
+  }
+  
+  .location-buttons .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+/* Mobile pequeño - Optimizaciones adicionales */
+@media (max-width: 480px) {
+  .checkout-header {
+    padding: 16px;
+  }
+  
+  .checkout-header h2 {
+    font-size: 18px;
+  }
+  
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .checkout-steps {
+    padding: 16px;
+  }
+  
+  .step {
+    padding: 10px 6px;
+    min-height: 70px;
+  }
+  
+  .step-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+  
+  .step-title {
+    font-size: 10px;
+  }
+  
+  .checkout-form {
+    padding: 16px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 14px;
+    font-size: 16px;
+  }
+  
+  .location-buttons .btn {
+    padding: 14px;
+    font-size: 13px;
+  }
+  
+  .payment-method-card {
+    padding: 14px;
+  }
+  
+  .method-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .method-info h4 {
+    font-size: 15px;
+  }
+  
+  .method-info p {
+    font-size: 11px;
+  }
+  
+  .checkout-summary {
+    padding: 16px;
+  }
+  
+  .summary-section h4 {
+    font-size: 15px;
+  }
+  
+  .summary-item {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+  
+  .summary-total {
+    font-size: 18px;
+    padding: 14px 0;
+  }
+  
+  .checkout-actions {
+    padding: 16px;
+  }
+  
+  .checkout-actions .btn {
+    padding: 16px;
+    font-size: 15px;
+  }
+}
+
+/* ========================================
+   DISEÑO MÓVIL COMPLETAMENTE NUEVO
+   ======================================== */
+
+/* Mobile responsive - Diseño completamente nuevo */
+@media (max-width: 768px) {
+  .checkout-overlay {
+    padding: 0;
+    background: rgba(0, 0, 0, 0.95);
+  }
+  
+  .checkout-modal {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background: #0a0a0a;
+  }
+  
+  .checkout-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    border-bottom: 2px solid #00ff88;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .checkout-header h2 {
+    font-size: 20px;
+    margin: 0;
+    color: #00ff88;
+    text-align: center;
+  }
+  
+  .checkout-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #0a0a0a;
+    padding: 0;
+  }
+  
+  /* Layout móvil simplificado */
+  .checkout-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    background: #0a0a0a;
+  }
+  
+  /* Steps indicator móvil - diseño vertical */
+  .checkout-steps {
+    background: #1a1a1a;
+    padding: 20px;
+    border-bottom: 1px solid #333;
+  }
+  
+  .checkout-steps .step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #2d2d2d;
+    border-radius: 8px;
+    border-left: 4px solid #00ff88;
+  }
+  
+  .checkout-steps .step:last-child {
+    margin-bottom: 0;
+  }
+  
+  .checkout-steps .step-icon {
+    width: 30px;
+    height: 30px;
+    background: #00ff88;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: #000;
+    font-weight: bold;
+  }
+  
+  .checkout-steps .step-text {
+    color: #fff;
+    font-weight: 500;
+  }
+  
+  /* Formulario móvil */
+  .checkout-form {
+    padding: 20px;
+    background: #1a1a1a;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .form-section {
+    background: #2d2d2d;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #444;
+  }
+  
+  .form-section h3 {
+    color: #00ff88;
+    font-size: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 16px;
+    background: #1a1a1a;
+    border: 2px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #00ff88;
+    box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+  }
+  
+  /* Botones de geolocalización */
+  .location-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .location-buttons button {
+    flex: 1;
+    padding: 12px;
+    background: #444;
+    border: 1px solid #666;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .location-buttons button:hover {
+    background: #555;
+    border-color: #00ff88;
+  }
+  
+  /* Resumen móvil - diseño de tarjeta */
+  .checkout-summary {
+    background: #2d2d2d;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #444;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .summary-section {
+    margin-bottom: 15px;
+  }
+  
+  .summary-section h3 {
+    color: #00ff88;
+    font-size: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #444;
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+  
+  .summary-item .label {
+    color: #ccc;
+    font-size: 14px;
+  }
+  
+  .summary-item .value {
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .summary-total {
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border: 2px solid #00ff88;
+  }
+  
+  .summary-total .label {
+    color: #00ff88;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .summary-total .value {
+    color: #00ff88;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  /* Botones de acción móvil */
+  .checkout-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: #1a1a1a;
+    border-top: 2px solid #00ff88;
+    position: sticky;
+    bottom: 0;
+    z-index: 200;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  .checkout-actions .btn {
+    width: 100%;
+    padding: 18px;
+    font-size: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    color: #000;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #00cc6a, #00ff88);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+  }
+  
+  .btn-secondary {
+    background: #444;
+    border: 1px solid #666;
+    color: #fff;
+  }
+  
+  .btn-secondary:hover {
+    background: #555;
+    border-color: #00ff88;
+  }
+  
+  /* Ocultar elementos no necesarios en móvil */
+  .checkout-sidebar {
+    display: none;
+  }
+  
+  /* Mejorar scroll */
+  .checkout-content {
+    padding-bottom: 200px;
+  }
+  
+  /* Animaciones suaves */
+  .checkout-modal {
+    animation: slideInUp 0.3s ease-out;
+  }
+  
+  @keyframes slideInUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .checkout-header {
+    padding: 15px;
+  }
+  
+  .checkout-header h2 {
+    font-size: 18px;
+  }
+  
+  .checkout-form {
+    padding: 15px;
+  }
+  
+  .form-section {
+    padding: 15px;
+  }
+  
+  .checkout-summary {
+    margin: 15px;
+    padding: 15px;
+  }
+  
+  .checkout-actions {
+    padding: 15px;
+  }
+  
+  .checkout-actions .btn {
+    padding: 16px;
+    font-size: 15px;
+  }
+}

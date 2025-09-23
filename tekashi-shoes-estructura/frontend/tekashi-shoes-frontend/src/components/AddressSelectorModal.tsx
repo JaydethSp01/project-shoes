@@ -81,13 +81,13 @@ const AddressSelectorModal: React.FC<AddressSelectorModalProps> = ({
 
   const handleConfirm = () => {
     if (selectedLocation) {
-      // Simular obtención de detalles de dirección
+      // Obtener detalles de dirección más precisos
       const addressDetails = {
         lat: selectedLocation.lat,
         lng: selectedLocation.lng,
         address: selectedLocation.address,
-        city: t("additional.bogota"), // Esto debería venir de la geocodificación inversa
-        country: t("additional.colombia"),
+        city: "Bogotá", // Por defecto, pero se puede mejorar con geocodificación inversa
+        country: "Colombia",
         postalCode: "110111",
       };
 
@@ -110,7 +110,15 @@ const AddressSelectorModal: React.FC<AddressSelectorModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="address-selector-modal-overlay">
+    <div
+      className="address-selector-modal-overlay"
+      onClick={(e) => {
+        // Solo cerrar si se hace clic en el overlay, no en el modal
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="address-selector-modal">
         <div className="modal-header">
           <h3>Seleccionar Dirección</h3>

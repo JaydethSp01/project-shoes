@@ -31,9 +31,45 @@ const MapEvents: React.FC<{
   onLocationSelect: (location: MapLocation) => void;
 }> = ({ onLocationSelect }) => {
   useMapEvents({
-    click: (e) => {
+    click: async (e) => {
       const { lat, lng } = e.latlng;
-      onLocationSelect({ lat, lng });
+
+      // Obtener dirección automáticamente al hacer clic
+      try {
+        // Agregar delay para evitar rate limiting
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=es`,
+          {
+            headers: {
+              "User-Agent": "TekashiShoes/1.0 (contact@tekashishoes.com)",
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const address =
+            data.display_name ||
+            `Ubicación: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+          onLocationSelect({ lat, lng, address });
+        } else {
+          onLocationSelect({
+            lat,
+            lng,
+            address: `Ubicación: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+          });
+        }
+      } catch (error) {
+        console.error("Error obteniendo dirección:", error);
+        onLocationSelect({
+          lat,
+          lng,
+          address: `Ubicación: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        });
+      }
     },
   });
   return null;

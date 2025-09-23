@@ -15,25 +15,30 @@ import CheckoutForm from "./CheckoutForm";
 import ProductImage from "./ProductImage";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
+import LoginPromptModal from "./LoginPromptModal";
 import "../styles/ShoppingCart.css";
 
 interface ShoppingCartProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpen: () => void;
   products: Product[];
   images: { [key: number]: string };
   onShowCheckout: () => void;
+  onShowLogin: () => void;
 }
 
 const ShoppingCart: React.FC<ShoppingCartProps> = ({
   isOpen,
   onClose,
+  onOpen,
   images,
   onShowCheckout,
+  onShowLogin,
 }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  // const [isCheckingOut] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Hook para alertas bonitas
   const { alertState, hideAlert } = useBeautifulAlert();
@@ -66,26 +71,23 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     // Verificar si el usuario está logueado
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
-      // Para invitados, mostrar opción de login o continuar como invitado
-      const shouldLogin = window.confirm(
-        "🔐 Para una mejor experiencia, te recomendamos iniciar sesión.\n\n" +
-          "¿Quieres iniciar sesión o continuar como invitado?\n\n" +
-          "• Aceptar: Ir al login\n" +
-          "• Cancelar: Continuar como invitado"
-      );
-
-      if (shouldLogin) {
-        // Aquí podrías abrir el modal de login
-        // Por ahora, continuamos con checkout como invitado
-        setShowCheckout(true);
-      } else {
-        // Continuar como invitado
-        setShowCheckout(true);
-      }
-    } else {
-      // Usuario logueado, proceder normalmente
-      setShowCheckout(true);
+      // Mostrar modal moderno para login
+      setShowLoginPrompt(true);
+      return;
     }
+
+    // Usuario logueado, proceder al checkout
+    setShowCheckout(true);
+  };
+
+  const handleLoginPrompt = () => {
+    setShowLoginPrompt(false);
+    onShowLogin();
+  };
+
+  const handleContinueAsGuest = () => {
+    setShowLoginPrompt(false);
+    setShowCheckout(true);
   };
 
   const handleCheckoutSuccess = () => {
@@ -111,11 +113,13 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     }).format(price);
   };
 
-  if (!isOpen) {
-    return (
+  // Siempre renderizar el botón flotante, pero solo mostrar el panel cuando isOpen es true
+  return (
+    <>
+      {/* Botón flotante del carrito - siempre visible */}
       <button
         className="cart-toggle-btn"
-        onClick={() => onClose()}
+        onClick={() => onOpen()}
         title="Ver carrito de compras"
       >
         <FaShoppingCart />
@@ -126,176 +130,188 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           {getTotalPrice() > 0 ? formatPrice(getTotalPrice()) : ""}
         </span>
       </button>
-    );
-  }
 
-  return (
-    <div className="cart-overlay" onClick={() => onClose()}>
-      <div className="cart-panel" onClick={(e) => e.stopPropagation()}>
-        <div className="cart-header">
-          <h3>
-            <FaShoppingCart className="me-2" />
-            Carrito de Compras
-            {getTotalItems() > 0 && (
-              <span className="cart-count">({getTotalItems()})</span>
-            )}
-          </h3>
-          <button className="cart-close-btn" onClick={() => onClose()}>
-            <FaTimes />
-          </button>
-        </div>
-
-        <div className="cart-content">
-          {cartItems.length === 0 ? (
-            <div className="empty-cart">
-              <FaShoppingCart className="empty-cart-icon" />
-              <h4>Tu carrito está vacío</h4>
-              <p>Agrega algunos productos para comenzar tu compra</p>
-            </div>
-          ) : (
-            <>
-              <div className="cart-items">
-                {cartItems.map((item) => (
-                  <div key={item.product.idProducto} className="cart-item">
-                    <div className="cart-item-image">
-                      <ProductImage
-                        marca={item.product.marca}
-                        imagenId={item.product.imagenId}
-                        images={images}
-                        className="cart-product-image"
-                        alt={item.product.marca}
-                      />
-                    </div>
-
-                    <div className="cart-item-details">
-                      <h5 className="cart-item-title">{item.product.marca}</h5>
-                      <p className="cart-item-color">{item.product.color}</p>
-                      <div className="cart-item-price">
-                        {formatPrice(item.product.precio)}
-                      </div>
-                    </div>
-
-                    <div className="cart-item-controls">
-                      <div className="quantity-controls">
-                        <button
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.product.idProducto,
-                              item.quantity - 1
-                            )
-                          }
-                          disabled={item.quantity <= 1}
-                          className="quantity-btn"
-                        >
-                          <FaMinus />
-                        </button>
-                        <span className="quantity-display">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.product.idProducto,
-                              item.quantity + 1
-                            )
-                          }
-                          disabled={item.quantity >= item.product.stock}
-                          className="quantity-btn"
-                        >
-                          <FaPlus />
-                        </button>
-                      </div>
-                      <button
-                        onClick={() =>
-                          handleRemoveItem(item.product.idProducto)
-                        }
-                        className="remove-item-btn"
-                        title="Eliminar del carrito"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-
-                    <div className="cart-item-total">
-                      {formatPrice(item.product.precio * item.quantity)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="cart-summary">
-                <div className="summary-row">
-                  <span>Subtotal:</span>
-                  <span>{formatPrice(getTotalPrice())}</span>
-                </div>
-                <div className="summary-row">
-                  <span>Envío:</span>
-                  <span>
-                    {getShippingCost() === 0 ? (
-                      <span className="free-shipping">
-                        <FaTruck className="me-1" />
-                        Gratis
-                      </span>
-                    ) : (
-                      formatPrice(getShippingCost())
-                    )}
-                  </span>
-                </div>
-                {getTotalPrice() < 200000 && (
-                  <div className="shipping-notice">
-                    <FaTruck className="me-1" />
-                    Agrega {formatPrice(200000 - getTotalPrice())} más para
-                    envío gratis
-                  </div>
+      {/* Panel del carrito - solo visible cuando isOpen es true */}
+      {isOpen && (
+        <div className="cart-overlay" onClick={() => onClose()}>
+          <div className="cart-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="cart-header">
+              <h3>
+                <FaShoppingCart className="me-2" />
+                Carrito de Compras
+                {getTotalItems() > 0 && (
+                  <span className="cart-count">({getTotalItems()})</span>
                 )}
-                <div className="summary-row total-row">
-                  <span>Total:</span>
-                  <span>{formatPrice(getTotalWithShipping())}</span>
+              </h3>
+              <button className="cart-close-btn" onClick={() => onClose()}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="cart-content">
+              {cartItems.length === 0 ? (
+                <div className="empty-cart">
+                  <FaShoppingCart className="empty-cart-icon" />
+                  <h4>Tu carrito está vacío</h4>
+                  <p>Agrega algunos productos para comenzar tu compra</p>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className="cart-items">
+                    {cartItems.map((item) => (
+                      <div key={item.product.idProducto} className="cart-item">
+                        <div className="cart-item-image">
+                          <ProductImage
+                            marca={item.product.marca}
+                            imagenId={item.product.imagenId}
+                            images={images}
+                            className="cart-product-image"
+                            alt={item.product.marca}
+                          />
+                        </div>
 
-              <div className="cart-actions">
-                <button
-                  onClick={handleClearCart}
-                  className="btn btn-outline-danger btn-clear"
-                >
-                  <FaTrash className="me-2" />
-                  Vaciar Carrito
-                </button>
-                <button
-                  onClick={() => {
-                    handleCheckout();
-                  }}
-                  className="btn btn-primary btn-checkout"
-                >
-                  <FaCreditCard className="me-2" />
-                  Proceder al Pago
-                </button>
-              </div>
-            </>
+                        <div className="cart-item-details">
+                          <h5 className="cart-item-title">
+                            {item.product.marca}
+                          </h5>
+                          <p className="cart-item-color">
+                            {item.product.color}
+                          </p>
+                          <div className="cart-item-price">
+                            {formatPrice(item.product.precio)}
+                          </div>
+                        </div>
+
+                        <div className="cart-item-controls">
+                          <div className="quantity-controls">
+                            <button
+                              onClick={() =>
+                                handleUpdateQuantity(
+                                  item.product.idProducto,
+                                  item.quantity - 1
+                                )
+                              }
+                              disabled={item.quantity <= 1}
+                              className="quantity-btn"
+                            >
+                              <FaMinus />
+                            </button>
+                            <span className="quantity-display">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                handleUpdateQuantity(
+                                  item.product.idProducto,
+                                  item.quantity + 1
+                                )
+                              }
+                              disabled={item.quantity >= item.product.stock}
+                              className="quantity-btn"
+                            >
+                              <FaPlus />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() =>
+                              handleRemoveItem(item.product.idProducto)
+                            }
+                            className="remove-item-btn"
+                            title="Eliminar del carrito"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+
+                        <div className="cart-item-total">
+                          {formatPrice(item.product.precio * item.quantity)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="cart-summary">
+                    <div className="summary-row">
+                      <span>Subtotal:</span>
+                      <span>{formatPrice(getTotalPrice())}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Envío:</span>
+                      <span>
+                        {getShippingCost() === 0 ? (
+                          <span className="free-shipping">
+                            <FaTruck className="me-1" />
+                            Gratis
+                          </span>
+                        ) : (
+                          formatPrice(getShippingCost())
+                        )}
+                      </span>
+                    </div>
+                    {getTotalPrice() < 200000 && (
+                      <div className="shipping-notice">
+                        <FaTruck className="me-1" />
+                        Agrega {formatPrice(200000 - getTotalPrice())} más para
+                        envío gratis
+                      </div>
+                    )}
+                    <div className="summary-row total-row">
+                      <span>Total:</span>
+                      <span>{formatPrice(getTotalWithShipping())}</span>
+                    </div>
+                  </div>
+
+                  <div className="cart-actions">
+                    <button
+                      onClick={handleClearCart}
+                      className="btn btn-outline-danger btn-clear"
+                    >
+                      <FaTrash className="me-2" />
+                      Vaciar Carrito
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleCheckout();
+                      }}
+                      className="btn btn-primary btn-checkout"
+                    >
+                      <FaCreditCard className="me-2" />
+                      Proceder al Pago
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Formulario de Checkout */}
+          {showCheckout && (
+            <CheckoutForm
+              isOpen={showCheckout}
+              onClose={handleCheckoutClose}
+              onOrderComplete={handleCheckoutSuccess}
+            />
           )}
-        </div>
-      </div>
 
-      {/* Formulario de Checkout */}
-      {showCheckout && (
-        <CheckoutForm
-          isOpen={showCheckout}
-          onClose={handleCheckoutClose}
-          onOrderComplete={handleCheckoutSuccess}
-        />
+          {/* Beautiful Alert */}
+          <BeautifulAlert
+            isOpen={alertState.isOpen}
+            type={alertState.type}
+            title={alertState.title}
+            message={alertState.message}
+            onClose={hideAlert}
+          />
+        </div>
       )}
 
-      {/* Beautiful Alert */}
-      <BeautifulAlert
-        isOpen={alertState.isOpen}
-        type={alertState.type}
-        title={alertState.title}
-        message={alertState.message}
-        onClose={hideAlert}
+      {/* Login Prompt Modal */}
+      <LoginPromptModal
+        isOpen={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
+        onLogin={handleLoginPrompt}
+        onContinueAsGuest={handleContinueAsGuest}
       />
-    </div>
+    </>
   );
 };
-
 export default ShoppingCart;

@@ -822,9 +822,11 @@ const Home = () => {
         <ShoppingCart
           isOpen={showCart}
           onClose={() => setShowCart(false)}
+          onOpen={() => setShowCart(true)}
           products={products}
           images={images}
           onShowCheckout={() => setShowCheckout(true)}
+          onShowLogin={() => setShowLogin(true)}
         />
       </div>
 

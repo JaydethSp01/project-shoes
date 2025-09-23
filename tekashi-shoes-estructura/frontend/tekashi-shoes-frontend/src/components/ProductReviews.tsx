@@ -41,6 +41,17 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
     rating: 0,
     comment: "",
   });
+
+  // Auto-llenar nombre si el usuario está logueado
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    if (currentUser && currentUser.name) {
+      setNewReview((prev) => ({
+        ...prev,
+        userName: currentUser.name,
+      }));
+    }
+  }, []);
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   // Hook para alertas bonitas
@@ -56,9 +67,19 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
       try {
         setIsLoadingReviews(true);
 
+        // Validar que el producto tenga ID (puede ser idProducto o id)
+        const productId = product.idProducto || product.id;
+        if (!productId) {
+          console.error("Producto sin ID:", product);
+          setReviews([]);
+          setAverageRating(0);
+          setRatingDistribution([0, 0, 0, 0, 0]);
+          return;
+        }
+
         // Cargar reviews del producto
         const reviewsData = await ConexionApiBackend.obtenerReviewsProducto(
-          product.idProducto,
+          productId.toString(),
           {
             pagina: 1,
             limite: 50,
@@ -70,7 +91,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
         // Cargar estadísticas del producto
         const estadisticas =
           await ConexionApiBackend.obtenerEstadisticasReviewsProducto(
-            product.idProducto
+            productId.toString()
           );
 
         setReviews(reviewsData || []);
@@ -89,7 +110,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
     };
 
     loadReviews();
-  }, [product.idProducto]);
+  }, [product.idProducto, product.id]);
 
   const handleStarClick = (rating: number) => {
     setNewReview((prev) => ({ ...prev, rating }));
@@ -98,22 +119,42 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newReview.userName || !newReview.comment || newReview.rating === 0) {
+    const currentUser = authService.getCurrentUser();
+    const isNameRequired = !currentUser;
+
+    if (
+      (isNameRequired && !newReview.userName) ||
+      !newReview.comment ||
+      newReview.rating === 0
+    ) {
       showError(
         "❌ Campos Incompletos",
-        "Por favor completa todos los campos antes de enviar tu reseña."
+        isNameRequired
+          ? "Por favor completa todos los campos antes de enviar tu reseña."
+          : "Por favor completa la calificación y comentario antes de enviar tu reseña."
       );
       return;
     }
 
     try {
-      // Obtener usuario autenticado
+      // Obtener usuario autenticado (opcional)
       const currentUser = authService.getCurrentUser();
+
+      // Validar que el producto tenga ID (puede ser idProducto o id)
+      const productId = product.idProducto || product.id;
+      if (!productId) {
+        showError(
+          "❌ Error",
+          "No se puede crear la reseña: producto sin ID válido."
+        );
+        return;
+      }
 
       // Crear la review en el backend
       const reviewData = {
-        productoId: product.idProducto,
-        nombreUsuario: newReview.userName,
+        productoId: productId.toString(),
+        nombreUsuario:
+          newReview.userName || currentUser?.name || "Usuario Anónimo",
         emailUsuario: currentUser?.email || "usuario@example.com",
         calificacion: newReview.rating,
         titulo: "", // Opcional
@@ -125,7 +166,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
       if (response.success) {
         // Recargar reviews y estadísticas
         const reviewsData = await ConexionApiBackend.obtenerReviewsProducto(
-          product.idProducto,
+          productId.toString(),
           {
             pagina: 1,
             limite: 50,
@@ -136,7 +177,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
 
         const estadisticas =
           await ConexionApiBackend.obtenerEstadisticasReviewsProducto(
-            product.idProducto
+            productId.toString()
           );
 
         setReviews(reviewsData || []);
@@ -300,7 +341,15 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
               <h4>Escribe tu reseña</h4>
               <form onSubmit={handleSubmitReview}>
                 <div className="form-group">
-                  <label>Tu nombre:</label>
+                  <label>
+                    Tu nombre:
+                    {authService.getCurrentUser() && (
+                      <span className="optional-label">
+                        {" "}
+                        (opcional - ya tienes una cuenta)
+                      </span>
+                    )}
+                  </label>
                   <input
                     type="text"
                     value={newReview.userName}
@@ -310,7 +359,12 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
                         userName: e.target.value,
                       }))
                     }
-                    required
+                    placeholder={
+                      authService.getCurrentUser()
+                        ? "Tu nombre (opcional)"
+                        : "Tu nombre"
+                    }
+                    required={!authService.getCurrentUser()}
                   />
                 </div>
 

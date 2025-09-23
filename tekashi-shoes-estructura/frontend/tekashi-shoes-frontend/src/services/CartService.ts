@@ -36,7 +36,7 @@ export interface ShippingAddress {
 }
 
 export interface PaymentInfo {
-  method: "credit_card" | "paypal" | "bank_transfer";
+  method: "credit_card" | "paypal" | "cash_on_delivery";
   cardNumber?: string;
   expiryDate?: string;
   cvv?: string;
@@ -66,7 +66,7 @@ export interface OrderInfo {
 class CartService {
   private cartItems: CartItem[] = [];
   private listeners: ((items: CartItem[]) => void)[] = [];
-  private baseUrl = "https://backend-ecommerce-6vi3.onrender.com/api/api";
+  private baseUrl = "https://backend-ecommerce-6vi3.onrender.com/api";
 
   constructor() {
     this.loadFromStorage();
@@ -325,12 +325,28 @@ class CartService {
   private async sendOrderToBackend(order: OrderInfo): Promise<void> {
     try {
       // Preparar los detalles del pedido en el formato esperado por el backend
-      const detalles = order.items.map((item) => ({
-        productoId: item.product.id,
-        cantidad: item.quantity,
-        precioUnitario: item.product.precio,
-        subtotal: item.product.precio * item.quantity,
-      }));
+      const detalles = order.items.map((item) => {
+        const productoId = item.product.idProducto || item.product.id;
+        console.log("=== DEBUG PRODUCTO ===");
+        console.log("Producto completo:", item.product);
+        console.log("idProducto:", item.product.idProducto);
+        console.log("id:", item.product.id);
+        console.log("Producto ID final:", productoId);
+        console.log("=====================");
+
+        if (!productoId) {
+          throw new Error(
+            `Producto sin ID válido: ${JSON.stringify(item.product)}`
+          );
+        }
+
+        return {
+          productoId: productoId,
+          cantidad: item.quantity,
+          precioUnitario: item.product.precio,
+          subtotal: item.product.precio * item.quantity,
+        };
+      });
 
       // Preparar la dirección de envío
       const direccionEnvio = {
@@ -345,25 +361,92 @@ class CartService {
       };
 
       // Preparar la información de pago
-      const informacionPago = {
-        metodo: order.paymentInfo.method,
-        numeroTarjeta: order.paymentInfo.cardNumber,
-        nombreTitular: order.paymentInfo.cardName,
-        fechaVencimiento: order.paymentInfo.expiryDate,
-        codigoSeguridad: order.paymentInfo.cvv,
-        transaccionId: order.paymentInfo.transactionId,
+      const informacionPago: {
+        metodo: string;
+        numeroTarjeta?: string;
+        nombreTitular?: string;
+        fechaVencimiento?: string;
+        codigoSeguridad?: string;
+        transaccionId?: string;
+      } = {
+        metodo:
+          order.paymentInfo.method === "credit_card"
+            ? "debit_card"
+            : order.paymentInfo.method || "cash_on_delivery",
       };
 
-      const pedidoData = {
+      // Solo agregar campos de tarjeta si el método es credit_card
+      if (order.paymentInfo.method === "credit_card") {
+        if (order.paymentInfo.cardNumber?.trim()) {
+          informacionPago.numeroTarjeta = order.paymentInfo.cardNumber.trim();
+        }
+        if (order.paymentInfo.cardName?.trim()) {
+          informacionPago.nombreTitular = order.paymentInfo.cardName.trim();
+        }
+        if (order.paymentInfo.expiryDate?.trim()) {
+          informacionPago.fechaVencimiento =
+            order.paymentInfo.expiryDate.trim();
+        }
+        if (order.paymentInfo.cvv?.trim()) {
+          informacionPago.codigoSeguridad = order.paymentInfo.cvv.trim();
+        }
+      }
+
+      // Agregar transactionId si existe
+      if (order.paymentInfo.transactionId?.trim()) {
+        informacionPago.transaccionId = order.paymentInfo.transactionId.trim();
+      }
+
+      const pedidoData: {
+        detalles: Array<{
+          productoId: string | number;
+          cantidad: number;
+          precioUnitario: number;
+          subtotal: number;
+        }>;
+        direccionEnvio: {
+          nombre: string;
+          email: string;
+          telefono: string;
+          direccion: string;
+          ciudad: string;
+          codigoPostal: string;
+          pais: string;
+          coordenadas?: { latitude: number; longitude: number };
+        };
+        informacionPago: {
+          metodo: string;
+          numeroTarjeta?: string;
+          nombreTitular?: string;
+          fechaVencimiento?: string;
+          codigoSeguridad?: string;
+          transaccionId?: string;
+        };
+        costoEnvio: number;
+        descuento: number;
+        puntosFidelidadUsados: number;
+        metodoEnvio: string;
+        notas?: string;
+      } = {
         detalles,
         direccionEnvio,
         informacionPago,
         costoEnvio: order.shipping,
         descuento: order.discount,
         puntosFidelidadUsados: order.loyaltyPointsUsed || 0,
-        notas: order.notes || "",
         metodoEnvio: "standard",
       };
+
+      // Solo agregar notas si no están vacías
+      if (order.notes?.trim()) {
+        pedidoData.notas = order.notes.trim();
+      }
+
+      // Log para debug
+      console.log(
+        "Datos del pedido que se envían al backend:",
+        JSON.stringify(pedidoData, null, 2)
+      );
 
       const response = await fetch(`${this.baseUrl}/pedidos`, {
         method: "POST",

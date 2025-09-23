@@ -16,13 +16,14 @@
 
 .spinner {
   border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid var(--gradient-primary);
+  border-top: 3px solid #00ff88;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  background: transparent;
 }
 
 .spinner-text {
-  color: var(--text-secondary);
+  color: #ffffff;
   font-size: 0.9rem;
   font-weight: 500;
   margin: 0;
@@ -64,6 +65,30 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Modern spinner variant */
+.spinner.modern {
+  border: 4px solid rgba(0, 255, 136, 0.1);
+  border-top: 4px solid #00ff88;
+  border-right: 4px solid #00d4aa;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+/* Pulse animation for text */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.spinner-text.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
 /* Overlay variant */

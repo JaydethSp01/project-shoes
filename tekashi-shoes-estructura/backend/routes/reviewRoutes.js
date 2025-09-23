@@ -31,7 +31,7 @@ const esquemaRespuestaAdmin = Joi.object({
 });
 
 // GET /api/reviews/producto/:productoId - Obtener reviews de un producto
-router.get("/producto/:productoId", autenticacionOpcional, async (req, res, next) => {
+router.get("/producto/:productoId", async (req, res, next) => {
   try {
     const { productoId } = req.params;
     const {
@@ -97,6 +97,7 @@ router.get("/producto/:productoId/estadisticas", async (req, res, next) => {
 });
 
 // GET /api/reviews/usuario/:usuarioId - Obtener reviews de un usuario (solo admin o propio usuario)
+<<<<<<< HEAD
 router.get("/usuario/:usuarioId", verificarFirebaseAuth, async (req, res, next) => {
   try {
     const { usuarioId } = req.params;
@@ -228,6 +229,161 @@ router.put("/:reviewId", verificarFirebaseAuth, validarDatos(esquemaActualizacio
     next(error);
   }
 });
+=======
+router.get(
+  "/usuario/:usuarioId",
+  verificarFirebaseAuth,
+  async (req, res, next) => {
+    try {
+      const { usuarioId } = req.params;
+      const { pagina = 1, limite = 10 } = req.query;
+
+      // Verificar permisos
+      if (
+        req.usuario.rol !== "ADMIN" &&
+        req.usuario._id.toString() !== usuarioId
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "No tienes permisos para ver estas reseñas",
+        });
+      }
+
+      const resultado = await Review.obtenerReviewsUsuario(usuarioId, {
+        pagina: parseInt(pagina),
+        limite: parseInt(limite),
+      });
+
+      res.json({
+        success: true,
+        data: resultado.reviews,
+        paginacion: resultado.paginacion,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// POST /api/reviews - Crear una nueva review
+router.post(
+  "/",
+  verificarFirebaseAuth,
+  validarDatos(esquemaReview),
+  async (req, res, next) => {
+    try {
+      const {
+        productoId,
+        nombreUsuario,
+        emailUsuario,
+        calificacion,
+        titulo,
+        comentario,
+      } = req.body;
+
+      // Verificar que el producto existe
+      const producto = await Producto.findById(productoId);
+      if (!producto) {
+        return res.status(404).json({
+          success: false,
+          message: "Producto no encontrado",
+        });
+      }
+
+      // Verificar que el usuario no haya hecho ya una review para este producto
+      const reviewExistente = await Review.findOne({
+        productoId,
+        usuarioId: req.usuario._id,
+        activa: true,
+      });
+
+      if (reviewExistente) {
+        return res.status(400).json({
+          success: false,
+          message: "Ya has escrito una reseña para este producto",
+        });
+      }
+
+      // Crear la review
+      const review = new Review({
+        productoId,
+        usuarioId: req.usuario._id,
+        nombreUsuario,
+        emailUsuario,
+        calificacion,
+        titulo,
+        comentario,
+        ipAddress: req.ip,
+        userAgent: req.get("User-Agent"),
+      });
+
+      await review.save();
+
+      // Obtener estadísticas actualizadas
+      const estadisticas = await Review.obtenerEstadisticasProducto(productoId);
+
+      res.status(201).json({
+        success: true,
+        message: "Reseña creada exitosamente",
+        data: review,
+        estadisticas,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// PUT /api/reviews/:reviewId - Actualizar una review (solo el autor o admin)
+router.put(
+  "/:reviewId",
+  verificarFirebaseAuth,
+  validarDatos(esquemaActualizacionReview),
+  async (req, res, next) => {
+    try {
+      const { reviewId } = req.params;
+      const actualizaciones = req.body;
+
+      const review = await Review.findById(reviewId);
+      if (!review) {
+        return res.status(404).json({
+          success: false,
+          message: "Reseña no encontrada",
+        });
+      }
+
+      // Verificar permisos
+      if (
+        req.usuario.rol !== "ADMIN" &&
+        review.usuarioId.toString() !== req.usuario._id.toString()
+      ) {
+        return res.status(403).json({
+          success: false,
+          message: "No tienes permisos para editar esta reseña",
+        });
+      }
+
+      // Actualizar la review
+      Object.assign(review, actualizaciones);
+      await review.save();
+
+      // Obtener estadísticas actualizadas
+      const estadisticas = await Review.obtenerEstadisticasProducto(
+        review.productoId
+      );
+
+      res.json({
+        success: true,
+        message: "Reseña actualizada exitosamente",
+        data: review,
+        estadisticas,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+>>>>>>> d5f60e7adebe3130b33b610c7a75cbd00ae43013
 
 // DELETE /api/reviews/:reviewId - Eliminar una review (solo el autor o admin)
 router.delete("/:reviewId", verificarFirebaseAuth, async (req, res, next) => {
@@ -243,7 +399,14 @@ router.delete("/:reviewId", verificarFirebaseAuth, async (req, res, next) => {
     }
 
     // Verificar permisos
+<<<<<<< HEAD
     if (req.usuario.rol !== "ADMIN" && review.usuarioId.toString() !== req.usuario._id.toString()) {
+=======
+    if (
+      req.usuario.rol !== "ADMIN" &&
+      review.usuarioId.toString() !== req.usuario._id.toString()
+    ) {
+>>>>>>> d5f60e7adebe3130b33b610c7a75cbd00ae43013
       return res.status(403).json({
         success: false,
         message: "No tienes permisos para eliminar esta reseña",
@@ -255,7 +418,13 @@ router.delete("/:reviewId", verificarFirebaseAuth, async (req, res, next) => {
     await review.save();
 
     // Obtener estadísticas actualizadas
+<<<<<<< HEAD
     const estadisticas = await Review.obtenerEstadisticasProducto(review.productoId);
+=======
+    const estadisticas = await Review.obtenerEstadisticasProducto(
+      review.productoId
+    );
+>>>>>>> d5f60e7adebe3130b33b610c7a75cbd00ae43013
 
     res.json({
       success: true,
@@ -268,6 +437,7 @@ router.delete("/:reviewId", verificarFirebaseAuth, async (req, res, next) => {
 });
 
 // POST /api/reviews/:reviewId/util - Marcar review como útil o no útil
+<<<<<<< HEAD
 router.post("/:reviewId/util", verificarFirebaseAuth, async (req, res, next) => {
   try {
     const { reviewId } = req.params;
@@ -303,6 +473,47 @@ router.post("/:reviewId/util", verificarFirebaseAuth, async (req, res, next) => 
     next(error);
   }
 });
+=======
+router.post(
+  "/:reviewId/util",
+  verificarFirebaseAuth,
+  async (req, res, next) => {
+    try {
+      const { reviewId } = req.params;
+      const { esUtil } = req.body;
+
+      if (typeof esUtil !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          message: "El campo 'esUtil' debe ser un booleano",
+        });
+      }
+
+      const review = await Review.findById(reviewId);
+      if (!review) {
+        return res.status(404).json({
+          success: false,
+          message: "Reseña no encontrada",
+        });
+      }
+
+      await review.marcarUtil(esUtil);
+
+      res.json({
+        success: true,
+        message: esUtil ? "Marcada como útil" : "Marcada como no útil",
+        data: {
+          util: review.util,
+          noUtil: review.noUtil,
+          porcentajeUtilidad: review.porcentajeUtilidad,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+>>>>>>> d5f60e7adebe3130b33b610c7a75cbd00ae43013
 
 // POST /api/reviews/:reviewId/verificar - Verificar una review (solo admin)
 router.post("/:reviewId/verificar", verificarAdmin, async (req, res, next) => {
@@ -330,6 +541,7 @@ router.post("/:reviewId/verificar", verificarAdmin, async (req, res, next) => {
 });
 
 // POST /api/reviews/:reviewId/reportar - Reportar una review
+<<<<<<< HEAD
 router.post("/:reviewId/reportar", verificarFirebaseAuth, async (req, res, next) => {
   try {
     const { reviewId } = req.params;
@@ -386,6 +598,73 @@ router.post("/:reviewId/respuesta", verificarAdmin, validarDatos(esquemaRespuest
     next(error);
   }
 });
+=======
+router.post(
+  "/:reviewId/reportar",
+  verificarFirebaseAuth,
+  async (req, res, next) => {
+    try {
+      const { reviewId } = req.params;
+      const { motivo } = req.body;
+
+      if (!motivo || motivo.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Debe proporcionar un motivo para el reporte",
+        });
+      }
+
+      const review = await Review.findById(reviewId);
+      if (!review) {
+        return res.status(404).json({
+          success: false,
+          message: "Reseña no encontrada",
+        });
+      }
+
+      await review.reportar(motivo);
+
+      res.json({
+        success: true,
+        message: "Reseña reportada exitosamente",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// POST /api/reviews/:reviewId/respuesta - Responder a una review (solo admin)
+router.post(
+  "/:reviewId/respuesta",
+  verificarAdmin,
+  validarDatos(esquemaRespuestaAdmin),
+  async (req, res, next) => {
+    try {
+      const { reviewId } = req.params;
+      const { texto } = req.body;
+
+      const review = await Review.findById(reviewId);
+      if (!review) {
+        return res.status(404).json({
+          success: false,
+          message: "Reseña no encontrada",
+        });
+      }
+
+      await review.responderAdmin(texto, req.usuario._id);
+
+      res.json({
+        success: true,
+        message: "Respuesta agregada exitosamente",
+        data: review,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+>>>>>>> d5f60e7adebe3130b33b610c7a75cbd00ae43013
 
 // GET /api/reviews/reportadas - Obtener reviews reportadas (solo admin)
 router.get("/reportadas", verificarAdmin, async (req, res, next) => {
@@ -425,6 +704,7 @@ router.get("/reportadas", verificarAdmin, async (req, res, next) => {
 });
 
 // GET /api/reviews/estadisticas-generales - Obtener estadísticas generales (solo admin)
+<<<<<<< HEAD
 router.get("/estadisticas-generales", verificarAdmin, async (req, res, next) => {
   try {
     const estadisticas = await Review.aggregate([
@@ -497,3 +777,88 @@ router.get("/estadisticas-generales", verificarAdmin, async (req, res, next) => 
 
 module.exports = router;
 
+=======
+router.get(
+  "/estadisticas-generales",
+  verificarAdmin,
+  async (req, res, next) => {
+    try {
+      const estadisticas = await Review.aggregate([
+        {
+          $match: { activa: true },
+        },
+        {
+          $group: {
+            _id: null,
+            totalReviews: { $sum: 1 },
+            promedioCalificacion: { $avg: "$calificacion" },
+            reviewsVerificadas: {
+              $sum: { $cond: ["$verificada", 1, 0] },
+            },
+            reviewsReportadas: {
+              $sum: { $cond: ["$reportada", 1, 0] },
+            },
+            totalUtil: { $sum: "$util" },
+            totalNoUtil: { $sum: "$noUtil" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalReviews: 1,
+            promedioCalificacion: { $round: ["$promedioCalificacion", 1] },
+            reviewsVerificadas: 1,
+            reviewsReportadas: 1,
+            totalUtil: 1,
+            totalNoUtil: 1,
+            porcentajeUtilidad: {
+              $cond: [
+                { $gt: [{ $add: ["$totalUtil", "$totalNoUtil"] }, 0] },
+                {
+                  $round: [
+                    {
+                      $multiply: [
+                        {
+                          $divide: [
+                            "$totalUtil",
+                            { $add: ["$totalUtil", "$totalNoUtil"] },
+                          ],
+                        },
+                        100,
+                      ],
+                    },
+                    1,
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      ]);
+
+      const resultado =
+        estadisticas.length > 0
+          ? estadisticas[0]
+          : {
+              totalReviews: 0,
+              promedioCalificacion: 0,
+              reviewsVerificadas: 0,
+              reviewsReportadas: 0,
+              totalUtil: 0,
+              totalNoUtil: 0,
+              porcentajeUtilidad: 0,
+            };
+
+      res.json({
+        success: true,
+        data: resultado,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+module.exports = router;
+>>>>>>> d5f60e7adebe3130b33b610c7a75cbd00ae43013

@@ -15,8 +15,8 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   return (
     <div className={`loading-spinner ${size} ${className}`}>
       <div className="spinner-container">
-        <div className="spinner"></div>
-        {text && <p className="spinner-text">{text}</p>}
+        <div className="spinner modern"></div>
+        {text && <p className="spinner-text pulse">{text}</p>}
       </div>
     </div>
   );

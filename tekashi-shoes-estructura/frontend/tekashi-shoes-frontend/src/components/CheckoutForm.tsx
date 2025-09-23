@@ -25,7 +25,9 @@ import { useGeolocation } from "../hooks/useGeolocation";
 import { useTranslation } from "../hooks/useTranslation";
 // import InteractiveMap from "./InteractiveMap"; // No se usa actualmente
 import AddressSelectorModal from "./AddressSelectorModal";
+import InlineNotification from "./InlineNotification";
 // import PaymentSystem from "./PaymentSystem"; // Ya no se usa
+import "../styles/CheckoutForm.css";
 
 interface CheckoutFormProps {
   isOpen: boolean;
@@ -39,8 +41,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   isOpen,
   onClose,
   onOrderComplete,
-  onShowError,
-  onShowSuccess,
 }) => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
@@ -75,13 +75,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   // const [showMap, setShowMap] = useState(false); // No se usa actualmente
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
 
   // Hook para geolocalización
   const {
     location,
     address,
-    // error: _locationError, // No se usa actualmente
+    error: locationError,
+    loading: locationLoading,
     getCurrentLocation,
+    getAddressFromLocation,
   } = useGeolocation();
 
   const steps = [
@@ -105,6 +111,47 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       }
     }
   }, [isOpen]);
+
+  // Efecto para manejar la geolocalización cuando se obtiene la ubicación
+  useEffect(() => {
+    if (location && !address) {
+      // Obtener dirección desde las coordenadas
+      getAddressFromLocation(location.latitude, location.longitude);
+    }
+  }, [location, address, getAddressFromLocation]);
+
+  // Efecto para actualizar la dirección cuando se obtiene
+  useEffect(() => {
+    if (address && location) {
+      setShippingAddress((prev) => ({
+        ...prev,
+        address: address.address,
+        city: address.city,
+        country: address.country,
+        postalCode: address.postalCode,
+        coordinates: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+      }));
+
+      // Mostrar notificación de éxito
+      setNotification({
+        type: "success",
+        message: "📍 Ubicación detectada y agregada automáticamente",
+      });
+    }
+  }, [address, location]);
+
+  // Efecto para manejar errores de geolocalización
+  useEffect(() => {
+    if (locationError) {
+      setNotification({
+        type: "error",
+        message: `❌ Error de Geolocalización: ${locationError.message}`,
+      });
+    }
+  }, [locationError]);
 
   const handleShippingChange = (
     field: keyof ShippingAddress,
@@ -149,10 +196,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       },
     }));
     setShowAddressModal(false);
-    onShowSuccess?.(
-      "Dirección Actualizada",
-      t("additional.addressSelectedSuccessfully")
-    );
+    setNotification({
+      type: "success",
+      message: "✅ Dirección seleccionada desde el mapa",
+    });
   };
 
   const handlePaymentChange = (field: keyof PaymentInfo, value: string) => {
@@ -223,19 +270,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     // Verificar si el usuario está logueado
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
-      // setError( // No se muestra en el UI actualmente
-      //   "Debes iniciar sesión para proceder con el pago. Haz clic en 'Iniciar Sesión' en el menú superior."
-      // );
-      return;
+      // Permitir checkout como invitado sin confirmación
+      // El modal de login ya se mostró en el carrito
     }
 
     // Verificar que no sea un administrador intentando comprar
     if (authService.isAdmin()) {
-      onShowError?.(
-        "Acceso Denegado",
-        "Los administradores no pueden realizar compras. Usa una cuenta de usuario regular."
+      const continueAsAdmin = window.confirm(
+        "⚠️ Estás logueado como administrador.\n\n" +
+          "¿Quieres continuar con la compra usando tu cuenta de administrador?\n\n" +
+          "• Aceptar: Continuar como admin\n" +
+          "• Cancelar: Cerrar sesión y usar cuenta de usuario"
       );
-      return;
+
+      if (!continueAsAdmin) {
+        return;
+      }
     }
 
     // Procesar el pago directamente sin abrir PaymentSystem
@@ -298,11 +348,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         onClose();
       }, 2000);
     } catch (err: unknown) {
-      onShowError?.(
-        "Error de Pago",
-        (err instanceof Error ? err.message : "Error desconocido") ||
-          "Error al procesar el pago. Por favor intenta nuevamente."
-      );
+      console.error("Error de Pago:", err);
     } finally {
       setIsLoading(false);
     }
@@ -323,152 +369,324 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     return `TK-${timestamp.slice(-6)}-${random}`;
   };
 
-  // Generar PDF del pedido
+  // Generar PDF del pedido con diseño moderno
   const generateOrderPDF = () => {
     if (!cartSummary) return;
 
     const orderNumber = generateOrderNumber();
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
 
-    // Configuración del PDF
-    doc.setFontSize(20);
+    // Colores del tema (definidos para referencia futura)
+    // const primaryColor = [0, 255, 136]; // Verde Tekashi
+    // const darkColor = [26, 26, 26]; // Negro
+    // const grayColor = [128, 128, 128]; // Gris
+    // const lightGrayColor = [240, 240, 240]; // Gris claro
+
+    // ========== HEADER CON GRADIENTE SIMULADO ==========
+    // Fondo del header
+    doc.setFillColor(26, 26, 26);
+    doc.rect(0, 0, pageWidth, 50, "F");
+
+    // Logo/Título principal
+    doc.setFontSize(24);
     doc.setTextColor(0, 255, 136);
-    doc.text("TEKASHI SHOES", 20, 30);
+    doc.setFont("helvetica", "bold");
+    doc.text("TEKASHI SHOES", 20, 25);
 
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text("COMPROBANTE DE PEDIDO", 20, 50);
-
-    // Número de pedido
+    // Subtítulo
     doc.setFontSize(12);
-    doc.text(`Número de Pedido: ${orderNumber}`, 20, 70);
-    doc.text(`Fecha: ${new Date().toLocaleDateString("es-CO")}`, 20, 80);
-    doc.text(`Hora: ${new Date().toLocaleTimeString("es-CO")}`, 20, 90);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "normal");
+    doc.text("FACTURA DE VENTA", pageWidth - 80, 25);
 
-    // Información del cliente
+    // Línea decorativa
+    doc.setDrawColor(0, 255, 136);
+    doc.setLineWidth(2);
+    doc.line(20, 35, pageWidth - 20, 35);
+
+    // ========== INFORMACIÓN DE LA FACTURA ==========
+    let yPos = 60;
+
+    // Fondo para información de factura
+    doc.setFillColor(248, 249, 250);
+    doc.rect(20, yPos, pageWidth - 40, 40, "F");
+
+    // Título de la sección
     doc.setFontSize(14);
     doc.setTextColor(0, 255, 136);
-    doc.text("INFORMACIÓN DEL CLIENTE", 20, 110);
+    doc.setFont("helvetica", "bold");
+    doc.text("INFORMACIÓN DE LA FACTURA", 25, yPos + 12);
 
+    // Detalles de la factura
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Nombre: ${shippingAddress.name}`, 20, 125);
-    doc.text(`Email: ${shippingAddress.email}`, 20, 135);
-    doc.text(`Teléfono: ${shippingAddress.phone}`, 20, 145);
-    doc.text(`Dirección: ${shippingAddress.address}`, 20, 155);
-    doc.text(`Ciudad: ${shippingAddress.city}`, 20, 165);
-    doc.text(`Código Postal: ${shippingAddress.postalCode}`, 20, 175);
-    doc.text(`País: ${shippingAddress.country}`, 20, 185);
+    doc.setFont("helvetica", "normal");
 
-    // Método de pago
-    doc.setFontSize(14);
-    doc.setTextColor(0, 255, 136);
-    doc.text("MÉTODO DE PAGO", 20, 205);
-
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    if (paymentInfo.method === "credit_card") {
-      doc.text("Tarjeta de Crédito/Débito", 20, 220);
-      doc.text(`Titular: ${paymentInfo.cardholderName}`, 20, 230);
-      doc.text(
-        `Tarjeta: **** **** **** ${paymentInfo.cardNumber?.slice(-4)}`,
-        20,
-        240
-      );
-    } else if (paymentInfo.method === "paypal") {
-      doc.text("PayPal", 20, 220);
-    } else if (paymentInfo.method === "bank_transfer") {
-      doc.text("Transferencia Bancaria", 20, 220);
-      doc.text(`Número de Referencia: ${orderNumber}`, 20, 230);
-    }
-
-    // Productos
-    doc.setFontSize(14);
-    doc.setTextColor(0, 255, 136);
-    doc.text("PRODUCTOS", 20, 260);
-
-    let yPosition = 275;
-    cartSummary.items.forEach((item, index) => {
-      doc.setFontSize(10);
-      doc.setTextColor(0, 0, 0);
-      doc.text(`${index + 1}. ${item.product.marca}`, 20, yPosition);
-      doc.text(`   Cantidad: ${item.quantity}`, 25, yPosition + 8);
-      doc.text(
-        `   Precio unitario: $${item.product.precio.toLocaleString()}`,
-        25,
-        yPosition + 16
-      );
-      doc.text(
-        `   Subtotal: $${item.total.toLocaleString()}`,
-        25,
-        yPosition + 24
-      );
-      yPosition += 35;
+    const currentDate = new Date();
+    const dateStr = currentDate.toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const timeStr = currentDate.toLocaleTimeString("es-CO", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
-    // Resumen de costos
+    doc.text(`Número de Factura: ${orderNumber}`, 25, yPos + 22);
+    doc.text(`Fecha de Emisión: ${dateStr}`, 25, yPos + 30);
+    doc.text(`Hora: ${timeStr}`, pageWidth - 80, yPos + 22);
+    doc.text(`Estado: Pagado`, pageWidth - 80, yPos + 30);
+
+    yPos += 50;
+
+    // ========== INFORMACIÓN DEL CLIENTE ==========
+    // Fondo para información del cliente
+    doc.setFillColor(248, 249, 250);
+    doc.rect(20, yPos, pageWidth - 40, 60, "F");
+
+    // Título de la sección
     doc.setFontSize(14);
     doc.setTextColor(0, 255, 136);
-    doc.text("RESUMEN DE COSTOS", 20, yPosition + 10);
+    doc.setFont("helvetica", "bold");
+    doc.text("INFORMACIÓN DEL CLIENTE", 25, yPos + 12);
 
+    // Datos del cliente
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`Nombre: ${shippingAddress.name}`, 25, yPos + 22);
+    doc.text(`Email: ${shippingAddress.email}`, 25, yPos + 30);
+    doc.text(`Teléfono: ${shippingAddress.phone}`, 25, yPos + 38);
+    doc.text(`Dirección: ${shippingAddress.address}`, 25, yPos + 46);
+    doc.text(`Ciudad: ${shippingAddress.city}`, pageWidth - 100, yPos + 22);
     doc.text(
-      `Subtotal: $${cartSummary.subtotal.toLocaleString()}`,
-      20,
-      yPosition + 25
+      `Código Postal: ${shippingAddress.postalCode}`,
+      pageWidth - 100,
+      yPos + 30
     );
+    doc.text(`País: ${shippingAddress.country}`, pageWidth - 100, yPos + 38);
+
+    yPos += 70;
+
+    // ========== MÉTODO DE PAGO ==========
+    // Fondo para método de pago
+    doc.setFillColor(248, 249, 250);
+    doc.rect(20, yPos, pageWidth - 40, 40, "F");
+
+    // Título de la sección
+    doc.setFontSize(14);
+    doc.setTextColor(0, 255, 136);
+    doc.setFont("helvetica", "bold");
+    doc.text("MÉTODO DE PAGO", 25, yPos + 12);
+
+    // Información de pago
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+
+    if (paymentInfo.method === "credit_card") {
+      doc.text("Tarjeta de Crédito/Débito", 25, yPos + 22);
+      doc.text(`Titular: ${paymentInfo.cardholderName}`, 25, yPos + 30);
+      doc.text(
+        `Tarjeta: **** **** **** ${paymentInfo.cardNumber?.slice(-4)}`,
+        pageWidth - 100,
+        yPos + 22
+      );
+    } else if (paymentInfo.method === "paypal") {
+      doc.text("PayPal", 25, yPos + 22);
+      doc.text("Pago procesado exitosamente", 25, yPos + 30);
+    } else if (paymentInfo.method === "cash_on_delivery") {
+      doc.text("Transferencia Bancaria", 25, yPos + 22);
+      doc.text(`Número de Referencia: ${orderNumber}`, 25, yPos + 30);
+    }
+
+    yPos += 50;
+
+    // ========== TABLA DE PRODUCTOS ==========
+    // Título de la sección
+    doc.setFontSize(14);
+    doc.setTextColor(0, 255, 136);
+    doc.setFont("helvetica", "bold");
+    doc.text("DETALLE DE PRODUCTOS", 20, yPos);
+
+    yPos += 10;
+
+    // Encabezados de la tabla
+    doc.setFillColor(0, 255, 136);
+    doc.rect(20, yPos, pageWidth - 40, 15, "F");
+
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.text("PRODUCTO", 25, yPos + 10);
+    doc.text("CANT.", 120, yPos + 10);
+    doc.text("PRECIO UNIT.", 150, yPos + 10);
+    doc.text("SUBTOTAL", pageWidth - 60, yPos + 10);
+
+    yPos += 20;
+
+    // Filas de productos
+    cartSummary.items.forEach((item, index) => {
+      // Fondo alternado para filas
+      if (index % 2 === 0) {
+        doc.setFillColor(248, 249, 250);
+        doc.rect(20, yPos - 5, pageWidth - 40, 20, "F");
+      }
+
+      doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+
+      // Nombre del producto (truncado si es muy largo)
+      const productName =
+        item.product.marca.length > 25
+          ? item.product.marca.substring(0, 25) + "..."
+          : item.product.marca;
+
+      doc.text(productName, 25, yPos + 5);
+      doc.text(item.quantity.toString(), 120, yPos + 5);
+      doc.text(`$${item.product.precio.toLocaleString()}`, 150, yPos + 5);
+      doc.text(`$${item.total.toLocaleString()}`, pageWidth - 60, yPos + 5);
+
+      yPos += 20;
+    });
+
+    yPos += 10;
+
+    // ========== RESUMEN DE COSTOS ==========
+    // Fondo para resumen
+    doc.setFillColor(248, 249, 250);
+    doc.rect(pageWidth - 120, yPos, 100, 80, "F");
+
+    // Título del resumen
+    doc.setFontSize(12);
+    doc.setTextColor(0, 255, 136);
+    doc.setFont("helvetica", "bold");
+    doc.text("RESUMEN", pageWidth - 115, yPos + 10);
+
+    // Línea separadora
+    doc.setDrawColor(0, 255, 136);
+    doc.setLineWidth(1);
+    doc.line(pageWidth - 115, yPos + 15, pageWidth - 25, yPos + 15);
+
+    // Detalles del resumen
+    doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+
+    let summaryY = yPos + 25;
+
+    doc.text(`Subtotal:`, pageWidth - 115, summaryY);
     doc.text(
-      `Envío: ${
-        cartSummary.shipping === 0
-          ? t("additional.free")
-          : `$${cartSummary.shipping.toLocaleString()}`
-      }`,
-      20,
-      yPosition + 35
+      `$${cartSummary.subtotal.toLocaleString()}`,
+      pageWidth - 40,
+      summaryY
     );
+    summaryY += 8;
+
+    doc.text(`Envío:`, pageWidth - 115, summaryY);
     doc.text(
-      `IVA (19%): $${cartSummary.tax.toLocaleString()}`,
-      20,
-      yPosition + 45
+      cartSummary.shipping === 0
+        ? "Gratis"
+        : `$${cartSummary.shipping.toLocaleString()}`,
+      pageWidth - 40,
+      summaryY
     );
+    summaryY += 8;
+
+    doc.text(`IVA (19%):`, pageWidth - 115, summaryY);
+    doc.text(`$${cartSummary.tax.toLocaleString()}`, pageWidth - 40, summaryY);
+    summaryY += 8;
 
     if (appliedDiscount > 0) {
+      doc.setTextColor(220, 53, 69); // Rojo para descuentos
+      doc.text(`Descuento:`, pageWidth - 115, summaryY);
       doc.text(
-        `Descuento: -$${appliedDiscount.toLocaleString()}`,
-        20,
-        yPosition + 55
+        `-$${appliedDiscount.toLocaleString()}`,
+        pageWidth - 40,
+        summaryY
       );
+      summaryY += 8;
+      doc.setTextColor(0, 0, 0);
     }
 
     if (loyaltyPointsUsed > 0) {
+      doc.setTextColor(220, 53, 69); // Rojo para descuentos
+      doc.text(`Puntos:`, pageWidth - 115, summaryY);
       doc.text(
-        `Puntos de fidelidad: -$${(loyaltyPointsUsed * 100).toLocaleString()}`,
-        20,
-        yPosition + 65
+        `-$${(loyaltyPointsUsed * 100).toLocaleString()}`,
+        pageWidth - 40,
+        summaryY
       );
+      summaryY += 8;
+      doc.setTextColor(0, 0, 0);
     }
 
+    // Línea separadora antes del total
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(1);
+    doc.line(pageWidth - 115, summaryY + 2, pageWidth - 25, summaryY + 2);
+    summaryY += 8;
+
+    // Total
     doc.setFontSize(12);
     doc.setTextColor(0, 255, 136);
-    doc.text(`TOTAL: $${finalTotal.toLocaleString()}`, 20, yPosition + 80);
+    doc.setFont("helvetica", "bold");
+    doc.text(`TOTAL:`, pageWidth - 115, summaryY);
+    doc.text(`$${finalTotal.toLocaleString()}`, pageWidth - 40, summaryY);
 
-    // Información adicional
+    // ========== PIE DE PÁGINA ==========
+    const footerY = pageHeight - 40;
+
+    // Línea superior del pie
+    doc.setDrawColor(0, 255, 136);
+    doc.setLineWidth(2);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+
+    // Información de la empresa
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text("TEKASHI SHOES - Calzado de Alta Calidad", 20, footerY + 10);
     doc.text(
-      "Este es un comprobante de pedido simulado para fines de demostración.",
+      "www.tekashishoes.com | contacto@tekashishoes.com",
       20,
-      doc.internal.pageSize.height - 20
+      footerY + 18
     );
+    doc.text("Tel: +57 300 123 4567 | Bogotá, Colombia", 20, footerY + 26);
+
+    // Mensaje de agradecimiento
+    doc.setTextColor(0, 255, 136);
+    doc.setFont("helvetica", "bold");
+    doc.text("¡Gracias por su compra!", pageWidth - 80, footerY + 10);
     doc.text(
-      "Tekashi Shoes - La mejor plataforma de e-commerce para calzado deportivo.",
-      20,
-      doc.internal.pageSize.height - 15
+      "Su pedido será procesado en 24-48 horas",
+      pageWidth - 80,
+      footerY + 18
     );
 
-    // Descargar PDF
-    doc.save(`pedido-${orderNumber}.pdf`);
+    // ========== MARCA DE AGUA (OPCIONAL) ==========
+    // Agregar marca de agua sutil
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      doc.setGState(new (doc as any).GState({ opacity: 0.1 }));
+      doc.setFontSize(60);
+      doc.setTextColor(200, 200, 200);
+      doc.setFont("helvetica", "bold");
+      doc.text("TEKASHI", pageWidth / 2 - 60, pageHeight / 2, { angle: 45 });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      doc.setGState(new (doc as any).GState({ opacity: 1 }));
+    } catch {
+      // Si no se puede agregar marca de agua, continuar sin ella
+      console.log("No se pudo agregar marca de agua al PDF");
+    }
+
+    // Guardar el PDF
+    doc.save(`factura-${orderNumber}.pdf`);
   };
 
   // Funciones de PaymentSystem ya no se usan
@@ -496,8 +714,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     cartSummary.total - appliedDiscount - loyaltyPointsUsed * 100;
 
   return (
-    <div className="checkout-overlay">
-      <div className="checkout-modal">
+    <div
+      className="checkout-overlay"
+      onClick={(e) => {
+        // Solo cerrar si se hace clic en el overlay, no en el modal
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="checkout-modal" onClick={(e) => e.stopPropagation()}>
         <div className="checkout-header">
           <h2>Finalizar Compra</h2>
           <button className="close-btn" onClick={onClose}>
@@ -588,22 +814,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         <button
                           type="button"
                           className="btn btn-outline-primary btn-sm"
-                          onClick={async () => {
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             try {
                               await getCurrentLocation();
-                              if (address && location) {
-                                setShippingAddress((prev) => ({
-                                  ...prev,
-                                  address: address.address,
-                                  city: address.city,
-                                  country: address.country,
-                                  postalCode: address.postalCode,
-                                  coordinates: {
-                                    latitude: location.latitude,
-                                    longitude: location.longitude,
-                                  },
-                                }));
-                              }
                             } catch (error) {
                               console.error(
                                 "Error obteniendo ubicación:",
@@ -611,14 +826,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                               );
                             }
                           }}
-                          disabled={false}
+                          disabled={locationLoading}
                         >
-                          {"📍"} Usar mi ubicación
+                          {locationLoading ? (
+                            <>
+                              <FaSpinner className="spinning" />
+                              Detectando...
+                            </>
+                          ) : (
+                            <>📍 USAR MI UBICACIÓN</>
+                          )}
                         </button>
                         <button
                           type="button"
                           className="btn btn-outline-secondary btn-sm"
-                          onClick={() => setShowAddressModal(true)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowAddressModal(true);
+                          }}
                         >
                           🗺️ Seleccionar en mapa
                         </button>
@@ -729,10 +955,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
                   <div
                     className={`payment-method-card ${
-                      paymentInfo.method === "bank_transfer" ? "selected" : ""
+                      paymentInfo.method === "cash_on_delivery"
+                        ? "selected"
+                        : ""
                     }`}
                     onClick={() =>
-                      handlePaymentChange("method", "bank_transfer")
+                      handlePaymentChange("method", "cash_on_delivery")
                     }
                   >
                     <div className="method-icon">
@@ -745,8 +973,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     <input
                       type="radio"
                       name="paymentMethod"
-                      value="bank_transfer"
-                      checked={paymentInfo.method === "bank_transfer"}
+                      value="cash_on_delivery"
+                      checked={paymentInfo.method === "cash_on_delivery"}
                       onChange={() => {}}
                       className="method-radio"
                     />
@@ -927,7 +1155,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                           <span>PayPal</span>
                         </div>
                       )}
-                      {paymentInfo.method === "bank_transfer" && (
+                      {paymentInfo.method === "cash_on_delivery" && (
                         <div>
                           <FaUniversity />
                           <span>Transferencia Bancaria</span>
@@ -1001,7 +1229,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 Descargar Comprobante
               </button>
 
-              {paymentInfo.method === "bank_transfer" && (
+              {paymentInfo.method === "cash_on_delivery" && (
                 <div className="bank-transfer-info">
                   <h5>Transferencia Bancaria</h5>
                   <p>
@@ -1087,6 +1315,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             : undefined
         }
       />
+
+      {/* Inline Notification */}
+      {notification && (
+        <InlineNotification
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 };

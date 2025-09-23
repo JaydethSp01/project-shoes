@@ -547,7 +547,9 @@ export const ConexionApiBackend = {
 
     const response = await fetch(url, {
       method: "GET",
-      headers: await getAuthHeaders(),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
@@ -564,7 +566,9 @@ export const ConexionApiBackend = {
       `${BASE_URL}/api/reviews/producto/${productoId}/estadisticas`,
       {
         method: "GET",
-        headers: await getAuthHeaders(),
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
 
