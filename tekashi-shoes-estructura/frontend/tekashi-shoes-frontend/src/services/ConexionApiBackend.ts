@@ -1,9 +1,7 @@
 import { Imagen, Product } from "../modelos/productTypes";
 import { unifiedAuthService } from "./UnifiedAuthService";
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://backend-ecommerce-6vi3.onrender.com";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
 
 // Función para obtener headers con autenticación
 const getAuthHeaders = async () => {
@@ -13,11 +11,15 @@ const getAuthHeaders = async () => {
 
   try {
     const token = await unifiedAuthService.getAuthToken();
+    console.log("🔑 Token obtenido:", token ? "Sí" : "No");
     if (token) {
       headers.Authorization = `Bearer ${token}`;
+      console.log("🔑 Headers con token:", headers);
+    } else {
+      console.warn("⚠️ No hay token disponible");
     }
   } catch (error) {
-    console.warn("No se pudo obtener token de autenticación");
+    console.warn("No se pudo obtener token de autenticación", error);
   }
   return headers;
 };
@@ -280,17 +282,34 @@ export const ConexionApiBackend = {
       ? `${BASE_URL}/api/favoritos?${queryParams.toString()}`
       : `${BASE_URL}/api/favoritos`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: await getAuthHeaders(),
-    });
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: await getAuthHeaders(),
+      });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener favoritos del usuario");
+      if (!response.ok) {
+        // Si es 401, retornar array vacío para modo invitado
+        if (response.status === 401) {
+          console.warn("Favoritos no disponibles en modo invitado");
+          return {
+            favoritos: [],
+            paginacion: { pagina: 1, limite: 20, total: 0, paginas: 0 },
+          };
+        }
+        throw new Error("Error al obtener favoritos del usuario");
+      }
+
+      const data = await response.json();
+      return data.success ? data.data : data;
+    } catch (error) {
+      console.warn("Error al cargar favoritos:", error);
+      // Retornar datos vacíos en caso de error para modo invitado
+      return {
+        favoritos: [],
+        paginacion: { pagina: 1, limite: 20, total: 0, paginas: 0 },
+      };
     }
-
-    const data = await response.json();
-    return data.success ? data.data : data;
   },
 
   // Agregar producto a favoritos
@@ -345,20 +364,32 @@ export const ConexionApiBackend = {
 
   // Verificar si un producto está en favoritos
   verificarFavorito: async (productoId: string) => {
-    const response = await fetch(
-      `${BASE_URL}/api/favoritos/verificar/${productoId}`,
-      {
-        method: "GET",
-        headers: await getAuthHeaders(),
-      }
-    );
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/favoritos/verificar/${productoId}`,
+        {
+          method: "GET",
+          headers: await getAuthHeaders(),
+        }
+      );
 
-    if (!response.ok) {
+      if (!response.ok) {
+        // Si es 401, retornar false para modo invitado
+        if (response.status === 401) {
+          console.warn(
+            "Verificación de favoritos no disponible en modo invitado"
+          );
+          return false;
+        }
+        return false;
+      }
+
+      const data = await response.json();
+      return data.success ? data.data.enFavoritos : false;
+    } catch (error) {
+      console.warn("Error al verificar favorito:", error);
       return false;
     }
-
-    const data = await response.json();
-    return data.success ? data.data.enFavoritos : false;
   },
 
   // ========== MÉTODOS PARA WISHLISTS ==========
@@ -382,17 +413,34 @@ export const ConexionApiBackend = {
       ? `${BASE_URL}/api/wishlists?${queryParams.toString()}`
       : `${BASE_URL}/api/wishlists`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: await getAuthHeaders(),
-    });
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: await getAuthHeaders(),
+      });
 
-    if (!response.ok) {
-      throw new Error("Error al obtener wishlists del usuario");
+      if (!response.ok) {
+        // Si es 401, retornar array vacío para modo invitado
+        if (response.status === 401) {
+          console.warn("Wishlists no disponibles en modo invitado");
+          return {
+            wishlists: [],
+            paginacion: { pagina: 1, limite: 20, total: 0, paginas: 0 },
+          };
+        }
+        throw new Error("Error al obtener wishlists del usuario");
+      }
+
+      const data = await response.json();
+      return data.success ? data.data : data;
+    } catch (error) {
+      console.warn("Error al cargar wishlists:", error);
+      // Retornar datos vacíos en caso de error para modo invitado
+      return {
+        wishlists: [],
+        paginacion: { pagina: 1, limite: 20, total: 0, paginas: 0 },
+      };
     }
-
-    const data = await response.json();
-    return data.success ? data.data : data;
   },
 
   // Crear nueva wishlist
@@ -575,7 +623,7 @@ export const ConexionApiBackend = {
   obtenerEstadisticasReviewsProducto: async (productoId: string) => {
     try {
       const response = await fetch(
-        `${BASE_URL}/api/reviews/producto/${productoId}/estadisticas`,
+        `${BASE_URL}/api/reviews/estadisticas/producto/${productoId}`,
         {
           method: "GET",
           headers: {

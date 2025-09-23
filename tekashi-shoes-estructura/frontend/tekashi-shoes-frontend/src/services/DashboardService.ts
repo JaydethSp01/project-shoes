@@ -1,5 +1,8 @@
 import { Product } from "../modelos/productTypes";
 
+// Helper function to get base URL
+const getBaseUrl = () => import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
+
 export interface DashboardStats {
   totalPurchases: number;
   totalSpent: number;
@@ -56,7 +59,7 @@ export interface Notification {
 }
 
 class DashboardService {
-  private baseUrl = "https://backend-ecommerce-6vi3.onrender.com/api";
+  private baseUrl = `${getBaseUrl()}/api`;
 
   // Obtener estadísticas del dashboard
   async getDashboardStats(userId: string): Promise<DashboardStats> {
@@ -137,10 +140,10 @@ class DashboardService {
   }
 
   // Obtener favoritos
-  async getFavorites(userId: number): Promise<Favorite[]> {
+  async getFavorites(userId: string): Promise<Favorite[]> {
     try {
       const response = await fetch(
-        `https://backend-ecommerce-6vi3.onrender.com/api/favoritos/usuario/${userId}`
+        `${getBaseUrl()}/api/favoritos/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo favoritos");
@@ -168,21 +171,18 @@ class DashboardService {
   }
 
   // Agregar a favoritos
-  async addToFavorites(userId: number, productId: number): Promise<void> {
+  async addToFavorites(userId: string, productId: number): Promise<void> {
     try {
-      const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/favoritos",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            usuarioId: userId,
-            productoId: productId,
-          }),
-        }
-      );
+      const response = await fetch(`${getBaseUrl()}/api/favoritos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          usuarioId: userId,
+          productoId: productId,
+        }),
+      });
 
       const data = await response.json();
 
@@ -196,10 +196,10 @@ class DashboardService {
   }
 
   // Remover de favoritos
-  async removeFromFavorites(userId: number, productId: number): Promise<void> {
+  async removeFromFavorites(userId: string, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        `https://backend-ecommerce-6vi3.onrender.com/api/favoritos/${userId}/${productId}`,
+        `${getBaseUrl()}/api/favoritos/${userId}/${productId}`,
         {
           method: "DELETE",
         }
@@ -217,10 +217,10 @@ class DashboardService {
   }
 
   // Obtener listas de deseos
-  async getWishlists(userId: number): Promise<Wishlist[]> {
+  async getWishlists(userId: string): Promise<Wishlist[]> {
     try {
       const response = await fetch(
-        `https://backend-ecommerce-6vi3.onrender.com/api/wishlists/usuario/${userId}`
+        `${getBaseUrl()}/api/wishlists/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo listas de deseos");
@@ -245,25 +245,22 @@ class DashboardService {
 
   // Crear lista de deseos
   async createWishlist(
-    userId: number,
+    userId: string,
     name: string,
     description?: string
   ): Promise<Wishlist> {
     try {
-      const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/wishlists",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            usuarioId: userId,
-            nombre: name,
-            descripcion: description || "",
-          }),
-        }
-      );
+      const response = await fetch(`${getBaseUrl()}/api/wishlists`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          usuarioId: userId,
+          nombre: name,
+          descripcion: description || "",
+        }),
+      });
 
       const data = await response.json();
 
@@ -291,7 +288,7 @@ class DashboardService {
   async addToWishlist(wishlistId: number, productId: number): Promise<void> {
     try {
       const response = await fetch(
-        `https://backend-ecommerce-6vi3.onrender.com/api/wishlists/${wishlistId}/productos`,
+        `${getBaseUrl()}/api/wishlists/${wishlistId}/productos`,
         {
           method: "POST",
           headers: {
@@ -317,10 +314,10 @@ class DashboardService {
   }
 
   // Obtener notificaciones
-  async getNotifications(userId: number): Promise<Notification[]> {
+  async getNotifications(userId: string): Promise<Notification[]> {
     try {
       const response = await fetch(
-        `https://backend-ecommerce-6vi3.onrender.com/api/notificaciones/usuario/${userId}`
+        `${getBaseUrl()}/api/notificaciones/usuario/${userId}`
       );
       if (!response.ok) {
         throw new Error("Error obteniendo notificaciones");
@@ -348,7 +345,7 @@ class DashboardService {
   async markNotificationAsRead(notificationId: number): Promise<void> {
     try {
       const response = await fetch(
-        `https://backend-ecommerce-6vi3.onrender.com/api/notificaciones/${notificationId}/marcar-leida`,
+        `${getBaseUrl()}/api/notificaciones/${notificationId}/marcar-leida`,
         {
           method: "PUT",
         }

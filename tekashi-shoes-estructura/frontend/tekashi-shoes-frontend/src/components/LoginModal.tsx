@@ -12,6 +12,8 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
+import { useAlert } from "../contexts/AlertContext";
+import { createTestUser } from "../services/FirebaseAuthService";
 import "../styles/AuthForms.css";
 
 interface LoginModalProps {
@@ -44,6 +46,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     clearError,
   } = useAuth();
   const { t } = useTranslation();
+  const { showAuthError, showAuthSuccess } = useAlert();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -62,11 +65,13 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
     try {
       await signIn(credentials.email, credentials.password);
+      showAuthSuccess("¡Bienvenido! Has iniciado sesión correctamente.");
       onLogin();
       onClose();
       setCredentials({ email: "", password: "" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
+      console.error("Auth error:", err);
+      showAuthError(err, "inicio de sesión");
     } finally {
       setIsLoading(false);
     }
@@ -91,16 +96,25 @@ const LoginModal: React.FC<LoginModalProps> = ({
           await signInWithMicrosoft();
           break;
       }
+      showAuthSuccess(`¡Bienvenido! Has iniciado sesión con ${provider}.`);
       onLogin();
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : `Error al iniciar sesión con ${provider}`
-      );
+      console.error("Social auth error:", err);
+      showAuthError(err, `inicio de sesión con ${provider}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCreateTestUser = async () => {
+    try {
+      await createTestUser();
+      showAuthSuccess("Usuario de prueba creado: test@tekashi.com / 123456");
+      setCredentials({ email: "test@tekashi.com", password: "123456" });
+    } catch (err) {
+      console.error("Error creating test user:", err);
+      showAuthError(err, "creación de usuario de prueba");
     }
   };
 
@@ -257,6 +271,26 @@ const LoginModal: React.FC<LoginModalProps> = ({
               </button>
             </div>
           )}
+
+          {/* Botones temporales para pruebas */}
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm me-2"
+              onClick={handleCreateTestUser}
+              disabled={isLoading}
+            >
+              🧪 Crear Usuario de Prueba
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-info btn-sm"
+              onClick={() => showAuthSuccess("¡Esta es una alerta de prueba!")}
+              disabled={isLoading}
+            >
+              🧪 Probar Alertas
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -31,7 +31,7 @@ import ProductImage from "../components/ProductImage";
 import Pagination from "../components/Pagination";
 import SimplifiedHeader from "../components/SimplifiedHeader";
 import AdminHeader from "../components/AdminHeader";
-import { authService, User } from "../services/AuthService";
+import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect, useCallback } from "react";
 import { Product, TipoProducto } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
@@ -92,7 +92,7 @@ const Home = () => {
   const [cartTotal, setCartTotal] = useState(0);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { user: currentUser, loading: authLoading, signOut } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -224,13 +224,7 @@ const Home = () => {
     return unsubscribe;
   }, []);
 
-  // Suscribirse a cambios de autenticación
-  useEffect(() => {
-    const unsubscribe = authService.subscribe((user) => {
-      setCurrentUser(user);
-    });
-    return unsubscribe;
-  }, []);
+  // El estado de autenticación se maneja ahora con useAuth hook
 
   // Cargar favoritos del usuario cuando se loguee
   useEffect(() => {
@@ -462,9 +456,9 @@ const Home = () => {
               {/* Nuevo Sistema de Menú */}
               <UserMenu
                 user={currentUser}
-                onLogout={() => authService.logout()}
+                onLogout={() => signOut()}
                 onShowDashboard={() => {
-                  if (authService.isAdmin()) {
+                  if (currentUser?.role === "admin") {
                     setShowRealDashboard(true);
                   } else {
                     setShowUserDashboard(true);
@@ -489,10 +483,10 @@ const Home = () => {
               {!currentUser && (
                 <SimplifiedHeader onCartOpen={() => setShowCart(true)} />
               )}
-              {currentUser && !authService.isAdmin() && (
+              {currentUser && currentUser.role !== "admin" && (
                 <SimplifiedHeader onCartOpen={() => setShowCart(true)} />
               )}
-              {currentUser && authService.isAdmin() && <AdminHeader />}
+              {currentUser && currentUser.role === "admin" && <AdminHeader />}
             </div>
           </div>
         </nav>
@@ -739,7 +733,7 @@ const Home = () => {
 
                   <div className="product-actions">
                     {/* Solo mostrar botón de agregar al carrito para usuarios regulares */}
-                    {!authService.isAdmin() && (
+                    {currentUser?.role !== "admin" && (
                       <button
                         className="btn btn-primary btn-add-cart"
                         onClick={() => handleAddToCart(product)}
@@ -750,7 +744,7 @@ const Home = () => {
                     )}
 
                     {/* Para administradores, mostrar botón de gestión */}
-                    {authService.isAdmin() && (
+                    {currentUser?.role === "admin" && (
                       <button
                         className="btn btn-secondary btn-manage-product"
                         onClick={() => handleManageProduct(product)}

@@ -27,6 +27,7 @@ import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
 // import InteractiveMap from "./InteractiveMap"; // No se usa actualmente
 import AddressSelectorModal from "./AddressSelectorModal";
 import InlineNotification from "./InlineNotification";
+import TransactionSuccessModal from "./TransactionSuccessModal";
 // import PaymentSystem from "./PaymentSystem"; // Ya no se usa
 import "../styles/CheckoutForm.css";
 
@@ -79,6 +80,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   // const [showMap, setShowMap] = useState(false); // No se usa actualmente
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderData, setOrderData] = useState<any>(null);
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -368,13 +371,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         loyaltyPointsUsed
       );
 
+      // Mostrar modal de éxito con los datos del pedido
+      setOrderData(order);
+      setShowSuccessModal(true);
       setPaymentSuccess(true);
       onOrderComplete(order);
-
-      // Cerrar después de 2 segundos
-      setTimeout(() => {
-        onClose();
-      }, 2000);
     } catch (err: unknown) {
       console.error("Error de Pago:", err);
       const errorMessage =
@@ -403,6 +404,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   };
 
   // Generar PDF del pedido con diseño moderno
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setOrderData(null);
+    // No cerrar el checkout inmediatamente, dejar que el usuario vea el mensaje
+    // onClose(); // Comentado para que el usuario pueda ver el mensaje de éxito
+  };
+
+  const handleDownloadReceipt = () => {
+    generateOrderPDF();
+  };
+
   const generateOrderPDF = () => {
     if (!cartSummary) return;
 
@@ -1420,6 +1432,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           onClose={() => setNotification(null)}
         />
       )}
+
+      {/* Transaction Success Modal */}
+      <TransactionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        orderData={orderData}
+        onDownloadReceipt={handleDownloadReceipt}
+      />
     </div>
   );
 };

@@ -111,20 +111,27 @@ self.addEventListener("fetch", (event) => {
 
         return fetch(request)
           .then((response) => {
-            // Solo cachear respuestas exitosas
-            if (response.status === 200) {
+            // Solo cachear respuestas exitosas y que no sean de extensiones
+            if (response.status === 200 && !request.url.startsWith('chrome-extension://')) {
               const responseClone = response.clone();
               caches.open(CACHE_NAME).then((cache) => {
-                cache.put(request, responseClone);
+                try {
+                  cache.put(request, responseClone);
+                } catch (error) {
+                  console.warn("Error cacheando recurso:", error);
+                }
               });
             }
             return response;
           })
-          .catch(() => {
+          .catch((error) => {
+            console.warn("Error en fetch:", error);
             // Fallback para páginas HTML
             if (request.destination === "document") {
               return caches.match("/index.html");
             }
+            // Para otros recursos, devolver una respuesta vacía
+            return new Response("", { status: 404 });
           });
       })
     );
@@ -149,14 +156,20 @@ self.addEventListener("fetch", (event) => {
           return fetch(request)
             .then((response) => {
               if (response.status === 200) {
-                cache.put(request, response.clone());
+                try {
+                  cache.put(request, response.clone());
+                } catch (error) {
+                  console.warn("Error cacheando API:", error);
+                }
               }
               return response;
             })
-            .catch(() => {
+            .catch((error) => {
+              console.error("Error en API fetch:", error);
               // Fallback para errores de red
               return new Response(
                 JSON.stringify({
+                  success: false,
                   error: "Sin conexión",
                   message: "No se pudo conectar al servidor",
                 }),

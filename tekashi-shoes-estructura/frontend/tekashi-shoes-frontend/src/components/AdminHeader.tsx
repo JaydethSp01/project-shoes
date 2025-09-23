@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FaBell, FaTimes } from "react-icons/fa";
 import { notificationService } from "../services/NotificationService";
+// import { unifiedAuthService } from "../services/UnifiedAuthService";
 import "../styles/AdminHeader.css";
 
 // Definir interfaces al inicio del archivo
@@ -16,23 +17,23 @@ interface AdminNotification {
   user_email?: string;
 }
 
-interface BackendNotification {
-  id_activity: number;
-  notification_title: string;
-  activity_description: string;
-  activity_type: string;
-  is_read: boolean;
-  created_at: string;
-  metadata?: string;
-  user_name?: string;
-  user_email?: string;
-}
+// interface BackendNotification {
+//   id_activity: number;
+//   notification_title: string;
+//   activity_description: string;
+//   activity_type: string;
+//   is_read: boolean;
+//   created_at: string;
+//   metadata?: string;
+//   user_name?: string;
+//   user_email?: string;
+// }
 
-interface ApiResponse {
-  success: boolean;
-  data?: BackendNotification[];
-  message?: string;
-}
+// interface ApiResponse {
+//   success: boolean;
+//   data?: BackendNotification[];
+//   message?: string;
+// }
 
 const AdminHeader: React.FC = () => {
   const [notificationCount, setNotificationCount] = useState<number>(0);
@@ -46,42 +47,20 @@ const AdminHeader: React.FC = () => {
   > => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/admin/notifications",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            // Agregar headers de autenticación si es necesario
-            // 'Authorization': `Bearer ${token}`
-          },
-        }
-      );
+      // const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
+      // const token = await unifiedAuthService.getAuthToken();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // const headers: HeadersInit = {
+      //   "Content-Type": "application/json",
+      // };
 
-      const result: ApiResponse = await response.json();
+      // if (token) {
+      //   headers.Authorization = `Bearer ${token}`;
+      // }
 
-      if (result.success && result.data) {
-        return result.data.map(
-          (notification: BackendNotification): AdminNotification => ({
-            id: notification.id_activity,
-            title: notification.notification_title,
-            message: notification.activity_description,
-            type: notification.activity_type,
-            isRead: notification.is_read,
-            createdAt: notification.created_at,
-            data: notification.metadata
-              ? JSON.parse(notification.metadata)
-              : {},
-            user_name: notification.user_name,
-            user_email: notification.user_email,
-          })
-        );
-      }
-
+      // TODO: Implementar endpoint de notificaciones de admin en el backend
+      // Por ahora, retornar array vacío para evitar errores 404
+      console.log("⚠️ Endpoint de notificaciones de admin no implementado aún");
       return [];
     } catch (error) {
       console.error("Error loading admin notifications:", error);
@@ -113,7 +92,7 @@ const AdminHeader: React.FC = () => {
       typeof notificationService.subscribe === "function"
     ) {
       unsubscribeNotifications = notificationService.subscribe(
-        (notifications: any[]) => {
+        (notifications: AdminNotification[]) => {
           setNotifications(notifications);
           const unreadCount = notifications.filter((n) => !n.isRead).length;
           setNotificationCount(unreadCount);

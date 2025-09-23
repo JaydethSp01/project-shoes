@@ -38,6 +38,10 @@ class AuthService {
   // Los usuarios ahora se obtienen del backend
   private users: User[] = [];
 
+  private getBackendUrl(): string {
+    return import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
+  }
+
   constructor() {
     // Cargar usuario desde localStorage si existe
     const savedUser = localStorage.getItem("tekashi_user");
@@ -61,7 +65,7 @@ class AuthService {
   }): Promise<User> {
     try {
       const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/usuarios/registro",
+        `${this.getBackendUrl()}/api/usuarios/registro`,
         {
           method: "POST",
           headers: {
@@ -143,7 +147,7 @@ class AuthService {
   async login(credentials: LoginCredentials): Promise<User> {
     try {
       const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/usuarios/login",
+        `${this.getBackendUrl()}/api/usuarios/login`,
         {
           method: "POST",
           headers: {

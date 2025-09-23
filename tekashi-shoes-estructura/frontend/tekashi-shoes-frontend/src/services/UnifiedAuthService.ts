@@ -23,24 +23,60 @@ class UnifiedAuthService {
     this.initializeAuth();
   }
 
+  private getBackendUrl(): string {
+    return import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
+  }
+
+  async initialize(): Promise<void> {
+    await this.initializeAuth();
+  }
+
+  async getAuthToken(): Promise<string | null> {
+    // Verificar si hay token de Firebase
+    if (this.currentUser?.isFirebaseUser) {
+      try {
+        const firebaseToken = await firebaseAuthService.getIdToken();
+        return firebaseToken;
+      } catch (error) {
+        console.warn("No se pudo obtener token de Firebase:", error);
+      }
+    }
+
+    // Verificar si hay token del backend
+    if (this.currentUser?.isBackendUser) {
+      const backendToken = localStorage.getItem("tekashi_backend_token");
+      return backendToken;
+    }
+
+    return null;
+  }
+
   private async initializeAuth() {
-    // Verificar si hay usuario de Firebase
-    const firebaseUser = firebaseAuthService.getCurrentUserProfile();
-    if (firebaseUser) {
-      await this.handleFirebaseUser(firebaseUser);
-      return;
-    }
+    try {
+      // Verificar si hay usuario de Firebase
+      const firebaseUser = firebaseAuthService.getCurrentUserProfile();
+      if (firebaseUser) {
+        console.log("🔍 Usuario Firebase encontrado:", firebaseUser);
+        await this.handleFirebaseUser(firebaseUser);
+        return;
+      }
 
-    // Verificar si hay usuario del backend
-    const backendUser = authService.getCurrentUser();
-    if (backendUser) {
-      await this.handleBackendUser(backendUser);
-      return;
-    }
+      // Verificar si hay usuario del backend
+      const backendUser = authService.getCurrentUser();
+      if (backendUser) {
+        console.log("🔍 Usuario Backend encontrado:", backendUser);
+        await this.handleBackendUser(backendUser);
+        return;
+      }
 
-    // No hay usuario autenticado
-    this.currentUser = null;
-    this.notifyListeners();
+      // No hay usuario autenticado
+      this.currentUser = null;
+      this.notifyListeners();
+    } catch (error) {
+      console.error("❌ Error en initializeAuth:", error);
+      this.currentUser = null;
+      this.notifyListeners();
+    }
   }
 
   private async handleFirebaseUser(
@@ -54,14 +90,14 @@ class UnifiedAuthService {
         id: firebaseProfile.uid,
         email: firebaseProfile.email || "",
         name: firebaseProfile.displayName || "Usuario",
-        role: backendUser?.role || "user",
+        role: (backendUser?.role || "user").toLowerCase() as "user" | "admin",
         avatar: firebaseProfile.photoURL || undefined,
         isFirebaseUser: true,
         isBackendUser: !!backendUser,
         firebaseProfile,
-        backendProfile: backendUser,
+        backendProfile: backendUser || undefined,
       };
-    } catch (error) {
+    } catch {
       // Si no se puede sincronizar, usar solo Firebase
       this.currentUser = {
         id: firebaseProfile.uid,
@@ -79,11 +115,17 @@ class UnifiedAuthService {
   }
 
   private async handleBackendUser(backendProfile: User): Promise<void> {
+    console.log("🔧 Procesando usuario backend:", backendProfile);
+
     this.currentUser = {
       id: backendProfile.id.toString(),
       email: backendProfile.email,
       name: backendProfile.name || backendProfile.nombre || "Usuario",
-      role: backendProfile.role || backendProfile.rol || "user",
+      role: (
+        backendProfile.role ||
+        backendProfile.rol ||
+        "user"
+      ).toLowerCase() as "user" | "admin",
       phone: backendProfile.phone || backendProfile.telefono,
       address: backendProfile.address || backendProfile.direccion,
       isFirebaseUser: false,
@@ -91,6 +133,7 @@ class UnifiedAuthService {
       backendProfile,
     };
 
+    console.log("🔧 Usuario unificado creado:", this.currentUser);
     this.notifyListeners();
   }
 
@@ -101,9 +144,37 @@ class UnifiedAuthService {
       // Intentar obtener token de Firebase para autenticación con backend
       const firebaseToken = await firebaseAuthService.getIdToken();
 
-      // Aquí podrías hacer una llamada al backend para sincronizar el usuario
-      // Por ahora, retornamos null para usar solo Firebase
-      return null;
+      // Sincronizar usuario con el backend
+      const response = await fetch(
+        `${this.getBackendUrl()}/api/usuarios/sync-firebase`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${firebaseToken}`,
+          },
+          body: JSON.stringify({
+            firebaseUid: firebaseProfile.uid,
+            email: firebaseProfile.email,
+            displayName:
+              firebaseProfile.displayName ||
+              (firebaseProfile.email
+                ? firebaseProfile.email.split("@")[0]
+                : "Usuario"),
+            photoURL: firebaseProfile.photoURL || null,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const userData = await response.json();
+        return userData.data;
+      } else {
+        console.warn(
+          "No se pudo sincronizar con el backend, usando solo Firebase"
+        );
+        return null;
+      }
     } catch (error) {
       console.warn("No se pudo sincronizar con el backend:", error);
       return null;
@@ -113,22 +184,14 @@ class UnifiedAuthService {
   // Métodos de autenticación
   async signInWithEmail(email: string, password: string): Promise<UnifiedUser> {
     try {
-      // Intentar login con backend primero
+      // Usar backend para login normal
+      console.log("🔐 Iniciando sesión con backend...");
       const backendUser = await authService.login({ email, password });
       await this.handleBackendUser(backendUser);
       return this.currentUser!;
-    } catch (error) {
-      // Si falla el backend, intentar con Firebase
-      try {
-        const firebaseProfile = await firebaseAuthService.signInWithEmail(
-          email,
-          password
-        );
-        await this.handleFirebaseUser(firebaseProfile);
-        return this.currentUser!;
-      } catch (firebaseError) {
-        throw new Error("Credenciales inválidas");
-      }
+    } catch (backendError) {
+      console.error("❌ Error en autenticación backend:", backendError);
+      throw new Error("Credenciales inválidas");
     }
   }
 
@@ -139,7 +202,8 @@ class UnifiedAuthService {
     role: "user" | "admin" = "user"
   ): Promise<UnifiedUser> {
     try {
-      // Intentar registro con backend primero
+      // Usar backend para registro normal
+      console.log("📝 Registrando usuario con backend...");
       const backendUser = await authService.register({
         name,
         email,
@@ -148,19 +212,9 @@ class UnifiedAuthService {
       });
       await this.handleBackendUser(backendUser);
       return this.currentUser!;
-    } catch (error) {
-      // Si falla el backend, intentar con Firebase
-      try {
-        const firebaseProfile = await firebaseAuthService.signUpWithEmail(
-          email,
-          password,
-          name
-        );
-        await this.handleFirebaseUser(firebaseProfile);
-        return this.currentUser!;
-      } catch (firebaseError) {
-        throw new Error("Error en el registro");
-      }
+    } catch (backendError) {
+      console.error("❌ Error en registro backend:", backendError);
+      throw new Error("Error en el registro");
     }
   }
 
@@ -226,23 +280,6 @@ class UnifiedAuthService {
 
   isUser(): boolean {
     return this.currentUser?.role === "user";
-  }
-
-  // Obtener token para autenticación con backend
-  async getAuthToken(): Promise<string | null> {
-    if (this.currentUser?.isFirebaseUser) {
-      try {
-        return await firebaseAuthService.getIdToken();
-      } catch (error) {
-        console.warn("No se pudo obtener token de Firebase");
-      }
-    }
-
-    if (this.currentUser?.isBackendUser) {
-      return localStorage.getItem("tekashi_backend_token");
-    }
-
-    return null;
   }
 
   // Suscripción a cambios

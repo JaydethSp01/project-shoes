@@ -303,18 +303,19 @@ class CartService {
     };
 
     try {
-      // En una implementación real, aquí se enviaría al backend
-      await this.sendOrderToBackend(order);
+      // Enviar al backend y obtener los datos del pedido creado
+      const backendOrderData = await this.sendOrderToBackend(order);
 
       // Limpiar carrito después del pedido exitoso
       this.clearCart();
 
       notificationService.showNotification(
-        `Pedido #${order.id} procesado exitosamente`,
+        `Pedido #${backendOrderData.numeroPedido} procesado exitosamente`,
         "success"
       );
 
-      return order;
+      // Retornar los datos del backend en lugar de los datos locales
+      return backendOrderData;
     } catch (error) {
       console.error("Error processing order:", error);
       throw new Error("Error al procesar el pedido");
@@ -322,7 +323,7 @@ class CartService {
   }
 
   // Enviar pedido al backend
-  private async sendOrderToBackend(order: OrderInfo): Promise<void> {
+  private async sendOrderToBackend(order: OrderInfo): Promise<any> {
     try {
       // Preparar los detalles del pedido en el formato esperado por el backend
       const detalles = order.items.map((item) => {
@@ -349,12 +350,7 @@ class CartService {
       });
 
       // Calcular subtotal total
-      const subtotalTotal = detalles.reduce(
-        (sum, item) => sum + item.subtotal,
-        0
-      );
-      const impuestos = subtotalTotal * 0.19;
-      const total = subtotalTotal + impuestos + order.shipping - order.discount;
+      // Los cálculos se harán directamente en el objeto pedidoData
 
       // Preparar la dirección de envío con coordenadas en formato correcto
       const direccionEnvio = {
@@ -411,9 +407,6 @@ class CartService {
         informacionPago.transaccionId = order.paymentInfo.transactionId.trim();
       }
 
-      // Obtener información del usuario actual (si está autenticado)
-      const currentUser = await this.getCurrentUser();
-
       const pedidoData: {
         numeroPedido: string;
         detalles: Array<{
@@ -450,31 +443,38 @@ class CartService {
         puntosFidelidadUsados: number;
         puntosFidelidadGanados: number;
         notas?: string;
-        usuarioId?: string | number;
+        esInvitado: boolean;
       } = {
         numeroPedido: this.generateOrderId(),
         detalles,
         direccionEnvio,
         informacionPago,
-        subtotal: subtotalTotal,
-        impuestos: impuestos,
+        subtotal: detalles.reduce((sum, item) => sum + item.subtotal, 0),
+        impuestos:
+          detalles.reduce((sum, item) => sum + item.subtotal, 0) * 0.19,
         costoEnvio: order.shipping,
         descuento: order.discount,
-        total: total,
+        total:
+          detalles.reduce((sum, item) => sum + item.subtotal, 0) +
+          detalles.reduce((sum, item) => sum + item.subtotal, 0) * 0.19 +
+          order.shipping -
+          order.discount,
         estado: "pending",
         metodoEnvio: "standard",
         puntosFidelidadUsados: order.loyaltyPointsUsed || 0,
-        puntosFidelidadGanados: Math.floor(subtotalTotal / 1000),
+        puntosFidelidadGanados: Math.floor(
+          detalles.reduce((sum, item) => sum + item.subtotal, 0) / 1000
+        ),
+        esInvitado: false, // Cambiar a false para usuarios logueados
       };
 
-      // Solo agregar usuarioId si el usuario está autenticado Y es un usuario del backend (no Firebase)
-      if (
-        currentUser &&
-        currentUser.id &&
-        typeof currentUser.id === "number" &&
-        !currentUser.uid
-      ) {
-        pedidoData.usuarioId = currentUser.id;
+      // Obtener usuario actual para pedidos de usuarios registrados
+      const currentUser = await this.getCurrentUser();
+      if (currentUser) {
+        (pedidoData as any).usuarioId = currentUser.uid; // Usar UID de Firebase como string
+        pedidoData.esInvitado = false;
+      } else {
+        pedidoData.esInvitado = true;
       }
 
       // Solo agregar notas si no están vacías
@@ -507,24 +507,12 @@ class CartService {
 
       const result = await response.json();
       console.log("Order sent to backend:", result);
+
+      // Retornar los datos del pedido del backend
+      return result.data;
     } catch (error) {
       console.error("Error sending order to backend:", error);
       throw error; // Re-lanzar el error para que sea manejado por el componente
-    }
-  }
-
-  // Obtener usuario actual
-  private async getCurrentUser(): Promise<any> {
-    try {
-      const { authService } = await import("./AuthService");
-      return authService.getCurrentUser();
-    } catch {
-      try {
-        const { firebaseAuthService } = await import("./FirebaseAuthService");
-        return firebaseAuthService.getCurrentUserProfile();
-      } catch {
-        return null;
-      }
     }
   }
 
@@ -539,6 +527,17 @@ class CartService {
     } catch {
       console.warn("No se pudo obtener token de autenticación");
       return {};
+    }
+  }
+
+  // Método para obtener el usuario actual
+  private async getCurrentUser(): Promise<any> {
+    try {
+      const { firebaseAuthService } = await import("./FirebaseAuthService");
+      return firebaseAuthService.getCurrentUser();
+    } catch (error) {
+      console.warn("No se pudo obtener usuario actual:", error);
+      return null;
     }
   }
 

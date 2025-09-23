@@ -76,16 +76,36 @@ class FirebaseAuthService {
     localStorage.removeItem(this.SESSION_ID_KEY);
   }
 
+  // Validar formato de email
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   // Iniciar sesión con email y contraseña
   async signInWithEmail(email: string, password: string): Promise<UserProfile> {
     try {
+      console.log("🔐 Iniciando sesión con email:", email);
+
+      // Validaciones básicas
+      if (!email || !password) {
+        throw new Error("El email y la contraseña son requeridos");
+      }
+
+      if (password.length < 6) {
+        throw new Error("La contraseña debe tener al menos 6 caracteres");
+      }
+
       const userCredential = await signInWithEmailAndPassword(
         this.auth,
         email,
         password
       );
+
+      console.log("✅ Usuario autenticado:", userCredential.user.email);
       return this.mapUserToProfile(userCredential.user);
     } catch (error: any) {
+      console.error("❌ Error durante el login:", error);
       throw this.mapFirebaseError(error);
     }
   }
@@ -97,11 +117,28 @@ class FirebaseAuthService {
     displayName?: string
   ): Promise<UserProfile> {
     try {
+      console.log("📝 Registrando usuario con email:", email);
+
+      // Validaciones básicas
+      if (!email || !password) {
+        throw new Error("El email y la contraseña son requeridos");
+      }
+
+      if (password.length < 6) {
+        throw new Error("La contraseña debe tener al menos 6 caracteres");
+      }
+
+      if (!this.isValidEmail(email)) {
+        throw new Error("El formato del email no es válido");
+      }
+
       const userCredential = await createUserWithEmailAndPassword(
         this.auth,
         email,
         password
       );
+
+      console.log("✅ Usuario registrado:", userCredential.user.email);
 
       // Actualizar perfil si se proporciona nombre
       if (displayName) {
@@ -120,9 +157,12 @@ class FirebaseAuthService {
   // Iniciar sesión con Google
   async signInWithGoogle(): Promise<UserProfile> {
     try {
+      console.log("🔐 Iniciando sesión con Google...");
       const result = await signInWithPopup(this.auth, this.googleProvider);
+      console.log("✅ Usuario autenticado con Google:", result.user.email);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
+      console.error("❌ Error en autenticación con Google:", error);
       throw this.mapFirebaseError(error);
     }
   }
@@ -130,9 +170,12 @@ class FirebaseAuthService {
   // Iniciar sesión con Facebook
   async signInWithFacebook(): Promise<UserProfile> {
     try {
+      console.log("🔐 Iniciando sesión con Facebook...");
       const result = await signInWithPopup(this.auth, this.facebookProvider);
+      console.log("✅ Usuario autenticado con Facebook:", result.user.email);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
+      console.error("❌ Error en autenticación con Facebook:", error);
       throw this.mapFirebaseError(error);
     }
   }
@@ -140,9 +183,12 @@ class FirebaseAuthService {
   // Iniciar sesión con Microsoft
   async signInWithMicrosoft(): Promise<UserProfile> {
     try {
+      console.log("🔐 Iniciando sesión con Microsoft...");
       const result = await signInWithPopup(this.auth, this.microsoftProvider);
+      console.log("✅ Usuario autenticado con Microsoft:", result.user.email);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
+      console.error("❌ Error en autenticación con Microsoft:", error);
       throw this.mapFirebaseError(error);
     }
   }
@@ -297,6 +343,20 @@ class FirebaseAuthService {
     };
   }
 
+  async getAuthToken(): Promise<string | null> {
+    try {
+      const user = this.auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        return token;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error obteniendo token de Firebase:", error);
+      return null;
+    }
+  }
+
   // Mapear errores de Firebase a errores personalizados
   private mapFirebaseError(error: any): AuthError {
     const errorMessages: { [key: string]: string } = {
@@ -333,5 +393,27 @@ class FirebaseAuthService {
 
 // Instancia singleton del servicio
 export const firebaseAuthService = new FirebaseAuthService();
+
+// Función temporal para crear usuario de prueba
+export const createTestUser = async () => {
+  try {
+    console.log("🧪 Creando usuario de prueba...");
+    const testEmail = "test@tekashi.com";
+    const testPassword = "123456";
+
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      testEmail,
+      testPassword
+    );
+
+    console.log("✅ Usuario de prueba creado:", userCredential.user.email);
+    return userCredential.user;
+  } catch (error: any) {
+    console.error("❌ Error creando usuario de prueba:", error);
+    throw error;
+  }
+};
+
 export default firebaseAuthService;
 

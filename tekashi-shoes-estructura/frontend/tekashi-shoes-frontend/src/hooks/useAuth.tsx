@@ -38,13 +38,17 @@ interface AuthContextType {
   clearError: () => void;
 }
 
+// Crear el contexto
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Hook para usar el contexto
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error("useAuth debe ser usado dentro de un AuthProvider");
   }
+
   return context;
 };
 
@@ -54,21 +58,52 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<UnifiedUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
   useEffect(() => {
-    const unsubscribe = unifiedAuthService.subscribe((user) => {
-      setUser(user);
-      setLoading(false);
-    });
+    let isMounted = true;
+    let unsubscribe: (() => void) | undefined;
 
-    return unsubscribe;
+    const initializeAuth = async () => {
+      try {
+        setLoading(true);
+
+        // Inicializar el servicio de autenticación
+        await unifiedAuthService.initialize();
+
+        // Suscribirse a cambios de autenticación
+        unsubscribe = unifiedAuthService.subscribe((user) => {
+          console.log("🎯 useAuth recibió usuario:", user);
+          if (isMounted) {
+            setUser(user);
+            setLoading(false);
+          }
+        });
+      } catch (error) {
+        console.error("Error inicializando autenticación:", error);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe && typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const handleError = (error: any) => {
     console.error("Auth error:", error);
-    setError(error);
+    setError({
+      code: error.code || "UNKNOWN_ERROR",
+      message: error.message || "Error desconocido",
+    });
   };
 
   const clearError = () => {
@@ -79,8 +114,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const user = await unifiedAuthService.signInWithEmail(email, password);
-      setUser(user);
+      await unifiedAuthService.signInWithEmail(email, password);
+      // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
       handleError(error);
     } finally {
@@ -97,13 +132,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const user = await unifiedAuthService.signUpWithEmail(
-        email,
-        password,
-        name,
-        role
-      );
-      setUser(user);
+      await unifiedAuthService.signUpWithEmail(email, password, name, role);
+      // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
       handleError(error);
     } finally {
@@ -115,8 +145,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const user = await unifiedAuthService.signInWithGoogle();
-      setUser(user);
+      await unifiedAuthService.signInWithGoogle();
+      // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
       handleError(error);
     } finally {
@@ -128,8 +158,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const user = await unifiedAuthService.signInWithFacebook();
-      setUser(user);
+      await unifiedAuthService.signInWithFacebook();
+      // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
       handleError(error);
     } finally {
@@ -141,8 +171,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const user = await unifiedAuthService.signInWithMicrosoft();
-      setUser(user);
+      await unifiedAuthService.signInWithMicrosoft();
+      // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
       handleError(error);
     } finally {
@@ -155,7 +185,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setError(null);
       setLoading(true);
       await unifiedAuthService.signOut();
-      setUser(null);
+      // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
       handleError(error);
     } finally {

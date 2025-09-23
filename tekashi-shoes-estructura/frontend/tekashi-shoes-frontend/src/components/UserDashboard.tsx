@@ -38,12 +38,18 @@ import WishlistManager from "./WishlistManager";
 import UserProfileModal from "./UserProfileModal";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
-import { useTranslation } from "../hooks/useTranslation";
+// import { useTranslation } from "../hooks/useTranslation";
 
 interface UserDashboardProps {
   isOpen: boolean;
   onClose: () => void;
-  user: any;
+  user: {
+    id?: string | number;
+    uid?: string;
+    email?: string;
+    displayName?: string;
+    [key: string]: any;
+  };
 }
 
 const UserDashboard: React.FC<UserDashboardProps> = ({
@@ -71,21 +77,23 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const { alertState, showSuccess, showError, hideAlert } = useBeautifulAlert();
 
   // Hook para traducciones
-  const { t } = useTranslation();
+  // const { t } = useTranslation(); // Comentado temporalmente
 
   useEffect(() => {
     if (isOpen && user) {
       setCurrentUser(user);
       loadDashboardData();
     }
-  }, [isOpen, user]);
+  }, [isOpen, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadDashboardData = async () => {
     setLoading(true);
     setError("");
 
     try {
-      console.log("Cargando datos del dashboard para usuario:", user.id);
+      // Usar el ID de la base de datos local si está disponible (backendProfile), sino usar el UID de Firebase
+      const userId = user.backendProfile?.id || user.id;
+      console.log("Cargando datos del dashboard para usuario:", userId);
 
       const [
         statsData,
@@ -94,11 +102,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
         wishlistsData,
         notificationsData,
       ] = await Promise.all([
-        dashboardService.getDashboardStats(user.id),
-        dashboardService.getPurchaseHistory(user.id),
-        dashboardService.getFavorites(user.id),
-        dashboardService.getWishlists(Number(user.id)),
-        dashboardService.getNotifications(Number(user.id)),
+        dashboardService.getDashboardStats(userId),
+        dashboardService.getPurchaseHistory(userId),
+        dashboardService.getFavorites(userId),
+        dashboardService.getWishlists(userId),
+        dashboardService.getNotifications(userId),
       ]);
 
       console.log("Datos cargados:", {

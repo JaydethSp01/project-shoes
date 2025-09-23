@@ -13,10 +13,12 @@ const Joi = require("joi");
 
 // Esquemas de validación
 const esquemaDetallePedido = Joi.object({
-  productoId: Joi.alternatives().try(
-    Joi.string().pattern(/^[0-9a-fA-F]{24}$/), // MongoDB ObjectId
-    Joi.string().min(1) // String ID
-  ).required(),
+  productoId: Joi.alternatives()
+    .try(
+      Joi.string().pattern(/^[0-9a-fA-F]{24}$/), // MongoDB ObjectId
+      Joi.string().min(1) // String ID
+    )
+    .required(),
   cantidad: Joi.number().integer().min(1).required(),
   precioUnitario: Joi.number().min(0).required(),
   subtotal: Joi.number().min(0).required(),
@@ -61,17 +63,31 @@ const esquemaCrearPedido = Joi.object({
   costoEnvio: Joi.number().min(0).default(0),
   descuento: Joi.number().min(0).default(0),
   total: Joi.number().min(0).required(),
-  estado: Joi.string().valid("pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "refunded").default("pending"),
+  estado: Joi.string()
+    .valid(
+      "pending",
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+      "refunded"
+    )
+    .default("pending"),
   puntosFidelidadUsados: Joi.number().min(0).default(0),
   puntosFidelidadGanados: Joi.number().min(0).default(0),
   notas: Joi.string().max(500),
   metodoEnvio: Joi.string()
     .valid("standard", "express", "overnight")
     .default("standard"),
-  usuarioId: Joi.alternatives().try(
-    Joi.string().pattern(/^[0-9a-fA-F]{24}$/), // MongoDB ObjectId
-    Joi.string().min(1) // String ID
-  ).optional(),
+  esInvitado: Joi.boolean().default(true),
+  usuarioId: Joi.alternatives()
+    .try(
+      Joi.string().pattern(/^[0-9a-fA-F]{24}$/), // MongoDB ObjectId
+      Joi.string().min(1), // String ID (Firebase UID)
+      Joi.any().valid(null) // Permitir null para invitados
+    )
+    .optional(),
 });
 
 const esquemaActualizarEstado = Joi.object({
@@ -208,6 +224,7 @@ router.post(
         puntosFidelidadGanados = 0,
         notas,
         metodoEnvio = "standard",
+        esInvitado = true,
         usuarioId,
       } = req.body;
 
@@ -230,9 +247,8 @@ router.post(
       }
 
       // Crear el pedido
-      const pedido = new Pedido({
+      const pedidoData = {
         numeroPedido: numeroPedido || Pedido.generarNumeroPedido(),
-        usuarioId: usuarioId || (req.usuario ? req.usuario.uid : null),
         detalles,
         direccionEnvio,
         informacionPago,
@@ -246,7 +262,14 @@ router.post(
         puntosFidelidadGanados,
         notas,
         metodoEnvio,
-      });
+      };
+
+      // Solo agregar usuarioId si no es un pedido de invitado
+      if (!esInvitado && (usuarioId || req.usuario)) {
+        pedidoData.usuarioId = usuarioId || req.usuario.uid;
+      }
+
+      const pedido = new Pedido(pedidoData);
 
       // Guardar el pedido
       await pedido.save();
@@ -483,7 +506,10 @@ router.delete("/:id", verificarFirebaseAuth, async (req, res, next) => {
     }
 
     // Actualizar estado a cancelado
-    await pedido.actualizarEstado("cancelled", "Pedido cancelado por el usuario");
+    await pedido.actualizarEstado(
+      "cancelled",
+      "Pedido cancelado por el usuario"
+    );
 
     // Restaurar stock de productos
     for (const detalle of pedido.detalles) {
@@ -510,5 +536,3 @@ router.delete("/:id", verificarFirebaseAuth, async (req, res, next) => {
 });
 
 module.exports = router;
-
-

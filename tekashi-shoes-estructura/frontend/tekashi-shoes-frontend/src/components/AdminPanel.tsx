@@ -1,4 +1,27 @@
 import React, { useState, useEffect } from "react";
+import { unifiedAuthService } from "../services/UnifiedAuthService";
+
+// Helper function to get base URL
+const getBaseUrl = () =>
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
+
+// Helper function to get headers with authentication
+const getAuthHeaders = async () => {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const token = await unifiedAuthService.getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  } catch (error) {
+    console.warn("No se pudo obtener token de autenticación", error);
+  }
+
+  return headers;
+};
 import {
   FaUsers,
   FaChartLine,
@@ -125,15 +148,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const loadUsers = async (): Promise<AdminUser[]> => {
     try {
-      const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/usuarios",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${getBaseUrl()}/api/usuarios`, {
+        method: "GET",
+        headers: await getAuthHeaders(),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -157,15 +175,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const loadAdminStats = async (): Promise<AdminStats> => {
     try {
-      const response = await fetch(
-        "https://backend-ecommerce-6vi3.onrender.com/api/admin/stats",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${getBaseUrl()}/api/admin/dashboard`, {
+        method: "GET",
+        headers: await getAuthHeaders(),
+      });
 
       if (response.ok) {
         const data = await response.json();
