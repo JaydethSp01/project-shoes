@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FaTimes,
   FaChevronDown,
@@ -51,13 +51,28 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   useEffect(() => {
     loadFilterOptions();
   }, []);
 
+  // Cleanup timeout al desmontar
   useEffect(() => {
-    applyFilters();
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+    };
+  }, [searchTimeout]);
+
+  useEffect(() => {
+    // Solo aplicar filtros si hay productos cargados
+    if (allProducts && allProducts.length > 0) {
+      applyFilters();
+    }
   }, [filters, allProducts]);
 
   const loadFilterOptions = async () => {
@@ -102,111 +117,119 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const applyFilters = async () => {
     setIsLoading(true);
     try {
-      const searchFilters = {
-        query: filters.query || undefined,
-        minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
-        maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
-        tipoProductoId: filters.tipoProductoId
-          ? Number(filters.tipoProductoId)
-          : undefined,
-        marca: filters.marca || undefined,
-        color: filters.color || undefined,
-        talla: filters.talla || undefined,
-        sortBy: filters.sortBy || undefined,
-        inStock: filters.inStock || undefined,
-      };
+      // Verificar si hay filtros activos que requieran búsqueda en API
+      const hasComplexFilters =
+        filters.query || filters.minPrice || filters.maxPrice;
 
-      const result = await searchService.search(searchFilters as any);
-      onFilterChange(result.products);
+      if (hasComplexFilters) {
+        // Usar API para búsquedas complejas
+        const searchFilters = {
+          query: filters.query || undefined,
+          minPrice: filters.minPrice ? Number(filters.minPrice) : undefined,
+          maxPrice: filters.maxPrice ? Number(filters.maxPrice) : undefined,
+          tipoProductoId: filters.tipoProductoId
+            ? Number(filters.tipoProductoId)
+            : undefined,
+          marca: filters.marca || undefined,
+          color: filters.color || undefined,
+          talla: filters.talla || undefined,
+          sortBy: filters.sortBy || undefined,
+          inStock: filters.inStock || undefined,
+        };
+
+        const result = await searchService.search(searchFilters as any);
+        onFilterChange(result.products);
+      } else {
+        // Usar filtros locales para filtros simples
+        let filtered = [...allProducts];
+
+        if (filters.tipoProductoId) {
+          filtered = filtered.filter(
+            (p) => p.tipoProductoId === Number(filters.tipoProductoId)
+          );
+        }
+
+        if (filters.marca) {
+          filtered = filtered.filter((p) =>
+            p.marca?.toLowerCase().includes(filters.marca.toLowerCase())
+          );
+        }
+
+        if (filters.color) {
+          filtered = filtered.filter((p) =>
+            p.color?.toLowerCase().includes(filters.color.toLowerCase())
+          );
+        }
+
+        if (filters.talla) {
+          filtered = filtered.filter((p) =>
+            p.talla?.toLowerCase().includes(filters.talla.toLowerCase())
+          );
+        }
+
+        if (filters.inStock) {
+          filtered = filtered.filter((p) => p.stock && p.stock > 0);
+        }
+
+        // Aplicar ordenamiento
+        if (filters.sortBy) {
+          switch (filters.sortBy) {
+            case "price_asc":
+              filtered.sort((a, b) => (a.precio || 0) - (b.precio || 0));
+              break;
+            case "price_desc":
+              filtered.sort((a, b) => (b.precio || 0) - (a.precio || 0));
+              break;
+            case "name_asc":
+              filtered.sort((a, b) =>
+                (a.nombre || "").localeCompare(b.nombre || "")
+              );
+              break;
+            case "name_desc":
+              filtered.sort((a, b) =>
+                (b.nombre || "").localeCompare(a.nombre || "")
+              );
+              break;
+            case "newest":
+              filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
+              break;
+          }
+        }
+
+        onFilterChange(filtered);
+      }
     } catch (error) {
       console.error("Error applying filters:", error);
-      // Fallback: aplicar filtros localmente
-      let filtered = [...allProducts];
-
-      if (filters.query) {
-        const query = filters.query.toLowerCase();
-        filtered = filtered.filter(
-          (p) =>
-            p.nombre?.toLowerCase().includes(query) ||
-            p.descripcion?.toLowerCase().includes(query) ||
-            p.marca?.toLowerCase().includes(query)
-        );
-      }
-
-      if (filters.minPrice) {
-        filtered = filtered.filter(
-          (p) => p.precio && p.precio >= Number(filters.minPrice)
-        );
-      }
-
-      if (filters.maxPrice) {
-        filtered = filtered.filter(
-          (p) => p.precio && p.precio <= Number(filters.maxPrice)
-        );
-      }
-
-      if (filters.tipoProductoId) {
-        filtered = filtered.filter(
-          (p) => p.tipoProductoId === Number(filters.tipoProductoId)
-        );
-      }
-
-      if (filters.marca) {
-        filtered = filtered.filter((p) =>
-          p.marca?.toLowerCase().includes(filters.marca.toLowerCase())
-        );
-      }
-
-      if (filters.color) {
-        filtered = filtered.filter((p) =>
-          p.color?.toLowerCase().includes(filters.color.toLowerCase())
-        );
-      }
-
-      if (filters.talla) {
-        filtered = filtered.filter((p) =>
-          p.talla?.toLowerCase().includes(filters.talla.toLowerCase())
-        );
-      }
-
-      if (filters.inStock) {
-        filtered = filtered.filter((p) => p.stock && p.stock > 0);
-      }
-
-      // Aplicar ordenamiento
-      if (filters.sortBy) {
-        switch (filters.sortBy) {
-          case "price_asc":
-            filtered.sort((a, b) => (a.precio || 0) - (b.precio || 0));
-            break;
-          case "price_desc":
-            filtered.sort((a, b) => (b.precio || 0) - (a.precio || 0));
-            break;
-          case "name_asc":
-            filtered.sort((a, b) =>
-              (a.nombre || "").localeCompare(b.nombre || "")
-            );
-            break;
-          case "name_desc":
-            filtered.sort((a, b) =>
-              (b.nombre || "").localeCompare(a.nombre || "")
-            );
-            break;
-          case "newest":
-            filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
-            break;
-        }
-      }
-
-      onFilterChange(filtered);
+      // En caso de error, mostrar todos los productos
+      onFilterChange(allProducts);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFilterChange = (key: keyof FilterState, value: any) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
+  const handleFilterChange = useCallback(
+    (key: keyof FilterState, value: any) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      // Limpiar timeout anterior
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+
+      // Establecer nuevo timeout para debounce
+      const newTimeout = setTimeout(() => {
+        handleFilterChange("query", value);
+      }, 500); // 500ms de delay
+
+      setSearchTimeout(newTimeout);
+    },
+    [searchTimeout, handleFilterChange]
+  );
 
   const clearFilters = () => {
     setFilters({
@@ -255,7 +278,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             type="text"
             placeholder={t("products.searchPlaceholder")}
             value={filters.query}
-            onChange={(e) => handleFilterChange("query", e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
 
@@ -268,11 +291,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             className="quick-filter"
           >
             <option value="">{t("products.allCategories")}</option>
-            {tiposProducto.map((tipo) => (
-              <option key={tipo.idTipoProducto} value={tipo.idTipoProducto}>
-                {tipo.nombre}
-              </option>
-            ))}
+            {tiposProducto &&
+              tiposProducto.length > 0 &&
+              tiposProducto.map((tipo) => (
+                <option key={tipo.idTipoProducto} value={tipo.idTipoProducto}>
+                  {tipo.nombre}
+                </option>
+              ))}
           </select>
 
           <select
@@ -281,11 +306,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             className="quick-filter"
           >
             <option value="">{t("products.allBrands")}</option>
-            {availableBrands.map((brand) => (
-              <option key={brand} value={brand}>
-                {brand}
-              </option>
-            ))}
+            {availableBrands &&
+              availableBrands.length > 0 &&
+              availableBrands.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
           </select>
 
           <select
@@ -293,11 +320,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onChange={(e) => handleFilterChange("sortBy", e.target.value)}
             className="quick-filter"
           >
-            {getSortOptions().map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+            {getSortOptions() &&
+              getSortOptions().length > 0 &&
+              getSortOptions().map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
           </select>
 
           <button
@@ -348,11 +377,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 onChange={(e) => handleFilterChange("color", e.target.value)}
               >
                 <option value="">Todos los colores</option>
-                {availableColors.map((color) => (
-                  <option key={color} value={color}>
-                    {color}
-                  </option>
-                ))}
+                {availableColors &&
+                  availableColors.length > 0 &&
+                  availableColors.map((color) => (
+                    <option key={color} value={color}>
+                      {color}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -364,11 +395,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 onChange={(e) => handleFilterChange("talla", e.target.value)}
               >
                 <option value="">Todas las tallas</option>
-                {availableSizes.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
+                {availableSizes &&
+                  availableSizes.length > 0 &&
+                  availableSizes.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
               </select>
             </div>
 

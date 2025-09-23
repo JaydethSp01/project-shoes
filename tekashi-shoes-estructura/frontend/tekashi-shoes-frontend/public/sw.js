@@ -3,19 +3,7 @@ const CACHE_NAME = "tekashi-shoes-v1.0.0";
 const API_CACHE_NAME = "tekashi-shoes-api-v1.0.0";
 
 // Archivos estáticos para cache
-const STATIC_ASSETS = [
-  "/",
-  "/index.html",
-  "/logo.png",
-  "/manifest.json",
-  // CSS files
-  "/src/styles/MobileOptimized.css",
-  "/src/styles/Futuristic2025.css",
-  "/src/styles/Chatbot.css",
-  // JS files
-  "/src/main.tsx",
-  "/src/App.tsx",
-];
+const STATIC_ASSETS = ["/", "/index.html", "/logo.png", "/manifest.json"];
 
 // URLs de API para cache
 const API_URLS = [
@@ -33,17 +21,48 @@ self.addEventListener("install", (event) => {
       // Cache de assets estáticos
       caches.open(CACHE_NAME).then((cache) => {
         console.log("📦 Cacheando assets estáticos...");
-        return cache.addAll(STATIC_ASSETS);
+        return cache.addAll(STATIC_ASSETS).catch((error) => {
+          console.warn("⚠️ Error cacheando assets estáticos:", error);
+          // Cache individualmente los que se puedan
+          return Promise.allSettled(
+            STATIC_ASSETS.map((url) =>
+              cache
+                .add(url)
+                .catch((err) =>
+                  console.warn(`⚠️ No se pudo cachear ${url}:`, err)
+                )
+            )
+          );
+        });
       }),
-      // Cache de API
-      caches.open(API_CACHE_NAME).then((cache) => {
-        console.log("🌐 Cacheando endpoints de API...");
-        return cache.addAll(API_URLS);
-      }),
-    ]).then(() => {
-      console.log("✅ Service Worker: Instalación completada");
-      return self.skipWaiting();
-    })
+      // Cache de API (solo en producción)
+      ...(self.location.hostname !== "localhost"
+        ? [
+            caches.open(API_CACHE_NAME).then((cache) => {
+              console.log("🌐 Cacheando endpoints de API...");
+              return cache.addAll(API_URLS).catch((error) => {
+                console.warn("⚠️ Error cacheando API:", error);
+                return Promise.allSettled(
+                  API_URLS.map((url) =>
+                    cache
+                      .add(url)
+                      .catch((err) =>
+                        console.warn(`⚠️ No se pudo cachear API ${url}:`, err)
+                      )
+                  )
+                );
+              });
+            }),
+          ]
+        : []),
+    ])
+      .then(() => {
+        console.log("✅ Service Worker: Instalación completada");
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error("❌ Error en instalación del Service Worker:", error);
+      })
   );
 });
 

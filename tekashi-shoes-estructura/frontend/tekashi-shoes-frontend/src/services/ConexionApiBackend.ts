@@ -1,5 +1,5 @@
 import { Imagen, Product } from "../modelos/productTypes";
-import { firebaseAuthService } from "./FirebaseAuthService";
+import { unifiedAuthService } from "./UnifiedAuthService";
 
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -12,13 +12,13 @@ const getAuthHeaders = async () => {
   };
 
   try {
-    const token = await firebaseAuthService.getIdToken();
-    headers.Authorization = `Bearer ${token}`;
+    const token = await unifiedAuthService.getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
   } catch (error) {
-    // Si no hay token, continuar sin autenticación
     console.warn("No se pudo obtener token de autenticación");
   }
-
   return headers;
 };
 
@@ -545,39 +545,71 @@ export const ConexionApiBackend = {
       ? `${BASE_URL}/api/reviews/producto/${productoId}?${queryParams.toString()}`
       : `${BASE_URL}/api/reviews/producto/${productoId}`;
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al obtener reviews del producto");
-    }
-
-    const data = await response.json();
-    return data.success ? data.data : data;
-  },
-
-  // Obtener estadísticas de reviews de un producto
-  obtenerEstadisticasReviewsProducto: async (productoId: string) => {
-    const response = await fetch(
-      `${BASE_URL}/api/reviews/producto/${productoId}/estadisticas`,
-      {
+    try {
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
+      });
+
+      if (!response.ok) {
+        // Si es 401, retornar array vacío para modo invitado
+        if (response.status === 401) {
+          console.warn("Reviews no disponibles en modo invitado");
+          return { reviews: [], total: 0, pagina: 1, limite: 50 };
+        }
+        throw new Error("Error al obtener reviews del producto");
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Error al obtener estadísticas de reviews");
+      const data = await response.json();
+      return data.success ? data.data : data;
+    } catch (error) {
+      console.warn("Error al cargar reviews:", error);
+      // Retornar datos vacíos en caso de error para modo invitado
+      return { reviews: [], total: 0, pagina: 1, limite: 50 };
     }
+  },
 
-    const data = await response.json();
-    return data.success ? data.data : data;
+  // Obtener estadísticas de reviews de un producto
+  obtenerEstadisticasReviewsProducto: async (productoId: string) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/reviews/producto/${productoId}/estadisticas`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        // Si es 401, retornar estadísticas vacías para modo invitado
+        if (response.status === 401) {
+          console.warn(
+            "Estadísticas de reviews no disponibles en modo invitado"
+          );
+          return {
+            promedio: 0,
+            total: 0,
+            distribucion: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+          };
+        }
+        throw new Error("Error al obtener estadísticas de reviews");
+      }
+
+      const data = await response.json();
+      return data.success ? data.data : data;
+    } catch (error) {
+      console.warn("Error al cargar estadísticas de reviews:", error);
+      // Retornar estadísticas vacías en caso de error para modo invitado
+      return {
+        promedio: 0,
+        total: 0,
+        distribucion: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      };
+    }
   },
 
   // Crear una nueva review
@@ -679,11 +711,14 @@ export const ConexionApiBackend = {
 
   // Reportar una review
   reportarReview: async (reviewId: string, motivo: string) => {
-    const response = await fetch(`${BASE_URL}/api/reviews/${reviewId}/reportar`, {
-      method: "POST",
-      headers: await getAuthHeaders(),
-      body: JSON.stringify({ motivo }),
-    });
+    const response = await fetch(
+      `${BASE_URL}/api/reviews/${reviewId}/reportar`,
+      {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify({ motivo }),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();

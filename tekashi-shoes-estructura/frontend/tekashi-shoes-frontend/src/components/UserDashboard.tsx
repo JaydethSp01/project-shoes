@@ -253,39 +253,39 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const tabs = [
     {
       id: "overview",
-      label: t("dashboard.overview"),
+      label: "Resumen",
       icon: FaUser,
-      description: t("dashboard.overviewDescription"),
+      description: "Vista general de tu cuenta",
     },
     {
       id: "purchases",
-      label: t("dashboard.purchases"),
+      label: "Compras",
       icon: FaShoppingBag,
-      description: t("dashboard.purchasesDescription"),
+      description: "Historial de tus compras",
     },
     {
       id: "favorites",
-      label: t("dashboard.favorites"),
+      label: "Favoritos",
       icon: FaHeart,
-      description: t("dashboard.favoritesDescription"),
+      description: "Productos que te gustan",
     },
     {
       id: "wishlists",
-      label: t("dashboard.wishlists"),
+      label: "Listas de Deseos",
       icon: FaStar,
-      description: t("dashboard.wishlistsDescription"),
+      description: "Tus listas de productos deseados",
     },
     {
       id: "notifications",
-      label: t("dashboard.notifications"),
+      label: "Notificaciones",
       icon: FaBell,
-      description: t("dashboard.notificationsDescription"),
+      description: "Alertas y mensajes",
     },
     {
       id: "profile",
-      label: t("dashboard.profile"),
+      label: "Perfil",
       icon: FaCog,
-      description: t("dashboard.profileDescription"),
+      description: "Configuración de tu cuenta",
     },
   ];
 

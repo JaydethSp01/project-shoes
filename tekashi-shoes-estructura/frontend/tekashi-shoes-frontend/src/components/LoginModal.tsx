@@ -6,13 +6,11 @@ import {
   FaEyeSlash,
   FaTimes,
   FaSignInAlt,
-  FaUserShield,
-  FaShoppingBag,
   FaGoogle,
   FaFacebook,
   FaMicrosoft,
 } from "react-icons/fa";
-import { authService, LoginCredentials } from "../services/AuthService";
+import { useAuth } from "../hooks/useAuth";
 import { useTranslation } from "../hooks/useTranslation";
 import "../styles/AuthForms.css";
 
@@ -29,7 +27,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
   onLogin,
   onShowRegister,
 }) => {
-  const [credentials, setCredentials] = useState<LoginCredentials>({
+  const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
@@ -37,7 +35,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Hook para traducciones
+  // Hooks
+  const {
+    signIn,
+    signInWithGoogle,
+    signInWithFacebook,
+    signInWithMicrosoft,
+    clearError,
+  } = useAuth();
   const { t } = useTranslation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,14 +58,15 @@ const LoginModal: React.FC<LoginModalProps> = ({
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    clearError();
 
     try {
-      await authService.login(credentials);
+      await signIn(credentials.email, credentials.password);
       onLogin();
       onClose();
       setCredentials({ email: "", password: "" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("additional.loginError"));
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setIsLoading(false);
     }
@@ -71,17 +77,18 @@ const LoginModal: React.FC<LoginModalProps> = ({
   ) => {
     setIsLoading(true);
     setError("");
+    clearError();
 
     try {
       switch (provider) {
         case "google":
-          await authService.signInWithGoogle();
+          await signInWithGoogle();
           break;
         case "facebook":
-          await authService.signInWithFacebook();
+          await signInWithFacebook();
           break;
         case "microsoft":
-          await authService.signInWithMicrosoft();
+          await signInWithMicrosoft();
           break;
       }
       onLogin();
@@ -221,7 +228,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 disabled={isLoading}
               >
                 <FaMicrosoft />
-                {t("auth.continueWithMicrosoft")}
+                Continuar con Microsoft
               </button>
             </div>
           </form>

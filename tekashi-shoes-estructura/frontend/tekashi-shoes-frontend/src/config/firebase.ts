@@ -33,8 +33,17 @@ export const storage = getStorage(app);
 
 // 🔹 Configurar proveedores de autenticación
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope("email");
+googleProvider.addScope("profile");
+
 export const facebookProvider = new FacebookAuthProvider();
+facebookProvider.addScope("email");
+facebookProvider.addScope("public_profile");
+
 export const microsoftProvider = new OAuthProvider("microsoft.com");
+microsoftProvider.addScope("email");
+microsoftProvider.addScope("profile");
+microsoftProvider.addScope("openid");
 
 // 🔹 Configurar persistencia en localStorage
 setPersistence(auth, browserLocalPersistence)

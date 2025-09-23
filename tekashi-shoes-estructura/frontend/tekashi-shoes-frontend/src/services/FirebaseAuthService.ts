@@ -10,6 +10,7 @@ import {
   signInWithPopup,
   FacebookAuthProvider,
   OAuthProvider,
+  TwitterAuthProvider,
   sendEmailVerification,
   updatePassword,
   reauthenticateWithCredential,
@@ -333,3 +334,4 @@ class FirebaseAuthService {
 // Instancia singleton del servicio
 export const firebaseAuthService = new FirebaseAuthService();
 export default firebaseAuthService;
+

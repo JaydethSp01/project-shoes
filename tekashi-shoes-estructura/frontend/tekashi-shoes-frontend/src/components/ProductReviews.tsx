@@ -94,10 +94,13 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
             productId.toString()
           );
 
-        setReviews(reviewsData || []);
-        setAverageRating(estadisticas.promedioCalificacion || 0);
+        setReviews(reviewsData.reviews || reviewsData || []);
+        setAverageRating(
+          estadisticas.promedio || estadisticas.promedioCalificacion || 0
+        );
         setRatingDistribution(
-          estadisticas.distribucionCalificaciones || [0, 0, 0, 0, 0]
+          estadisticas.distribucion ||
+            estadisticas.distribucionCalificaciones || [0, 0, 0, 0, 0]
         );
       } catch (error) {
         console.error("Error al cargar reviews:", error);
@@ -449,7 +452,11 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({
             ) : (
               <div className="no-reviews">
                 <p>No hay reseñas disponibles para este producto.</p>
-                <p>Sé el primero en escribir una reseña.</p>
+                <p>
+                  {authService.getCurrentUser()
+                    ? "Sé el primero en escribir una reseña."
+                    : "Inicia sesión para ver y escribir reseñas."}
+                </p>
               </div>
             )}
           </div>

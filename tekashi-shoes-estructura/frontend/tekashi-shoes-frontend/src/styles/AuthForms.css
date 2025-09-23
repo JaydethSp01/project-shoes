@@ -614,6 +614,18 @@
   border: 2px solid transparent;
 }
 
+/* Microsoft Button */
+.microsoft-btn {
+  background: linear-gradient(135deg, #00a4ef 0%, #0078d4 100%);
+  color: white;
+  border: 2px solid transparent;
+}
+
+.microsoft-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .facebook-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #166fe5 0%, #1e88e5 100%);
   border-color: rgba(255, 255, 255, 0.2);

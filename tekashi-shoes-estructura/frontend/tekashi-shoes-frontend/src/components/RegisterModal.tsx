@@ -11,7 +11,7 @@ import {
   FaMapMarkerAlt,
   FaSignInAlt,
 } from "react-icons/fa";
-import { authService } from "../services/AuthService";
+import { useAuth } from "../hooks/useAuth";
 import "../styles/AuthForms.css";
 
 interface RegisterModalProps {
@@ -41,6 +41,9 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // Hooks
+  const { signUp, error: authError, clearError } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -95,6 +98,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    clearError();
 
     if (!validateForm()) {
       setIsLoading(false);
@@ -102,15 +106,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     }
 
     try {
-      // Registrar usuario usando el método específico de registro
-      await authService.register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        phone: formData.phone,
-        address: formData.address,
-      });
+      await signUp(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.role
+      );
 
       setSuccess(true);
       setError("");
@@ -351,3 +352,4 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
 };
 
 export default RegisterModal;
+

@@ -6,36 +6,35 @@ import {
   ReactNode,
 } from "react";
 import {
-  UserProfile,
-  AuthError,
-  firebaseAuthService,
-} from "../services/FirebaseAuthService";
+  UnifiedUser,
+  unifiedAuthService,
+} from "../services/UnifiedAuthService";
+
+export interface AuthError {
+  code: string;
+  message: string;
+}
 
 interface AuthContextType {
-  user: UserProfile | null;
+  user: UnifiedUser | null;
   loading: boolean;
   error: AuthError | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (
     email: string,
     password: string,
-    displayName?: string
+    name: string,
+    role?: "user" | "admin"
   ) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
-  signInWithTwitter: () => Promise<void>;
+  signInWithMicrosoft: () => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (updates: {
-    displayName?: string;
-    photoURL?: string;
+    name?: string;
+    phone?: string;
+    address?: string;
   }) => Promise<void>;
-  changePassword: (
-    currentPassword: string,
-    newPassword: string
-  ) => Promise<void>;
-  sendPasswordResetEmail: (email: string) => Promise<void>;
-  sendEmailVerification: () => Promise<void>;
-  getIdToken: (forceRefresh?: boolean) => Promise<string>;
   clearError: () => void;
 }
 
@@ -54,12 +53,12 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UnifiedUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<AuthError | null>(null);
 
   useEffect(() => {
-    const unsubscribe = firebaseAuthService.onAuthStateChanged((user) => {
+    const unsubscribe = unifiedAuthService.subscribe((user) => {
       setUser(user);
       setLoading(false);
     });
@@ -80,11 +79,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const userProfile = await firebaseAuthService.signInWithEmail(
-        email,
-        password
-      );
-      setUser(userProfile);
+      const user = await unifiedAuthService.signInWithEmail(email, password);
+      setUser(user);
     } catch (error) {
       handleError(error);
     } finally {
@@ -95,17 +91,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signUp = async (
     email: string,
     password: string,
-    displayName?: string
+    name: string,
+    role: "user" | "admin" = "user"
   ) => {
     try {
       setError(null);
       setLoading(true);
-      const userProfile = await firebaseAuthService.signUpWithEmail(
+      const user = await unifiedAuthService.signUpWithEmail(
         email,
         password,
-        displayName
+        name,
+        role
       );
-      setUser(userProfile);
+      setUser(user);
     } catch (error) {
       handleError(error);
     } finally {
@@ -117,8 +115,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const userProfile = await firebaseAuthService.signInWithGoogle();
-      setUser(userProfile);
+      const user = await unifiedAuthService.signInWithGoogle();
+      setUser(user);
     } catch (error) {
       handleError(error);
     } finally {
@@ -130,8 +128,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      const userProfile = await firebaseAuthService.signInWithFacebook();
-      setUser(userProfile);
+      const user = await unifiedAuthService.signInWithFacebook();
+      setUser(user);
     } catch (error) {
       handleError(error);
     } finally {
@@ -139,12 +137,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signInWithTwitter = async () => {
+  const signInWithMicrosoft = async () => {
     try {
       setError(null);
       setLoading(true);
-      const userProfile = await firebaseAuthService.signInWithTwitter();
-      setUser(userProfile);
+      const user = await unifiedAuthService.signInWithMicrosoft();
+      setUser(user);
     } catch (error) {
       handleError(error);
     } finally {
@@ -156,7 +154,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       setLoading(true);
-      await firebaseAuthService.signOut();
+      await unifiedAuthService.signOut();
       setUser(null);
     } catch (error) {
       handleError(error);
@@ -166,59 +164,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const updateProfile = async (updates: {
-    displayName?: string;
-    photoURL?: string;
+    name?: string;
+    phone?: string;
+    address?: string;
   }) => {
     try {
       setError(null);
-      await firebaseAuthService.updateUserProfile(updates);
-      // Actualizar el estado local del usuario
-      const currentUser = firebaseAuthService.getCurrentUserProfile();
-      if (currentUser) {
-        setUser(currentUser);
-      }
+      const updatedUser = await unifiedAuthService.updateProfile(updates);
+      setUser(updatedUser);
     } catch (error) {
       handleError(error);
-    }
-  };
-
-  const changePassword = async (
-    currentPassword: string,
-    newPassword: string
-  ) => {
-    try {
-      setError(null);
-      await firebaseAuthService.changePassword(currentPassword, newPassword);
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const sendPasswordResetEmail = async (email: string) => {
-    try {
-      setError(null);
-      await firebaseAuthService.sendPasswordResetEmail(email);
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const sendEmailVerification = async () => {
-    try {
-      setError(null);
-      await firebaseAuthService.sendEmailVerification();
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-  const getIdToken = async (forceRefresh: boolean = false) => {
-    try {
-      setError(null);
-      return await firebaseAuthService.getIdToken(forceRefresh);
-    } catch (error) {
-      handleError(error);
-      throw error;
     }
   };
 
@@ -230,13 +185,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signUp,
     signInWithGoogle,
     signInWithFacebook,
-    signInWithTwitter,
+    signInWithMicrosoft,
     signOut,
     updateProfile,
-    changePassword,
-    sendPasswordResetEmail,
-    sendEmailVerification,
-    getIdToken,
     clearError,
   };
 
@@ -257,24 +208,12 @@ export const useAuthState = () => {
 export const useUserRole = () => {
   const { user } = useAuth();
 
-  const isAdmin =
-    user?.email?.includes("admin") ||
-    user?.displayName?.toLowerCase().includes("admin");
-  const isClient = !isAdmin;
+  const isAdmin = user?.role === "admin";
+  const isClient = user?.role === "user";
 
   return {
     isAdmin,
     isClient,
-    role: isAdmin ? "admin" : "client",
-  };
-};
-
-// Hook para verificar si el email está verificado
-export const useEmailVerification = () => {
-  const { user } = useAuth();
-
-  return {
-    isEmailVerified: user?.emailVerified || false,
-    needsVerification: user && !user.emailVerified,
+    role: user?.role || "user",
   };
 };

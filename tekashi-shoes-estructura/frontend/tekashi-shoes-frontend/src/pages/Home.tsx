@@ -77,7 +77,6 @@ const Home = () => {
 
   // Estados de loading
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const [isLoadingImages, setIsLoadingImages] = useState(true);
   const [isLoadingTypes, setIsLoadingTypes] = useState(true);
 
   // Estados para funcionalidades
@@ -115,8 +114,14 @@ const Home = () => {
   // Hook para geolocalización
   const { location, getCurrentLocation } = useGeolocation();
 
-  // Función para cargar productos
+  // Función para cargar productos con cache
   const loadProducts = useCallback(async () => {
+    // Verificar si ya hay productos cargados
+    if (products.length > 0) {
+      console.log("Productos ya cargados, omitiendo llamada a API");
+      return;
+    }
+
     try {
       setIsLoadingProducts(true);
       const productos = await ConexionApiBackend.obtenerProductos();
@@ -129,7 +134,7 @@ const Home = () => {
     } finally {
       setIsLoadingProducts(false);
     }
-  }, [t]);
+  }, [t, products.length]);
 
   // Cargar productos
   useEffect(() => {
@@ -162,7 +167,6 @@ const Home = () => {
   useEffect(() => {
     const loadImages = async () => {
       try {
-        setIsLoadingImages(true);
         const imagenes = await ConexionApiBackend.obtenerImagenes();
         console.log(t("additional.console.imagesLoaded"), imagenes);
         setImages(imagenes);
@@ -170,8 +174,6 @@ const Home = () => {
         console.error(t("additional.console.errorLoadingImages"), error);
         // Continuar sin imágenes si hay error
         setImages({});
-      } finally {
-        setIsLoadingImages(false);
       }
     };
     loadImages();
@@ -569,6 +571,8 @@ const Home = () => {
             {isLoadingTypes ? (
               <LoadingSpinner size="small" text="Cargando categorías..." />
             ) : (
+              tiposProducto &&
+              tiposProducto.length > 0 &&
               tiposProducto
                 .filter(
                   (tipo, index, self) =>

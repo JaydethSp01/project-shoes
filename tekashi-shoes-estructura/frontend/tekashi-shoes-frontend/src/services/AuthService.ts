@@ -84,6 +84,12 @@ class AuthService {
         const user = this.normalizeUser(data.usuario);
         this.currentUser = user;
         localStorage.setItem("tekashi_user", JSON.stringify(user));
+
+        // Guardar token del backend si está disponible
+        if (data.token) {
+          localStorage.setItem("tekashi_backend_token", data.token);
+        }
+
         this.notifyListeners();
         return user;
       } else {
@@ -153,6 +159,12 @@ class AuthService {
         const user = this.normalizeUser(data.usuario);
         this.currentUser = user;
         localStorage.setItem("tekashi_user", JSON.stringify(user));
+
+        // Guardar token del backend si está disponible
+        if (data.token) {
+          localStorage.setItem("tekashi_backend_token", data.token);
+        }
+
         this.notifyListeners();
         return user;
       } else {
@@ -167,6 +179,7 @@ class AuthService {
   async logout(): Promise<void> {
     this.currentUser = null;
     localStorage.removeItem("tekashi_user");
+    localStorage.removeItem("tekashi_backend_token");
     this.notifyListeners();
   }
 
