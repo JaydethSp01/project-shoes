@@ -375,12 +375,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       console.log("✅ Pedido procesado exitosamente:", order);
 
       // Mostrar modal de éxito con los datos del pedido
+      console.log("🔧 Configurando modal de éxito...");
       setOrderData(order);
       setShowSuccessModal(true);
       setPaymentSuccess(true);
       onOrderComplete(order);
-
+      
       console.log("🎉 Modal de éxito configurado");
+      
+      // Verificar estado después de un momento
+      setTimeout(() => {
+        console.log("🔍 Estado después de configurar:", { showSuccessModal, orderData });
+      }, 100);
     } catch (err: unknown) {
       console.error("Error de Pago:", err);
       const errorMessage =

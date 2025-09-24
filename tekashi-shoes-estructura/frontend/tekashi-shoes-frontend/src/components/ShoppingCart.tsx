@@ -101,8 +101,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
 
   const handleCheckoutSuccess = () => {
     cartService.clearCart();
-    onClose();
-    setShowCheckout(false);
+    // No cerrar inmediatamente para que el usuario vea el modal de éxito
+    // onClose();
+    // setShowCheckout(false);
   };
 
   const handleCheckoutClose = () => {
