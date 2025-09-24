@@ -121,33 +121,27 @@ class CartService {
     size?: string,
     color?: string
   ): void {
-    const existingItemIndex = this.cartItems.findIndex(
-      (item) =>
-        item.product.idProducto === product.idProducto &&
-        item.size === size &&
-        item.color === color
-    );
-
-    if (existingItemIndex > -1) {
-      // Actualizar cantidad existente
-      this.cartItems[existingItemIndex].quantity += quantity;
-      this.cartItems[existingItemIndex].total =
-        this.cartItems[existingItemIndex].quantity *
-        this.cartItems[existingItemIndex].price;
-    } else {
-      // Agregar nuevo item
-      const price = product.precio || 0;
-      const newItem: CartItem = {
-        product,
-        quantity,
-        size,
-        color,
-        price,
-        total: price * quantity,
-        addedAt: new Date(),
-      };
-      this.cartItems.push(newItem);
-    }
+    // Crear un ID único basado en idProducto + size + color + timestamp
+    // Esto permite agregar el mismo producto múltiples veces como items separados
+    const uniqueId = `${product.idProducto}-${size || 'default'}-${color || 'default'}-${Date.now()}`;
+    
+    // Siempre agregar como nuevo item (no agrupar)
+    const price = product.precio || 0;
+    const newItem: CartItem = {
+      product: {
+        ...product,
+        // Agregar un ID único temporal para este item del carrito
+        idProducto: parseInt(uniqueId.split('-')[0]) // Mantener el ID original del producto
+      },
+      quantity,
+      size,
+      color,
+      price,
+      total: price * quantity,
+      addedAt: new Date(),
+    };
+    
+    this.cartItems.push(newItem);
 
     this.saveToStorage();
     this.notifyListeners();
