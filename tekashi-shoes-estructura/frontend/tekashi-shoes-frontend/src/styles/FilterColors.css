@@ -1,0 +1,181 @@
+/* ========================================
+   FILTER COLORS FIX
+   ======================================== */
+
+/* Botón de Filtros - Cambiar de verde a azul/púrpura */
+.filters-toggle {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: white !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.filters-toggle:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+  border-color: rgba(102, 126, 234, 0.5) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.filters-toggle.active {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+  border-color: rgba(102, 126, 234, 0.5) !important;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Campos de entrada de filtros */
+.filter-group input,
+.filter-group select {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.3) !important;
+}
+
+.filter-group input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.filter-group option {
+  background: #1a1a1a !important;
+  color: white !important;
+}
+
+/* Labels de filtros */
+.filter-group label {
+  color: #667eea !important;
+  font-weight: 600;
+}
+
+/* Botón de limpiar filtros */
+.clear-filters-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+  border: 2px solid rgba(255, 107, 107, 0.3) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+  background: linear-gradient(135deg, #ff5252 0%, #d63031 100%) !important;
+  border-color: rgba(255, 107, 107, 0.5) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+/* Botones de acción de búsqueda */
+.search-actions .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.search-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.search-actions .btn-secondary {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: #667eea !important;
+  transition: all 0.3s ease;
+}
+
+.search-actions .btn-secondary:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+  border-color: #667eea !important;
+  color: white !important;
+}
+
+/* Rango de precios */
+.price-range input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: white !important;
+}
+
+.price-range input:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.3) !important;
+}
+
+.price-range span {
+  color: #667eea !important;
+  font-weight: 600;
+}
+
+/* Checkbox de stock */
+.filter-group input[type="checkbox"] {
+  accent-color: #667eea !important;
+}
+
+/* Panel de filtros */
+.filters-panel {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-top: 1px solid rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Grid de filtros */
+.filters-grid {
+  border: 2px solid rgba(102, 126, 234, 0.2) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Contenedor principal de filtros */
+.product-filters {
+  border: 2px solid rgba(102, 126, 234, 0.2) !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+.product-filters:hover {
+  border-color: rgba(102, 126, 234, 0.4) !important;
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Barra de filtros */
+.filters-bar {
+  background: rgba(102, 126, 234, 0.05) !important;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Icono de búsqueda */
+.search-icon {
+  color: #667eea !important;
+}
+
+/* Input de búsqueda */
+.search-filter input {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: white !important;
+}
+
+.search-filter input:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Filtros rápidos */
+.quick-filter {
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: white !important;
+}
+
+.quick-filter:focus {
+  border-color: #667eea !important;
+}
+
+.quick-filter option {
+  background: #1a1a1a !important;
+  color: white !important;
+}

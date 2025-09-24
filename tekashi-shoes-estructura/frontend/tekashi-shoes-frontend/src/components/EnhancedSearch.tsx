@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
+import { useSearchDebounce } from "../hooks/useDebounce";
 import "../styles/EnhancedSearch.css";
 
 interface EnhancedSearchProps {
@@ -38,6 +39,12 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
+  // Implementar debounce para optimizar búsquedas
+  const { debouncedSearchTerm, isSearching, shouldSearch } = useSearchDebounce(
+    searchTerm,
+    500
+  );
+
   useEffect(() => {
     // Cargar búsquedas recientes desde localStorage
     const saved = localStorage.getItem("tekashi_recent_searches");
@@ -63,14 +70,20 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [allProducts]);
 
+  // Usar debounce para evitar llamadas excesivas al API
   useEffect(() => {
-    if (searchTerm.length >= 2) {
+    if (shouldSearch) {
       generateSuggestions();
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [searchTerm, allProducts]);
+  }, [debouncedSearchTerm, allProducts]);
+
+  // Actualizar estado de carga
+  useEffect(() => {
+    setIsLoading(isSearching);
+  }, [isSearching]);
 
   const generatePopularSearches = () => {
     const popular: string[] = [];

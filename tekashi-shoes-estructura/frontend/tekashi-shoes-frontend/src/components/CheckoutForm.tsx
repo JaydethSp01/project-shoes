@@ -431,7 +431,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       console.error("❌ No hay datos del pedido para generar PDF");
       return;
     }
-    
+
     console.log("📄 Generando PDF con datos:", orderData);
 
     const orderNumber = orderData.numeroPedido || generateOrderNumber();
@@ -519,17 +519,69 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
 
-    doc.text(`Nombre: ${orderData.direccionEnvio?.nombre || orderData.shippingAddress?.name || 'N/A'}`, 25, yPos + 22);
-    doc.text(`Email: ${orderData.direccionEnvio?.email || orderData.shippingAddress?.email || 'N/A'}`, 25, yPos + 30);
-    doc.text(`Teléfono: ${orderData.direccionEnvio?.telefono || orderData.shippingAddress?.phone || 'N/A'}`, 25, yPos + 38);
-    doc.text(`Dirección: ${orderData.direccionEnvio?.direccion || orderData.shippingAddress?.address || 'N/A'}`, 25, yPos + 46);
-    doc.text(`Ciudad: ${orderData.direccionEnvio?.ciudad || orderData.shippingAddress?.city || 'N/A'}`, pageWidth - 100, yPos + 22);
     doc.text(
-      `Código Postal: ${orderData.direccionEnvio?.codigoPostal || orderData.shippingAddress?.postalCode || 'N/A'}`,
+      `Nombre: ${
+        orderData.direccionEnvio?.nombre ||
+        orderData.shippingAddress?.name ||
+        "N/A"
+      }`,
+      25,
+      yPos + 22
+    );
+    doc.text(
+      `Email: ${
+        orderData.direccionEnvio?.email ||
+        orderData.shippingAddress?.email ||
+        "N/A"
+      }`,
+      25,
+      yPos + 30
+    );
+    doc.text(
+      `Teléfono: ${
+        orderData.direccionEnvio?.telefono ||
+        orderData.shippingAddress?.phone ||
+        "N/A"
+      }`,
+      25,
+      yPos + 38
+    );
+    doc.text(
+      `Dirección: ${
+        orderData.direccionEnvio?.direccion ||
+        orderData.shippingAddress?.address ||
+        "N/A"
+      }`,
+      25,
+      yPos + 46
+    );
+    doc.text(
+      `Ciudad: ${
+        orderData.direccionEnvio?.ciudad ||
+        orderData.shippingAddress?.city ||
+        "N/A"
+      }`,
+      pageWidth - 100,
+      yPos + 22
+    );
+    doc.text(
+      `Código Postal: ${
+        orderData.direccionEnvio?.codigoPostal ||
+        orderData.shippingAddress?.postalCode ||
+        "N/A"
+      }`,
       pageWidth - 100,
       yPos + 30
     );
-    doc.text(`País: ${orderData.direccionEnvio?.pais || orderData.shippingAddress?.country || 'N/A'}`, pageWidth - 100, yPos + 38);
+    doc.text(
+      `País: ${
+        orderData.direccionEnvio?.pais ||
+        orderData.shippingAddress?.country ||
+        "N/A"
+      }`,
+      pageWidth - 100,
+      yPos + 38
+    );
 
     yPos += 70;
 
@@ -604,15 +656,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       doc.setFont("helvetica", "normal");
 
       // Nombre del producto (truncado si es muy largo)
-      const productName = item.nombreProducto || item.product?.marca || 'Producto';
-      const displayName = productName.length > 25
-        ? productName.substring(0, 25) + "..."
-        : productName;
+      const productName =
+        item.nombreProducto || item.product?.marca || "Producto";
+      const displayName =
+        productName.length > 25
+          ? productName.substring(0, 25) + "..."
+          : productName;
 
       doc.text(displayName, 25, yPos + 5);
       doc.text((item.cantidad || item.quantity || 1).toString(), 120, yPos + 5);
-      doc.text(`$${(item.precioUnitario || item.product?.precio || 0).toLocaleString()}`, 150, yPos + 5);
-      doc.text(`$${(item.subtotal || item.total || 0).toLocaleString()}`, pageWidth - 60, yPos + 5);
+      doc.text(
+        `$${(
+          item.precioUnitario ||
+          item.product?.precio ||
+          0
+        ).toLocaleString()}`,
+        150,
+        yPos + 5
+      );
+      doc.text(
+        `$${(item.subtotal || item.total || 0).toLocaleString()}`,
+        pageWidth - 60,
+        yPos + 5
+      );
 
       yPos += 20;
     });
@@ -654,14 +720,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     doc.text(
       (orderData.costoEnvio || orderData.shipping || 0) === 0
         ? "Gratis"
-        : `$${(orderData.costoEnvio || orderData.shipping || 0).toLocaleString()}`,
+        : `$${(
+            orderData.costoEnvio ||
+            orderData.shipping ||
+            0
+          ).toLocaleString()}`,
       pageWidth - 40,
       summaryY
     );
     summaryY += 8;
 
     doc.text(`IVA (19%):`, pageWidth - 115, summaryY);
-    doc.text(`$${(orderData.impuestos || orderData.tax || 0).toLocaleString()}`, pageWidth - 40, summaryY);
+    doc.text(
+      `$${(orderData.impuestos || orderData.tax || 0).toLocaleString()}`,
+      pageWidth - 40,
+      summaryY
+    );
     summaryY += 8;
 
     if (appliedDiscount > 0) {
@@ -699,7 +773,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     doc.setTextColor(0, 255, 136);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL:`, pageWidth - 115, summaryY);
-    doc.text(`$${(orderData.total || 0).toLocaleString()}`, pageWidth - 40, summaryY);
+    doc.text(
+      `$${(orderData.total || 0).toLocaleString()}`,
+      pageWidth - 40,
+      summaryY
+    );
 
     // ========== PIE DE PÁGINA ==========
     const footerY = pageHeight - 40;
@@ -747,8 +825,32 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       console.log("No se pudo agregar marca de agua al PDF");
     }
 
-    // Guardar el PDF
-    doc.save(`factura-${orderNumber}.pdf`);
+    // Guardar el PDF con mejor compatibilidad móvil
+    try {
+      // Crear blob para mejor compatibilidad
+      const pdfBlob = doc.output("blob");
+      const url = URL.createObjectURL(pdfBlob);
+
+      // Crear enlace temporal para descarga
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `factura-${orderNumber}.pdf`;
+      link.style.display = "none";
+
+      // Agregar al DOM temporalmente
+      document.body.appendChild(link);
+      link.click();
+
+      // Limpiar
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      console.log("✅ PDF descargado exitosamente");
+    } catch (error) {
+      console.error("❌ Error al descargar PDF:", error);
+      // Fallback al método original
+      doc.save(`factura-${orderNumber}.pdf`);
+    }
   };
 
   // Funciones de PaymentSystem ya no se usan

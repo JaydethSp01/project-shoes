@@ -18,44 +18,47 @@ const LoginPromptModal: React.FC<LoginPromptModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="login-prompt-overlay" onClick={onClose}>
-      <div className="login-prompt-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="login-prompt-header">
-          <div className="login-prompt-icon">
-            <FaShoppingCart />
-          </div>
-          <h3>¡Completa tu compra!</h3>
-          <button className="login-prompt-close" onClick={onClose}>
-            <FaTimes />
-          </button>
-        </div>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close-btn" onClick={onClose}>
+          <FaTimes />
+        </button>
 
-        <div className="login-prompt-content">
-          <div className="login-prompt-benefits">
-            <h4>🔐 Inicia sesión para una mejor experiencia:</h4>
-            <ul>
-              <li>
+        <div className="modal-content">
+          <div className="login-prompt-header">
+            <div className="login-prompt-icon">
+              <FaShoppingCart />
+            </div>
+            <h3>¡Completa tu compra!</h3>
+          </div>
+
+          <div className="benefits-section">
+            <h4 className="benefits-title">
+              🔐 Inicia sesión para una mejor experiencia:
+            </h4>
+            <div className="benefits-list">
+              <div className="benefit-item">
                 <FaUser className="benefit-icon" />
                 Guardar tu historial de pedidos
-              </li>
-              <li>
+              </div>
+              <div className="benefit-item">
                 <FaUser className="benefit-icon" />
                 Recibir notificaciones de envío
-              </li>
-              <li>
+              </div>
+              <div className="benefit-item">
                 <FaUser className="benefit-icon" />
                 Acceder a descuentos exclusivos
-              </li>
-              <li>
+              </div>
+              <div className="benefit-item">
                 <FaUser className="benefit-icon" />
                 Puntos de fidelidad
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
 
           <div className="login-prompt-actions">
             <button
-              className="btn-login-primary"
+              className="login-btn"
               onClick={() => {
                 onLogin();
                 onClose();

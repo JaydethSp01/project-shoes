@@ -18,6 +18,11 @@ const resources = {
       favorites: "Favoritos",
       wishlist: "Lista de Deseos",
       admin: "Administración",
+      myDashboard: "Mi Panel",
+      adminPanelDescription: "Acceso al panel de administración",
+      dashboardDescription:
+        "Accede a tu dashboard personal con todas las opciones",
+      search: "Buscar",
 
       // Header
       header: {
@@ -135,6 +140,9 @@ const resources = {
         admin: "Admin",
         noAccount: "¿No tienes cuenta?",
         createNewAccount: "Crear cuenta nueva",
+        continueWithGoogle: "Continuar con Google",
+        continueWithFacebook: "Continuar con Facebook",
+        continueWithMicrosoft: "Continuar con Microsoft",
       },
 
       // Carrito
@@ -292,7 +300,6 @@ const resources = {
       },
 
       // Búsqueda
-      search: "Buscar",
       searchPlaceholder: "Buscar productos...",
       searchResults: "Resultados de Búsqueda",
       noResults: "No se encontraron resultados",
@@ -533,6 +540,10 @@ const resources = {
       favorites: "Favorites",
       wishlist: "Wishlist",
       admin: "Administration",
+      myDashboard: "My Dashboard",
+      adminPanelDescription: "Access to the administration panel",
+      dashboardDescription: "Access your personal dashboard with all options",
+      search: "Search",
 
       // Header
       header: {
@@ -649,6 +660,9 @@ const resources = {
         admin: "Admin",
         noAccount: "Don't have an account?",
         createNewAccount: "Create new account",
+        continueWithGoogle: "Continue with Google",
+        continueWithFacebook: "Continue with Facebook",
+        continueWithMicrosoft: "Continue with Microsoft",
       },
 
       // Cart
@@ -806,7 +820,6 @@ const resources = {
       },
 
       // Search
-      search: "Search",
       searchPlaceholder: "Search products...",
       searchResults: "Search Results",
       noResults: "No results found",
@@ -1046,6 +1059,10 @@ const resources = {
       favorites: "Favoris",
       wishlist: "Liste de souhaits",
       admin: "Administration",
+      myDashboard: "Mon Tableau de Bord",
+      adminPanelDescription: "Accès au panneau d'administration",
+      dashboardDescription:
+        "Accédez à votre tableau de bord personnel avec toutes les options",
 
       // Header
       header: {
@@ -1164,6 +1181,9 @@ const resources = {
         admin: "Admin",
         noAccount: "Pas de compte ?",
         createNewAccount: "Créer un nouveau compte",
+        continueWithGoogle: "Continuer avec Google",
+        continueWithFacebook: "Continuer avec Facebook",
+        continueWithMicrosoft: "Continuer avec Microsoft",
       },
 
       // Cart
@@ -1460,6 +1480,24 @@ const resources = {
   // Portuguese
   pt: {
     translation: {
+      // Navegação
+      home: "Início",
+      productsNav: "Produtos",
+      about: "Sobre",
+      contact: "Contato",
+      login: "Entrar",
+      register: "Registrar",
+      logout: "Sair",
+      profile: "Perfil",
+      cart: "Carrinho",
+      favorites: "Favoritos",
+      wishlist: "Lista de Desejos",
+      admin: "Administração",
+      myDashboard: "Meu Painel",
+      adminPanelDescription: "Acesso ao painel de administração",
+      dashboardDescription: "Acesse seu painel pessoal com todas as opções",
+      search: "Buscar",
+
       // Header
       header: {
         freeShipping: "Frete grátis em compras superiores a $200.000",
@@ -1575,6 +1613,9 @@ const resources = {
         admin: "Admin",
         noAccount: "Não tem uma conta?",
         createNewAccount: "Criar nova conta",
+        continueWithGoogle: "Continuar com Google",
+        continueWithFacebook: "Continuar com Facebook",
+        continueWithMicrosoft: "Continuar com Microsoft",
       },
 
       // Cart
@@ -1640,7 +1681,6 @@ const resources = {
       recentOrders: "Pedidos Recentes",
 
       // Search
-      search: "Buscar",
       searchPlaceholder: "Buscar produtos...",
       searchResults: "Resultados da Busca",
       noResults: "Nenhum resultado encontrado",

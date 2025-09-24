@@ -6,7 +6,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  display: none; /* Hidden by default on desktop */
+  display: none !important; /* Hidden by default on desktop */
 }
 
 /* Show only on mobile devices */
@@ -83,7 +83,7 @@
 /* Mobile optimizations */
 @media (max-width: 768px) {
   .simplified-header {
-    display: block; /* Ensure it's visible on mobile */
+    display: block !important; /* Ensure it's visible on mobile */
     padding: 10px 12px;
   }
 
