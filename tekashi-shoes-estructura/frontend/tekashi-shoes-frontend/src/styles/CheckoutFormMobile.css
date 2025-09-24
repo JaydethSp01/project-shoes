@@ -1,22 +1,52 @@
-/* Mobile styles for CheckoutForm - Order Summary Visibility Fix */
+/* Mobile styles for CheckoutForm - Order Summary Scrollable Fix */
 
 @media (max-width: 768px) {
+  /* Mejorar el scroll del modal completo */
+  .checkout-modal {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .checkout-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0; /* Importante para que el flex funcione */
+    padding: 0;
+    padding-bottom: 80px; /* Solo para el botón final */
+  }
+
+  /* Permitir scroll natural en el contenido */
+  .checkout-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .step-content {
+    padding: 15px;
+    padding-bottom: 0; /* Quitar padding extra */
+  }
+
+  /* Quitar posición sticky del resumen */
+  .checkout-summary {
+    position: static; /* Cambiar de sticky a static */
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    margin: 20px 15px;
+    padding: 20px;
+    border: 2px solid rgba(0, 255, 136, 0.3);
+  }
+
   /* Forzar visibilidad del resumen del pedido en móvil */
   .order-summary-sidebar {
     display: block !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    background: rgba(0, 0, 0, 0.95) !important;
-    backdrop-filter: blur(10px) !important;
-    border-top: 2px solid #00ff88 !important;
+    position: static !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 12px !important;
+    margin: 20px 15px !important;
     padding: 20px !important;
-    z-index: 200 !important;
-    max-height: 40vh !important;
-    overflow-y: auto !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5) !important;
-    border-radius: 16px 16px 0 0 !important;
+    border: 2px solid rgba(0, 255, 136, 0.3) !important;
+    box-shadow: 0 4px 20px rgba(0, 255, 136, 0.2) !important;
   }
 
   /* Asegurar que el contenido del resumen sea visible */
@@ -99,5 +129,38 @@
   .order-summary-sidebar h4::before {
     content: '📋 ';
     font-size: 20px;
+  }
+
+  /* Mover solo el botón "Continuar" al bottom sticky */
+  .checkout-footer {
+    position: sticky;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 2px solid #00ff88;
+    padding: 15px 20px;
+    z-index: 100;
+  }
+  
+  .footer-actions {
+    justify-content: center;
+  }
+  
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    color: #000;
+    border: none;
+    font-weight: 600;
+    min-height: 48px;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #00cc6a, #00ff88);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
   }
 }

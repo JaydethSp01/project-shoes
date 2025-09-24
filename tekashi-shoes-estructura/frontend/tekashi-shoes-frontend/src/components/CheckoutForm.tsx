@@ -82,7 +82,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // const [showMap, setShowMap] = useState(false); // No se usa actualmente
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [orderData, setOrderData] = useState<any>(null);
+  const [orderData, setOrderData] = useState<OrderInfo | null>(null);
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -1284,6 +1284,47 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     <span className="checkmark"></span>
                     Acepto los términos y condiciones de compra
                   </label>
+                </div>
+              </div>
+            )}
+
+            {/* Resumen del Pedido - Visible en móvil */}
+            {cartSummary && (
+              <div className="checkout-summary">
+                <h4>Resumen del Pedido</h4>
+                <div className="summary-details">
+                  <div className="summary-line">
+                    <span>Subtotal</span>
+                    <span>${cartSummary.subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="summary-line">
+                    <span>Envío</span>
+                    <span>
+                      {cartSummary.shipping === 0
+                        ? t("additional.free")
+                        : `$${cartSummary.shipping.toLocaleString()}`}
+                    </span>
+                  </div>
+                  <div className="summary-line">
+                    <span>IVA (19%)</span>
+                    <span>${cartSummary.tax.toLocaleString()}</span>
+                  </div>
+                  {appliedDiscount > 0 && (
+                    <div className="summary-line discount">
+                      <span>Descuento</span>
+                      <span>-${appliedDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {loyaltyPointsUsed > 0 && (
+                    <div className="summary-line discount">
+                      <span>Puntos de fidelidad</span>
+                      <span>-${(loyaltyPointsUsed * 100).toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="summary-line total">
+                    <span>Total</span>
+                    <span>${finalTotal.toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
             )}
