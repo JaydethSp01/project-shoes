@@ -320,13 +320,18 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onChange={(e) => handleFilterChange("sortBy", e.target.value)}
             className="quick-filter"
           >
-            {getSortOptions() &&
-              getSortOptions().length > 0 &&
-              getSortOptions().map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+            {(() => {
+              const sortOptions = getSortOptions();
+              return (
+                sortOptions &&
+                sortOptions.length > 0 &&
+                sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))
+              );
+            })()}
           </select>
 
           <button

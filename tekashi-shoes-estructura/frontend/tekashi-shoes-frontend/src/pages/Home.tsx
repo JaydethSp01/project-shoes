@@ -118,14 +118,12 @@ const Home = () => {
   const loadProducts = useCallback(async () => {
     // Verificar si ya hay productos cargados
     if (products.length > 0) {
-      console.log("Productos ya cargados, omitiendo llamada a API");
       return;
     }
 
     try {
       setIsLoadingProducts(true);
       const productos = await ConexionApiBackend.obtenerProductos();
-      console.log(t("additional.console.productsLoaded"), productos);
       setProducts(productos);
     } catch (error) {
       console.error(t("additional.console.errorLoadingProducts"), error);
@@ -168,7 +166,6 @@ const Home = () => {
     const loadImages = async () => {
       try {
         const imagenes = await ConexionApiBackend.obtenerImagenes();
-        console.log(t("additional.console.imagesLoaded"), imagenes);
         setImages(imagenes);
       } catch (error) {
         console.error(t("additional.console.errorLoadingImages"), error);
@@ -185,7 +182,6 @@ const Home = () => {
       try {
         setIsLoadingTypes(true);
         const tipos = await ConexionApiBackend.obtenerTiposProducto();
-        console.log(t("additional.console.productTypesLoaded"), tipos);
         setTiposProducto(tipos);
       } catch (error) {
         console.error(t("additional.console.errorLoadingProductTypes"), error);
@@ -556,7 +552,6 @@ const Home = () => {
                 setSelectedCategory(null);
                 setFilteredProducts(products);
                 setCurrentPage(1); // Resetear a la primera página
-                console.log("Filtrar todos los productos");
               }}
             >
               {t("products.all")}

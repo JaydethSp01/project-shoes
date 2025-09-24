@@ -74,7 +74,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Suscribirse a cambios de autenticación
         unsubscribe = unifiedAuthService.subscribe((user) => {
-          console.log("🎯 useAuth recibió usuario:", user);
           if (isMounted) {
             setUser(user);
             setLoading(false);
