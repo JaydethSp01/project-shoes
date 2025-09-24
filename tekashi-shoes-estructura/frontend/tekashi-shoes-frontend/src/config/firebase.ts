@@ -12,18 +12,7 @@ import {
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 
-// 🔹 Configuración de Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyCmCGkyXuYn3WyMlMrLGXesHPZ1PkwFhTI",
-  authDomain: "tekashi-shoes-ecommerce.firebaseapp.com",
-  projectId: "tekashi-shoes-ecommerce",
-  storageBucket: "tekashi-shoes-ecommerce.firebasestorage.app",
-  messagingSenderId: "39965371808",
-  appId: "1:39965371808:web:21dfe587edbbb2863088c5",
-  measurementId: "G-9ND1YRVZT7",
-};
-
-// 🔹 Inicializar Firebase
+xInicializar Firebase
 const app = initializeApp(firebaseConfig);
 
 // 🔹 Inicializar servicios
