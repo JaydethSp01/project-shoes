@@ -1145,9 +1145,13 @@
     border-color: #00ff88;
   }
 
-  /* Añadir padding bottom al content para evitar que el footer tape el contenido */
+  /* Ajustar el espaciado para que no tape el contenido */
+  .step-content {
+    padding-bottom: 250px; /* Más espacio para el resumen */
+  }
+  
   .checkout-content {
-    padding-bottom: 120px;
+    padding-bottom: 0; /* Quitar padding extra */
   }
 
   /* Mejorar labels del formulario */
@@ -1278,7 +1282,19 @@
     font-size: 18px;
   }
 
-  /* Asegurar que el resumen del pedido sea visible en móvil */
+  /* Resumen del pedido expandible por defecto en móvil */
+  .checkout-summary {
+    position: sticky;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 2px solid #00ff88;
+    padding: 20px;
+    max-height: 40vh;
+    overflow-y: auto;
+    z-index: 200;
+  }
+
   .order-summary-sidebar {
     padding: 20px 15px;
     margin: 20px 15px;
@@ -1287,6 +1303,60 @@
     box-shadow: 0 8px 32px rgba(0, 255, 136, 0.3);
     position: relative;
     z-index: 10;
+  }
+
+  /* Mejorar la visualización del contenido del resumen */
+  .summary-section {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 15px;
+  }
+  
+  .summary-section h4 {
+    color: #00ff88;
+    font-size: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    color: #fff;
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+  }
+  
+  .item-info {
+    flex: 1;
+    margin-right: 10px;
+  }
+  
+  .item-name {
+    color: #00ff88;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  
+  .item-details {
+    color: #ccc;
+    font-size: 12px;
+  }
+  
+  .item-price {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
   }
 
   /* Forzar visibilidad del contenido del resumen */
@@ -1313,6 +1383,135 @@
     color: #00ff88 !important;
     font-size: 18px !important;
     font-weight: 700 !important;
+  }
+
+  /* Hacer el resumen colapsible/expandible */
+  .summary-toggle {
+    background: rgba(0, 255, 136, 0.1);
+    border: none;
+    color: #00ff88;
+    padding: 15px 20px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 8px 8px 0 0;
+    transition: all 0.3s ease;
+  }
+  
+  .summary-toggle:hover {
+    background: rgba(0, 255, 136, 0.2);
+  }
+  
+  .summary-content {
+    padding: 20px;
+    display: block;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .summary-content.collapsed {
+    display: none;
+  }
+
+  /* Mejorar el total */
+  .summary-total {
+    background: rgba(0, 255, 136, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border: 2px solid #00ff88;
+  }
+  
+  .summary-total .summary-item {
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    color: #00ff88;
+  }
+
+  /* Estilos adicionales para el resumen del pedido */
+  .order-summary {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(26, 26, 26, 0.95));
+    border: 2px solid rgba(0, 255, 136, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 15px;
+    box-shadow: 0 8px 32px rgba(0, 255, 136, 0.2);
+  }
+
+  .order-summary h3 {
+    color: #00ff88;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .order-summary h3::before {
+    content: '📋';
+    font-size: 20px;
+  }
+
+  /* Mejorar la visibilidad de los elementos del resumen */
+  .summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .summary-line:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+  }
+
+  .summary-line span:first-child {
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .summary-line span:last-child {
+    color: #00ff88;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .summary-line.discount span:last-child {
+    color: #ff6b6b;
+  }
+
+  .summary-line.total {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2));
+    border: 2px solid #00ff88;
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .summary-line.total span:first-child {
+    color: #00ff88;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .summary-line.total span:last-child {
+    color: #00ff88;
+    font-weight: 700;
+    font-size: 18px;
   }
 
   /* Payment methods responsive */
