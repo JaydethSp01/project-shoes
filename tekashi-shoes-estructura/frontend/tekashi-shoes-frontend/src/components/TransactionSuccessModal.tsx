@@ -70,13 +70,9 @@ const TransactionSuccessModal: React.FC<TransactionSuccessModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setShowAnimation(true);
-      // Auto-close after 10 seconds
-      const timer = setTimeout(() => {
-        onClose();
-      }, 10000);
-      return () => clearTimeout(timer);
+      // No auto-close - let user close manually
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   const handleCopyOrderNumber = async () => {
     if (orderData?.numeroPedido) {
