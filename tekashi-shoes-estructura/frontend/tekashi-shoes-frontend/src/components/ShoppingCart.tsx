@@ -10,7 +10,8 @@ import {
 } from "react-icons/fa";
 import { Product } from "../modelos/productTypes";
 import { cartService, CartItem } from "../services/CartService";
-import { authService } from "../services/AuthService";
+import { unifiedAuthService } from "../services/UnifiedAuthService";
+import { useAuth } from "../hooks/useAuth";
 import CheckoutForm from "./CheckoutForm";
 import ProductImage from "./ProductImage";
 import BeautifulAlert from "./BeautifulAlert";
@@ -40,6 +41,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   const [showCheckout, setShowCheckout] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
+  // Hook para autenticación
+  const { user: currentUser } = useAuth();
+  
   // Hook para alertas bonitas
   const { alertState, hideAlert } = useBeautifulAlert();
 
@@ -68,17 +72,20 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   };
 
   const handleCheckout = async (_event?: any) => {
-    // Verificar si el usuario está logueado
-    const currentUser = authService.getCurrentUser();
-    console.log("🔍 Usuario actual en checkout:", currentUser);
+    // Usar el usuario del hook useAuth que es más confiable
+    console.log("🔍 Usuario actual en checkout (desde useAuth):", currentUser);
+    console.log("🔍 ¿Está autenticado?", !!currentUser);
+    console.log("🔍 Tipo de usuario:", currentUser?.isFirebaseUser ? "Firebase" : currentUser?.isBackendUser ? "Backend" : "Ninguno");
     
     if (!currentUser) {
       // Mostrar modal moderno para login solo si NO está logueado
+      console.log("🚫 Usuario no autenticado, mostrando modal de login");
       setShowLoginPrompt(true);
       return;
     }
 
     // Usuario logueado, proceder al checkout directamente
+    console.log("✅ Usuario autenticado, procediendo al checkout");
     setShowCheckout(true);
   };
 
