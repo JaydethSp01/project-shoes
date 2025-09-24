@@ -1,87 +1,110 @@
-/* Mobile styles for CheckoutForm - Order Summary Scrollable Fix */
+/* Mobile styles for CheckoutForm - Fixed Version */
 
 @media (max-width: 768px) {
-  /* Mejorar el scroll del modal completo */
+  /* Modal completo en móvil */
   .checkout-modal {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    width: 100vw;
+    border-radius: 0;
   }
   
+  /* Contenido scrolleable */
   .checkout-content {
     flex: 1;
     overflow-y: auto;
-    min-height: 0; /* Importante para que el flex funcione */
+    min-height: 0;
     padding: 0;
-    padding-bottom: 80px; /* Solo para el botón final */
+    padding-bottom: 100px; /* Espacio para el botón sticky */
+    -webkit-overflow-scrolling: touch;
+    
+    /* Scrollbar personalizado */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 136, 0.3) transparent;
   }
 
-  /* Permitir scroll natural en el contenido */
-  .checkout-content {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  .checkout-content::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .checkout-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .checkout-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 136, 0.4);
+    border-radius: 2px;
   }
   
+  /* Formulario principal */
   .step-content {
     padding: 15px;
-    padding-bottom: 0; /* Quitar padding extra */
   }
 
-  /* Quitar posición sticky del resumen */
+  /* MOSTRAR solo una instancia del resumen */
   .checkout-summary {
-    position: static; /* Cambiar de sticky a static */
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    margin: 20px 15px;
-    padding: 20px;
-    border: 2px solid rgba(0, 255, 136, 0.3);
+    display: none !important; /* Mantener oculto */
   }
 
-  /* Forzar visibilidad del resumen del pedido en móvil */
+  /* MOSTRAR solo el sidebar del resumen */
   .order-summary-sidebar {
     display: block !important;
     position: static !important;
-    background: rgba(0, 0, 0, 0.3) !important;
-    border-radius: 12px !important;
+    width: 100% !important;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(26, 26, 26, 0.9)) !important;
+    border-radius: 16px !important;
     margin: 20px 15px !important;
     padding: 20px !important;
-    border: 2px solid rgba(0, 255, 136, 0.3) !important;
-    box-shadow: 0 4px 20px rgba(0, 255, 136, 0.2) !important;
+    border: 2px solid rgba(0, 255, 136, 0.4) !important;
+    box-shadow: 0 8px 32px rgba(0, 255, 136, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
   }
 
-  /* Asegurar que el contenido del resumen sea visible */
+  /* Título del resumen */
   .order-summary-sidebar h4 {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
     color: #00ff88 !important;
     font-size: 18px !important;
     font-weight: 700 !important;
     margin-bottom: 15px !important;
     text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
   }
 
+  .order-summary-sidebar h4::before {
+    content: '📋';
+    font-size: 20px;
+  }
+
+  /* Contenido del resumen */
   .order-summary-sidebar .summary-details {
     display: flex !important;
     flex-direction: column !important;
     gap: 12px !important;
-    visibility: visible !important;
-    opacity: 1 !important;
   }
 
+  /* Líneas del resumen */
   .order-summary-sidebar .summary-line {
     display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
     justify-content: space-between !important;
     align-items: center !important;
     padding: 12px 16px !important;
     background: rgba(255, 255, 255, 0.05) !important;
     border-radius: 8px !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
   }
 
+  .order-summary-sidebar .summary-line:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateX(2px);
+  }
+
+  /* Textos del resumen */
   .order-summary-sidebar .summary-line span:first-child {
     color: #fff !important;
     font-weight: 500 !important;
@@ -94,73 +117,151 @@
     font-size: 14px !important;
   }
 
+  /* Línea de descuento */
+  .order-summary-sidebar .summary-line.discount span:last-child {
+    color: #ff6b6b !important;
+  }
+
+  /* Total destacado */
   .order-summary-sidebar .summary-line.total {
     background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 212, 255, 0.2)) !important;
     border: 2px solid #00ff88 !important;
-    margin-top: 8px !important;
+    margin-top: 12px !important;
     padding: 16px !important;
     border-radius: 12px !important;
   }
 
-  .order-summary-sidebar .summary-line.total span:first-child {
+  .order-summary-sidebar .summary-line.total span {
     color: #00ff88 !important;
     font-weight: 700 !important;
+  }
+
+  .order-summary-sidebar .summary-line.total span:first-child {
     font-size: 16px !important;
   }
 
   .order-summary-sidebar .summary-line.total span:last-child {
-    color: #00ff88 !important;
-    font-weight: 700 !important;
-    font-size: 18px !important;
+    font-size: 20px !important;
   }
 
-  /* Asegurar espacio para el footer fijo */
-  .step-content {
-    padding-bottom: 300px !important;
-  }
-
-  /* Mejorar visibilidad con bordes y sombras */
-  .order-summary-sidebar {
-    border: 2px solid #00ff88 !important;
-    box-shadow: 0 -8px 32px rgba(0, 255, 136, 0.3) !important;
-  }
-
-  /* Título con icono para mayor visibilidad */
-  .order-summary-sidebar h4::before {
-    content: '📋 ';
-    font-size: 20px;
-  }
-
-  /* Mover solo el botón "Continuar" al bottom sticky */
+  /* Footer sticky solo con el botón */
   .checkout-footer {
     position: sticky;
     bottom: 0;
     background: rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
     border-top: 2px solid #00ff88;
     padding: 15px 20px;
-    z-index: 100;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
   }
   
   .footer-actions {
+    display: flex;
     justify-content: center;
+    gap: 0;
   }
   
+  /* Botón principal */
   .btn-primary {
     width: 100%;
-    padding: 16px;
+    padding: 18px;
     font-size: 16px;
-    border-radius: 8px;
+    border-radius: 12px;
     background: linear-gradient(135deg, #00ff88, #00cc6a);
     color: #000;
     border: none;
-    font-weight: 600;
-    min-height: 48px;
+    font-weight: 700;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
   }
 
   .btn-primary:hover {
     background: linear-gradient(135deg, #00cc6a, #00ff88);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* Ocultar botones secundarios en móvil */
+  .btn-secondary {
+    display: none !important;
+  }
+
+  /* Info de seguridad */
+  .footer-info {
+    display: none; /* Ocultar en móvil para ahorrar espacio */
+  }
+
+  /* Ajustes adicionales */
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px; /* Evitar zoom en iOS */
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  /* Mejorar botones de ubicación */
+  .location-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .location-buttons .btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* Asegurar que no haya elementos ocultos que causen problemas */
+  .checkout-main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Eliminar cualquier altura fija que cause problemas */
+  .checkout-content {
+    height: auto !important;
+    min-height: calc(100vh - 200px) !important;
+  }
+
+  /* Forzar contenido visible */
+  .order-summary-sidebar .summary-details,
+  .order-summary-sidebar .summary-line,
+  .order-summary-sidebar h4 {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Asegurar que el resumen esté al final del scroll */
+  .order-summary-sidebar {
+    order: 999; /* Forzar que aparezca al final */
+    margin-top: 30px !important;
   }
 }

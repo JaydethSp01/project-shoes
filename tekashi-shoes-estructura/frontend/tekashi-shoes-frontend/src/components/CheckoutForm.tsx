@@ -10,7 +10,6 @@ import {
   FaTruck,
   FaGift,
   FaStar,
-  FaFilePdf,
 } from "react-icons/fa";
 import jsPDF from "jspdf";
 import {
@@ -82,7 +81,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // const [showMap, setShowMap] = useState(false); // No se usa actualmente
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [orderData, setOrderData] = useState<OrderInfo | null>(null);
+  const [orderData, setOrderData] = useState<any>(null);
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -1290,7 +1289,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
             {/* Resumen del Pedido - Visible en móvil */}
             {cartSummary && (
-              <div className="checkout-summary">
+              <div className="order-summary-sidebar">
                 <h4>Resumen del Pedido</h4>
                 <div className="summary-details">
                   <div className="summary-line">
@@ -1330,70 +1329,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             )}
           </div>
 
-          {/* Order Summary Sidebar */}
-          <div className="order-summary-sidebar">
-            <h4>Resumen del Pedido</h4>
-            <div className="summary-details">
-              <div className="summary-line">
-                <span>Subtotal</span>
-                <span>${cartSummary.subtotal.toLocaleString()}</span>
-              </div>
-              <div className="summary-line">
-                <span>Envío</span>
-                <span>
-                  {cartSummary.shipping === 0
-                    ? t("additional.free")
-                    : `$${cartSummary.shipping.toLocaleString()}`}
-                </span>
-              </div>
-              <div className="summary-line">
-                <span>IVA (19%)</span>
-                <span>${cartSummary.tax.toLocaleString()}</span>
-              </div>
-              {appliedDiscount > 0 && (
-                <div className="summary-line discount">
-                  <span>Descuento</span>
-                  <span>-${appliedDiscount.toLocaleString()}</span>
-                </div>
-              )}
-              {loyaltyPointsUsed > 0 && (
-                <div className="summary-line discount">
-                  <span>Puntos de fidelidad</span>
-                  <span>-${(loyaltyPointsUsed * 100).toLocaleString()}</span>
-                </div>
-              )}
-              <div className="summary-line total">
-                <span>Total</span>
-                <span>${finalTotal.toLocaleString()}</span>
-              </div>
-            </div>
-
-            {/* Botón de descarga de PDF */}
-            <div className="pdf-download-section">
-              <button
-                className="btn-download-pdf"
-                onClick={generateOrderPDF}
-                title="Descargar comprobante de pedido en PDF"
-              >
-                <FaFilePdf />
-                Descargar Comprobante
-              </button>
-
-              {paymentInfo.method === "cash_on_delivery" && (
-                <div className="bank-transfer-info">
-                  <h5>Transferencia Bancaria</h5>
-                  <p>
-                    Número de referencia:{" "}
-                    <strong>{generateOrderNumber()}</strong>
-                  </p>
-                  <p>
-                    Usa este número como referencia en tu transferencia
-                    bancaria.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Footer Actions */}
