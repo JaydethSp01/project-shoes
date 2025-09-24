@@ -11,12 +11,8 @@ const getAuthHeaders = async () => {
 
   try {
     const token = await unifiedAuthService.getAuthToken();
-    console.log("🔑 Token obtenido:", token ? "Sí" : "No");
     if (token) {
       headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 Headers con token:", headers);
-    } else {
-      console.warn("⚠️ No hay token disponible");
     }
   } catch (error) {
     console.warn("No se pudo obtener token de autenticación", error);

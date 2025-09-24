@@ -56,7 +56,6 @@ class UnifiedAuthService {
       // Verificar si hay usuario de Firebase
       const firebaseUser = firebaseAuthService.getCurrentUserProfile();
       if (firebaseUser) {
-        console.log("🔍 Usuario Firebase encontrado:", firebaseUser);
         await this.handleFirebaseUser(firebaseUser);
         return;
       }
@@ -64,7 +63,6 @@ class UnifiedAuthService {
       // Verificar si hay usuario del backend
       const backendUser = authService.getCurrentUser();
       if (backendUser) {
-        console.log("🔍 Usuario Backend encontrado:", backendUser);
         await this.handleBackendUser(backendUser);
         return;
       }
@@ -115,8 +113,6 @@ class UnifiedAuthService {
   }
 
   private async handleBackendUser(backendProfile: User): Promise<void> {
-    console.log("🔧 Procesando usuario backend:", backendProfile);
-
     this.currentUser = {
       id: backendProfile.id.toString(),
       email: backendProfile.email,
@@ -133,7 +129,6 @@ class UnifiedAuthService {
       backendProfile,
     };
 
-    console.log("🔧 Usuario unificado creado:", this.currentUser);
     this.notifyListeners();
   }
 
@@ -185,7 +180,6 @@ class UnifiedAuthService {
   async signInWithEmail(email: string, password: string): Promise<UnifiedUser> {
     try {
       // Usar backend para login normal
-      console.log("🔐 Iniciando sesión con backend...");
       const backendUser = await authService.login({ email, password });
       await this.handleBackendUser(backendUser);
       return this.currentUser!;
@@ -203,7 +197,6 @@ class UnifiedAuthService {
   ): Promise<UnifiedUser> {
     try {
       // Usar backend para registro normal
-      console.log("📝 Registrando usuario con backend...");
       const backendUser = await authService.register({
         name,
         email,

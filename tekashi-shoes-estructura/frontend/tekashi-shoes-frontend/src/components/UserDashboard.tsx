@@ -38,7 +38,7 @@ import WishlistManager from "./WishlistManager";
 import UserProfileModal from "./UserProfileModal";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
-// import { useTranslation } from "../hooks/useTranslation";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface UserDashboardProps {
   isOpen: boolean;
@@ -91,8 +91,8 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
     setError("");
 
     try {
-      // Usar el ID de la base de datos local si está disponible (backendProfile), sino usar el UID de Firebase
-      const userId = user.backendProfile?.id || user.id;
+      // Usar uid de Firebase si está disponible, sino usar id
+      const userId = user.uid || user.id;
       console.log("Cargando datos del dashboard para usuario:", userId);
 
       const [
@@ -105,8 +105,8 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
         dashboardService.getDashboardStats(userId),
         dashboardService.getPurchaseHistory(userId),
         dashboardService.getFavorites(userId),
-        dashboardService.getWishlists(userId),
-        dashboardService.getNotifications(userId),
+        dashboardService.getWishlists(Number(userId)),
+        dashboardService.getNotifications(Number(userId)),
       ]);
 
       console.log("Datos cargados:", {
