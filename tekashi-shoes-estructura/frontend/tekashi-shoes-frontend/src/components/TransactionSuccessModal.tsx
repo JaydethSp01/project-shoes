@@ -132,7 +132,12 @@ const TransactionSuccessModal: React.FC<TransactionSuccessModalProps> = ({
     });
   };
 
-  if (!isOpen || !orderData) return null;
+  if (!isOpen || !orderData) {
+    console.log("❌ Modal no se muestra:", { isOpen, orderData: !!orderData });
+    return null;
+  }
+  
+  console.log("✅ Modal se está renderizando:", { isOpen, orderData });
 
   return (
     <div className="transaction-success-overlay">
