@@ -365,17 +365,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       // };
 
       // Procesar el pedido
+      console.log("🔄 Procesando pedido...");
       const order = await cartService.processOrder(
         shippingAddress,
         paymentInfo,
         loyaltyPointsUsed
       );
 
+      console.log("✅ Pedido procesado exitosamente:", order);
+
       // Mostrar modal de éxito con los datos del pedido
       setOrderData(order);
       setShowSuccessModal(true);
       setPaymentSuccess(true);
       onOrderComplete(order);
+
+      console.log("🎉 Modal de éxito configurado");
     } catch (err: unknown) {
       console.error("Error de Pago:", err);
       const errorMessage =
@@ -416,9 +421,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   };
 
   const generateOrderPDF = () => {
-    if (!cartSummary) return;
+    if (!orderData) {
+      console.error("❌ No hay datos del pedido para generar PDF");
+      return;
+    }
+    
+    console.log("📄 Generando PDF con datos:", orderData);
 
-    const orderNumber = generateOrderNumber();
+    const orderNumber = orderData.numeroPedido || generateOrderNumber();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
@@ -503,17 +513,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     doc.setTextColor(0, 0, 0);
     doc.setFont("helvetica", "normal");
 
-    doc.text(`Nombre: ${shippingAddress.name}`, 25, yPos + 22);
-    doc.text(`Email: ${shippingAddress.email}`, 25, yPos + 30);
-    doc.text(`Teléfono: ${shippingAddress.phone}`, 25, yPos + 38);
-    doc.text(`Dirección: ${shippingAddress.address}`, 25, yPos + 46);
-    doc.text(`Ciudad: ${shippingAddress.city}`, pageWidth - 100, yPos + 22);
+    doc.text(`Nombre: ${orderData.direccionEnvio?.nombre || orderData.shippingAddress?.name || 'N/A'}`, 25, yPos + 22);
+    doc.text(`Email: ${orderData.direccionEnvio?.email || orderData.shippingAddress?.email || 'N/A'}`, 25, yPos + 30);
+    doc.text(`Teléfono: ${orderData.direccionEnvio?.telefono || orderData.shippingAddress?.phone || 'N/A'}`, 25, yPos + 38);
+    doc.text(`Dirección: ${orderData.direccionEnvio?.direccion || orderData.shippingAddress?.address || 'N/A'}`, 25, yPos + 46);
+    doc.text(`Ciudad: ${orderData.direccionEnvio?.ciudad || orderData.shippingAddress?.city || 'N/A'}`, pageWidth - 100, yPos + 22);
     doc.text(
-      `Código Postal: ${shippingAddress.postalCode}`,
+      `Código Postal: ${orderData.direccionEnvio?.codigoPostal || orderData.shippingAddress?.postalCode || 'N/A'}`,
       pageWidth - 100,
       yPos + 30
     );
-    doc.text(`País: ${shippingAddress.country}`, pageWidth - 100, yPos + 38);
+    doc.text(`País: ${orderData.direccionEnvio?.pais || orderData.shippingAddress?.country || 'N/A'}`, pageWidth - 100, yPos + 38);
 
     yPos += 70;
 
@@ -575,7 +585,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     yPos += 20;
 
     // Filas de productos
-    cartSummary.items.forEach((item, index) => {
+    const items = orderData.detalles || orderData.items || [];
+    items.forEach((item: any, index: number) => {
       // Fondo alternado para filas
       if (index % 2 === 0) {
         doc.setFillColor(248, 249, 250);
@@ -587,15 +598,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       doc.setFont("helvetica", "normal");
 
       // Nombre del producto (truncado si es muy largo)
-      const productName =
-        item.product.marca.length > 25
-          ? item.product.marca.substring(0, 25) + "..."
-          : item.product.marca;
+      const productName = item.nombreProducto || item.product?.marca || 'Producto';
+      const displayName = productName.length > 25
+        ? productName.substring(0, 25) + "..."
+        : productName;
 
-      doc.text(productName, 25, yPos + 5);
-      doc.text(item.quantity.toString(), 120, yPos + 5);
-      doc.text(`$${item.product.precio.toLocaleString()}`, 150, yPos + 5);
-      doc.text(`$${item.total.toLocaleString()}`, pageWidth - 60, yPos + 5);
+      doc.text(displayName, 25, yPos + 5);
+      doc.text((item.cantidad || item.quantity || 1).toString(), 120, yPos + 5);
+      doc.text(`$${(item.precioUnitario || item.product?.precio || 0).toLocaleString()}`, 150, yPos + 5);
+      doc.text(`$${(item.subtotal || item.total || 0).toLocaleString()}`, pageWidth - 60, yPos + 5);
 
       yPos += 20;
     });
@@ -627,7 +638,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
     doc.text(`Subtotal:`, pageWidth - 115, summaryY);
     doc.text(
-      `$${cartSummary.subtotal.toLocaleString()}`,
+      `$${(orderData.subtotal || 0).toLocaleString()}`,
       pageWidth - 40,
       summaryY
     );
@@ -635,16 +646,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
     doc.text(`Envío:`, pageWidth - 115, summaryY);
     doc.text(
-      cartSummary.shipping === 0
+      (orderData.costoEnvio || orderData.shipping || 0) === 0
         ? "Gratis"
-        : `$${cartSummary.shipping.toLocaleString()}`,
+        : `$${(orderData.costoEnvio || orderData.shipping || 0).toLocaleString()}`,
       pageWidth - 40,
       summaryY
     );
     summaryY += 8;
 
     doc.text(`IVA (19%):`, pageWidth - 115, summaryY);
-    doc.text(`$${cartSummary.tax.toLocaleString()}`, pageWidth - 40, summaryY);
+    doc.text(`$${(orderData.impuestos || orderData.tax || 0).toLocaleString()}`, pageWidth - 40, summaryY);
     summaryY += 8;
 
     if (appliedDiscount > 0) {
@@ -682,7 +693,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     doc.setTextColor(0, 255, 136);
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL:`, pageWidth - 115, summaryY);
-    doc.text(`$${finalTotal.toLocaleString()}`, pageWidth - 40, summaryY);
+    doc.text(`$${(orderData.total || 0).toLocaleString()}`, pageWidth - 40, summaryY);
 
     // ========== PIE DE PÁGINA ==========
     const footerY = pageHeight - 40;
@@ -1317,7 +1328,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   {loyaltyPointsUsed > 0 && (
                     <div className="summary-line discount">
                       <span>Puntos de fidelidad</span>
-                      <span>-${(loyaltyPointsUsed * 100).toLocaleString()}</span>
+                      <span>
+                        -${(loyaltyPointsUsed * 100).toLocaleString()}
+                      </span>
                     </div>
                   )}
                   <div className="summary-line total">
@@ -1328,7 +1341,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               </div>
             )}
           </div>
-
         </div>
 
         {/* Footer Actions */}
@@ -1411,6 +1423,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       )}
 
       {/* Transaction Success Modal */}
+      {console.log("🔍 Estado del modal:", { showSuccessModal, orderData })}
       <TransactionSuccessModal
         isOpen={showSuccessModal}
         onClose={handleSuccessModalClose}
