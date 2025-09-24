@@ -30,6 +30,7 @@ import InlineNotification from "./InlineNotification";
 import TransactionSuccessModal from "./TransactionSuccessModal";
 // import PaymentSystem from "./PaymentSystem"; // Ya no se usa
 import "../styles/CheckoutForm.css";
+import "../styles/CheckoutFormMobile.css";
 
 interface CheckoutFormProps {
   isOpen: boolean;
