@@ -31,6 +31,36 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ELIMINAR ESPACIO NEGRO EN LA PARTE SUPERIOR - PRIORIDAD MÁXIMA */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden;
+  }
+
+  .ecommerce-container {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .modern-header {
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    box-shadow: none !important;
+  }
+
+  .header-top {
+    display: none !important;
   }
 
   /* Container optimizations */
@@ -839,5 +869,58 @@
   .offers-grid {
     padding: 0 16px;
     margin: 0;
+  }
+
+  /* ELIMINAR ESPACIO NEGRO EN LA PARTE SUPERIOR */
+  .modern-header {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: none;
+  }
+
+  .header-top {
+    display: none !important;
+  }
+
+  .main-navbar {
+    padding: 12px 16px;
+    margin: 0;
+  }
+
+  .navbar-content {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Asegurar que no haya espacios en el body */
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .ecommerce-container {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Eliminar cualquier padding/margin del contenedor principal */
+  .container {
+    padding: 0 16px;
+    margin: 0;
+  }
+
+  /* Asegurar que el header esté pegado al top */
+  .modern-header::before {
+    display: none;
+  }
+
+  .modern-header::after {
+    display: none;
   }
 }
