@@ -9,6 +9,7 @@ import {
   FaHome,
   FaPhone,
 } from "react-icons/fa";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface UserMenuProps {
   user: any;
@@ -30,6 +31,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   onShowRegister,
   onShowAdminPanel,
 }) => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
@@ -41,27 +43,26 @@ const UserMenu: React.FC<UserMenuProps> = ({
       ? [
           {
             id: "admin",
-            label: "Panel Admin",
+            label: t("admin"),
             icon: FaCog,
             action: onShowAdminPanel,
-            description: "Acceso al panel de administración",
+            description: t("adminPanelDescription"),
           },
         ]
       : [
           {
             id: "dashboard",
-            label: "Mi Panel",
+            label: t("myDashboard"),
             icon: FaUser,
             action: onShowDashboard,
-            description:
-              "Accede a tu dashboard personal con todas las opciones",
+            description: t("dashboardDescription"),
           },
         ];
 
   const navigationItems = [
     {
       id: "home",
-      label: "Inicio",
+      label: t("home"),
       icon: FaHome,
       action: () =>
         document
@@ -70,7 +71,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
     },
     {
       id: "products",
-      label: "Productos",
+      label: t("productsNav"),
       icon: FaShoppingBag,
       action: () =>
         document
@@ -79,7 +80,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
     },
     {
       id: "contact",
-      label: "Contacto",
+      label: t("contact"),
       icon: FaPhone,
       action: () =>
         document
@@ -172,7 +173,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
                     <hr className="dropdown-divider" />
                     <button className="dropdown-item logout" onClick={onLogout}>
                       <FaSignOutAlt />
-                      <span>Cerrar Sesión</span>
+                      <span>{t("logout")}</span>
                     </button>
                   </div>
                 )}
@@ -182,10 +183,10 @@ const UserMenu: React.FC<UserMenuProps> = ({
             <div className="guest-user">
               <button className="btn-primary" onClick={onShowLogin}>
                 <FaUser />
-                Iniciar Sesión
+                {t("login")}
               </button>
               <button className="btn-secondary" onClick={onShowRegister}>
-                Registrarse
+                {t("register")}
               </button>
             </div>
           )}
