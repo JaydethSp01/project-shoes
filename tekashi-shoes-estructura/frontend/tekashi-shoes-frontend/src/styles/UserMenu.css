@@ -511,10 +511,20 @@
 @media (max-width: 768px) {
   .mobile-menu-toggle {
     display: block;
+    position: relative;
+    z-index: 1002;
   }
 
   .menu-overlay.active {
     display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
   }
 
   .user-menu {
@@ -524,14 +534,16 @@
     width: 80%;
     max-width: 400px;
     height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-    border-left: 2px solid #00ff88;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-left: 2px solid rgba(0, 255, 136, 0.3);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    transition: right 0.3s ease-in-out;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     flex-direction: column;
     align-items: stretch;
     padding: 80px 20px 20px;
-    transition: right 0.3s ease;
-    z-index: 1000;
-    overflow-y: auto;
   }
 
   .user-menu.active {

@@ -331,37 +331,71 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .onboarding-modal {
-    width: 95%;
-    max-height: 90vh;
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+  }
+
+  .onboarding-overlay {
+    padding: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
   }
 
   .onboarding-header {
     padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 10001;
   }
 
   .onboarding-header h2 {
     font-size: 1.3rem;
+    color: white;
   }
 
   .onboarding-body {
     padding: 20px;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .onboarding-footer {
     padding: 16px 20px 20px;
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
   }
 
   .features-preview {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .feature-item {
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .assistant-features {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .onboarding-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
 
   .btn-primary,
@@ -369,6 +403,60 @@
   .btn-skip {
     width: 100%;
     justify-content: center;
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    touch-action: manipulation;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+  }
+
+  .btn-skip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Mejorar el progreso */
+  .progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  }
+
+  /* Mejorar el contenido */
+  .onboarding-content {
+    text-align: center;
+    color: white;
+  }
+
+  .onboarding-content p {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .onboarding-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
   }
 }
 

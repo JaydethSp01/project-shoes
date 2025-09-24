@@ -786,4 +786,58 @@
     align-items: center;
     justify-content: center;
   }
+
+  /* Eliminar espacios innecesarios en el Home */
+  .hero-section {
+    padding: 20px 0;
+    margin: 0;
+  }
+
+  .hero-content {
+    padding: 0 16px;
+  }
+
+  .hero-title {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .hero-buttons {
+    gap: 12px;
+  }
+
+  .hero-buttons .btn {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  /* Eliminar espacios en secciones */
+  .products-section {
+    padding: 20px 0;
+  }
+
+  .products-header {
+    padding: 0 16px 20px;
+  }
+
+  .products-grid {
+    padding: 0 16px;
+    margin: 0;
+  }
+
+  /* Eliminar espacios en ofertas */
+  .offers-section {
+    padding: 20px 0;
+  }
+
+  .offers-grid {
+    padding: 0 16px;
+    margin: 0;
+  }
 }

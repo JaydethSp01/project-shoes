@@ -70,13 +70,15 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   const handleCheckout = async (_event?: any) => {
     // Verificar si el usuario está logueado
     const currentUser = authService.getCurrentUser();
+    console.log("🔍 Usuario actual en checkout:", currentUser);
+    
     if (!currentUser) {
-      // Mostrar modal moderno para login
+      // Mostrar modal moderno para login solo si NO está logueado
       setShowLoginPrompt(true);
       return;
     }
 
-    // Usuario logueado, proceder al checkout
+    // Usuario logueado, proceder al checkout directamente
     setShowCheckout(true);
   };
 
