@@ -121,6 +121,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: var(--mobile-gap);
     padding: var(--mobile-padding);
+    margin: 0;
   }
 
   .product-card {
@@ -135,6 +136,11 @@
   .product-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Touch-friendly interactions */
+  .product-card:active {
+    transform: scale(0.98);
   }
 
   .product-image {
@@ -709,5 +715,75 @@
   .search-container {
     flex: 1;
     max-width: 300px;
+  }
+}
+
+/* ========================================
+   ADDITIONAL MOBILE OPTIMIZATIONS
+   ======================================== */
+
+/* Touch-friendly buttons */
+@media (max-width: 768px) {
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    touch-action: manipulation;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .btn-lg {
+    min-height: 52px;
+    padding: 16px 24px;
+    font-size: 18px;
+  }
+
+  /* Product card buttons */
+  .product-actions .btn {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  /* Modal optimizations */
+  .modal-content {
+    max-height: 95vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Form inputs */
+  .form-control {
+    min-height: 44px;
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+
+  /* Navigation improvements */
+  .navbar-nav .nav-link {
+    padding: 12px 16px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Cart and notification buttons */
+  .cart-btn, .notification-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
