@@ -163,7 +163,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         <div className="auth-header">
           <div className="auth-title">
             <FaUserPlus className="auth-icon" />
-            <h2>Crear Cuenta</h2>
+            <h2>{t("auth.registerTitle")}</h2>
           </div>
           <button className="auth-close-btn" onClick={handleClose}>
             <FaTimes />
@@ -324,7 +324,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
               ) : (
                 <>
                   <FaUserPlus />
-                  Crear Cuenta
+                  {t("auth.registerTitle")}
                 </>
               )}
             </button>

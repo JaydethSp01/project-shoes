@@ -89,11 +89,11 @@ const FeaturesPage: React.FC = () => {
                 ¿Listo para experimentar nuestras características?
               </h2>
               <p className="cta-description">
-                Descubre por qué miles de clientes eligen Tekashi Shoes
+                {t("testimonials.featuresDescription")}
               </p>
               <div className="cta-buttons">
                 <Link to="/" className="btn btn-secondary">
-                  Crear Cuenta
+                  {t("auth.registerTitle")}
                 </Link>
               </div>
             </div>

@@ -625,10 +625,9 @@ const Home = () => {
             <div className="location-info">
               <div className="location-icon">📍</div>
               <div className="location-details">
-                <h4>Ubicación Detectada</h4>
+                <h4>{t("location.detected")}</h4>
                 <p>
-                  Estamos entregando en tu área. Tiempo de entrega estimado: 2-3
-                  días hábiles.
+                  {t("location.deliveryMessage")}
                 </p>
                 {location && (
                   <small>
@@ -649,7 +648,7 @@ const Home = () => {
                     }
                   }}
                 >
-                  Ver Dirección
+                  {t("location.viewAddress")}
                 </button>
               </div>
             </div>

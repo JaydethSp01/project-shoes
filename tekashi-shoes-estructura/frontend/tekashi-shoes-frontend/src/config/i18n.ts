@@ -107,6 +107,8 @@ const resources = {
           "Me encanta la variedad de estilos disponibles. Siempre encuentro lo que busco y la calidad es consistente.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Ver Todos los Testimonios",
+        joinDescription: "Únete a miles de clientes satisfechos y descubre por qué elegimos Tekashi Shoes",
+        featuresDescription: "Descubre por qué miles de clientes eligen Tekashi Shoes",
       },
 
       // Unique E-commerce Features
@@ -470,6 +472,13 @@ const resources = {
         closeMenu: "Cerrar menú",
       },
 
+      // Location
+      location: {
+        detected: "Ubicación Detectada",
+        deliveryMessage: "Estamos entregando en tu área. Tiempo de entrega estimado: 2-3 días hábiles.",
+        viewAddress: "Ver Dirección",
+      },
+
       // Formularios
       required: "Requerido",
       optional: "Opcional",
@@ -796,6 +805,8 @@ const resources = {
           "I love the variety of styles available. I always find what I'm looking for and the quality is consistent.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "View All Testimonials",
+        joinDescription: "Join thousands of satisfied customers and discover why we choose Tekashi Shoes",
+        featuresDescription: "Discover why thousands of customers choose Tekashi Shoes",
       },
 
       // Unique E-commerce Features
@@ -1152,6 +1163,13 @@ const resources = {
       common: {
         toggleMenu: "Toggle menu",
         closeMenu: "Close menu",
+      },
+
+      // Location
+      location: {
+        detected: "Location Detected",
+        deliveryMessage: "We are delivering to your area. Estimated delivery time: 2-3 business days.",
+        viewAddress: "View Address",
       },
 
       // Forms
@@ -1645,6 +1663,13 @@ const resources = {
         closeMenu: "Fermer le menu",
       },
 
+      // Location
+      location: {
+        detected: "Emplacement Détecté",
+        deliveryMessage: "Nous livrons dans votre région. Temps de livraison estimé : 2-3 jours ouvrables.",
+        viewAddress: "Voir l'Adresse",
+      },
+
       // Forms
       required: "Requis",
       optional: "Optionnel",
@@ -1864,6 +1889,8 @@ const resources = {
           "J'adore la variété de styles disponibles. Je trouve toujours ce que je cherche et la qualité est constante.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Voir Tous les Témoignages",
+        joinDescription: "Rejoignez des milliers de clients satisfaits et découvrez pourquoi nous choisissons Tekashi Shoes",
+        featuresDescription: "Découvrez pourquoi des milliers de clients choisissent Tekashi Shoes",
       },
 
       // Unique E-commerce Features
@@ -2160,6 +2187,13 @@ const resources = {
         closeMenu: "Fechar menu",
       },
 
+      // Location
+      location: {
+        detected: "Localização Detectada",
+        deliveryMessage: "Estamos entregando na sua área. Tempo de entrega estimado: 2-3 dias úteis.",
+        viewAddress: "Ver Endereço",
+      },
+
       // Forms
       required: "Obrigatório",
       optional: "Opcional",
@@ -2376,6 +2410,8 @@ const resources = {
           "Adoro a variedade de estilos disponíveis. Sempre encontro o que procuro e a qualidade é consistente.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Ver Todos os Depoimentos",
+        joinDescription: "Junte-se a milhares de clientes satisfeitos e descubra por que escolhemos Tekashi Shoes",
+        featuresDescription: "Descubra por que milhares de clientes escolhem Tekashi Shoes",
       },
 
       // Unique E-commerce Features

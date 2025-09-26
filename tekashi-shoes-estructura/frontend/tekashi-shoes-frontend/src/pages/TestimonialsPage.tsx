@@ -128,12 +128,11 @@ const TestimonialsPage: React.FC = () => {
                 ¿Quieres ser parte de nuestra comunidad?
               </h2>
               <p className="cta-description">
-                Únete a miles de clientes satisfechos y descubre por qué
-                elegimos Tekashi Shoes
+                {t("testimonials.joinDescription")}
               </p>
               <div className="cta-buttons">
                 <Link to="/" className="btn btn-secondary">
-                  Crear Cuenta
+                  {t("auth.registerTitle")}
                 </Link>
               </div>
             </div>
