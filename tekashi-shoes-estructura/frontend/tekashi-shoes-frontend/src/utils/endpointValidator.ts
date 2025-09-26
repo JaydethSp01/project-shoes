@@ -301,3 +301,4 @@ export const endpointValidator = new EndpointValidator();
 export const validateEndpoints = async (): Promise<TestResult[]> => {
   return await endpointValidator.validateAllEndpoints();
 };
+

@@ -64,15 +64,22 @@ class DashboardService {
   // Obtener token de autenticación
   private async getAuthToken(): Promise<string | null> {
     try {
+      console.log("🔐 Obteniendo token de autenticación...");
       // Intentar obtener token de Firebase
       const { auth } = await import("../config/firebase");
       const user = auth.currentUser;
+      console.log("👤 Usuario actual:", user ? "Autenticado" : "No autenticado");
+      
       if (user) {
-        return await user.getIdToken();
+        const token = await user.getIdToken();
+        console.log("🎫 Token obtenido:", token ? "Sí" : "No");
+        console.log("🎫 Token (primeros 20 chars):", token ? token.substring(0, 20) + "..." : "null");
+        return token;
       }
+      console.warn("❌ No hay usuario autenticado");
       return null;
     } catch (error) {
-      console.warn("No se pudo obtener token de autenticación:", error);
+      console.error("❌ Error obteniendo token de autenticación:", error);
       return null;
     }
   }
@@ -87,7 +94,13 @@ class DashboardService {
       
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        console.log("🔐 Enviando petición con token de autenticación");
+      } else {
+        console.warn("⚠️ Enviando petición SIN token de autenticación");
       }
+
+      console.log("📡 Headers enviados:", headers);
+      console.log("🌐 URL:", `${this.baseUrl}/dashboard/stats/${userId}`);
 
       const response = await fetch(
         `${this.baseUrl}/dashboard/stats/${userId}`,
@@ -96,6 +109,8 @@ class DashboardService {
           headers,
         }
       );
+
+      console.log("📡 Respuesta del servidor:", response.status, response.statusText);
 
       if (response.ok) {
         const data = await response.json();
