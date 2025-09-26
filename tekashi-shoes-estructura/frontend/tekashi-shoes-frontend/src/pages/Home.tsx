@@ -482,8 +482,10 @@ const Home = () => {
         </nav>
       </header>
 
-      {/* Simplified Header para desktop */}
-      <SimplifiedHeader />
+      {/* Simplified Header solo para móviles */}
+      <div className="mobile-only-header">
+        <SimplifiedHeader />
+      </div>
 
       {/* Hero Section */}
       <section className="hero-section">
