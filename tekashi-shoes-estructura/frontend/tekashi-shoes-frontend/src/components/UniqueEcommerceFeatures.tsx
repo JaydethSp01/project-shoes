@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaGift, FaCrown, FaRocket, FaShield, FaHeart, FaStar, FaFire, FaClock } from "react-icons/fa";
+import { FaGift, FaCrown, FaRocket, FaShieldAlt, FaHeart, FaStar, FaFire, FaClock } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import "../styles/UniqueEcommerceFeatures.css";
 
@@ -52,7 +52,7 @@ const UniqueEcommerceFeatures: React.FC = () => {
         id: "warranty-plus",
         title: "Garantía Plus",
         description: "Garantía extendida de 2 años en todos los productos",
-        icon: <FaShield />,
+        icon: <FaShieldAlt />,
         gradient: "linear-gradient(135deg, #4ecdc4, #44a08d)",
         isActive: true,
         progress: 100

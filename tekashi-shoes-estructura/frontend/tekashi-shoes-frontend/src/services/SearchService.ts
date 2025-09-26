@@ -39,24 +39,16 @@ class SearchService {
   ];
   private cachedProducts: Product[] = [];
   private cacheTimestamp: number = 0;
-  private CACHE_DURATION = 30 * 1000; // 30 segundos (reducido para evitar uso excesivo de caché)
+  private CACHE_DURATION = 5 * 1000; // 5 segundos (cache mínimo para evitar problemas)
 
   // Obtener productos desde caché o API
   private async getCachedProducts(): Promise<Product[]> {
     const now = Date.now();
 
-    // Si el caché está vacío o expirado, obtener productos del API
-    if (
-      this.cachedProducts.length === 0 ||
-      now - this.cacheTimestamp > this.CACHE_DURATION
-    ) {
-      console.log("🔄 Obteniendo productos del API (caché expirado)");
+      // Siempre obtener productos frescos del API (sin cache)
+      console.log("🔄 Obteniendo productos del API (sin cache)");
       this.cachedProducts = await ConexionApiBackend.obtenerProductos();
       this.cacheTimestamp = now;
-    } else {
-      // Comentado para reducir logs excesivos
-      // console.log("📦 Usando productos desde caché");
-    }
 
     return this.cachedProducts;
   }
