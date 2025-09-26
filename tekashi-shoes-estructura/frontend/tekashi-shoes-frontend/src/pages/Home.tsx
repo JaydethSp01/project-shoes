@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useCategoryTranslator } from "../utils/categoryTranslator";
 // import ProductForm from "../componets/ProductForm";
 // import { useProductForm } from "../hooks/useProductForm";
 import Chatbot from "../components/Chatbot";
@@ -60,6 +61,7 @@ import "../styles/MobileTestimonials.css";
 const Home = () => {
   const { t } = useTranslation();
   const { alert, showError, showSuccess, hideAlert } = useGlobalAlert();
+  const { translateCategory } = useCategoryTranslator();
 
   // const {
   //   isEditing,
@@ -610,7 +612,7 @@ const Home = () => {
                       }
                     }}
                   >
-                    {tipo.nombre}
+                    {translateCategory(tipo.nombre)}
                   </button>
                 ))
             )}
