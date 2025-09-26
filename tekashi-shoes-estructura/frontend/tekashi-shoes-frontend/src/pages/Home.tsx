@@ -474,8 +474,7 @@ const Home = () => {
                 cartTotal={cartTotal}
               />
 
-              {/* Header específico según el rol */}
-              <SimplifiedHeader />
+              {/* SimplifiedHeader removido para evitar duplicidad */}
             </div>
           </div>
         </nav>
