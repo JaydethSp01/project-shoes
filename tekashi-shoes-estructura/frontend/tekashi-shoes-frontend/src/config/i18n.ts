@@ -55,6 +55,10 @@ const resources = {
         filters: "Filtros",
         all: "Todos",
         featuredProducts: "Productos Destacados",
+        priceAsc: "Precio: Menor a Mayor",
+        priceDesc: "Precio: Mayor a Menor",
+        nameAsc: "Nombre: A-Z",
+        nameDesc: "Nombre: Z-A",
         productsFound: "productos encontrados",
       },
 
@@ -94,6 +98,26 @@ const resources = {
         mobileTestimonial2: "Me encanta la variedad de estilos disponibles. Siempre encuentro lo que busco y la calidad es consistente.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Ver Todos los Testimonios",
+      },
+
+      // Unique E-commerce Features
+      uniqueFeatures: {
+        vipStatus: "Estado VIP",
+        vipStatusDesc: "Acceso exclusivo a productos limitados y descuentos especiales",
+        loyaltyPoints: "Puntos de Lealtad",
+        loyaltyPointsDesc: "Gana puntos con cada compra y canjéalos por productos gratis",
+        expressDelivery: "Entrega Express",
+        expressDeliveryDesc: "Recibe tus zapatos en menos de 24 horas",
+        warrantyPlus: "Garantía Plus",
+        warrantyPlusDesc: "Garantía extendida de 2 años en todos los productos",
+        wishlistPremium: "Lista de Deseos Premium",
+        wishlistPremiumDesc: "Notificaciones instantáneas cuando tus productos favoritos están disponibles",
+        exclusiveAccess: "Acceso Exclusivo",
+        exclusiveAccessDesc: "Primer acceso a nuevas colecciones y lanzamientos",
+        hotDeals: "Ofertas Calientes",
+        hotDealsDesc: "Descuentos flash exclusivos solo para ti",
+        earlyBird: "Acceso Anticipado",
+        earlyBirdDesc: "Compra productos antes que nadie con descuentos especiales",
       },
 
       // Features Section
@@ -426,6 +450,12 @@ const resources = {
       no: "No",
       ok: "OK",
 
+      // Common UI elements
+      common: {
+        toggleMenu: "Alternar menú",
+        closeMenu: "Cerrar menú",
+      },
+
       // Formularios
       required: "Requerido",
       optional: "Opcional",
@@ -702,6 +732,10 @@ const resources = {
         filters: "Filters",
         all: "All",
         featuredProducts: "Featured Products",
+        priceAsc: "Price: Low to High",
+        priceDesc: "Price: High to Low",
+        nameAsc: "Name: A-Z",
+        nameDesc: "Name: Z-A",
         productsFound: "products found",
       },
 
@@ -740,6 +774,26 @@ const resources = {
         mobileTestimonial2: "I love the variety of styles available. I always find what I'm looking for and the quality is consistent.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "View All Testimonials",
+      },
+
+      // Unique E-commerce Features
+      uniqueFeatures: {
+        vipStatus: "VIP Status",
+        vipStatusDesc: "Exclusive access to limited products and special discounts",
+        loyaltyPoints: "Loyalty Points",
+        loyaltyPointsDesc: "Earn points with every purchase and redeem them for free products",
+        expressDelivery: "Express Delivery",
+        expressDeliveryDesc: "Receive your shoes in less than 24 hours",
+        warrantyPlus: "Plus Warranty",
+        warrantyPlusDesc: "Extended 2-year warranty on all products",
+        wishlistPremium: "Premium Wishlist",
+        wishlistPremiumDesc: "Instant notifications when your favorite products are available",
+        exclusiveAccess: "Exclusive Access",
+        exclusiveAccessDesc: "First access to new collections and launches",
+        hotDeals: "Hot Deals",
+        hotDealsDesc: "Exclusive flash discounts just for you",
+        earlyBird: "Early Access",
+        earlyBirdDesc: "Buy products before anyone else with special discounts",
       },
 
       // Features Section
@@ -1069,6 +1123,12 @@ const resources = {
       no: "No",
       ok: "OK",
 
+      // Common UI elements
+      common: {
+        toggleMenu: "Toggle menu",
+        closeMenu: "Close menu",
+      },
+
       // Forms
       required: "Required",
       optional: "Optional",
@@ -1343,6 +1403,10 @@ const resources = {
         filters: "Filtres",
         all: "Tous",
         featuredProducts: "Produits Vedettes",
+        priceAsc: "Prix: Bas à Élevé",
+        priceDesc: "Prix: Élevé à Bas",
+        nameAsc: "Nom: A-Z",
+        nameDesc: "Nom: Z-A",
         productsFound: "produits trouvés",
       },
       product: "Produit",
@@ -1543,6 +1607,12 @@ const resources = {
       yes: "Oui",
       no: "Non",
       ok: "OK",
+
+      // Common UI elements
+      common: {
+        toggleMenu: "Basculer le menu",
+        closeMenu: "Fermer le menu",
+      },
 
       // Forms
       required: "Requis",
@@ -1756,6 +1826,26 @@ const resources = {
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Voir Tous les Témoignages",
       },
+
+      // Unique E-commerce Features
+      uniqueFeatures: {
+        vipStatus: "Statut VIP",
+        vipStatusDesc: "Accès exclusif aux produits limités et remises spéciales",
+        loyaltyPoints: "Points de Fidélité",
+        loyaltyPointsDesc: "Gagnez des points à chaque achat et échangez-les contre des produits gratuits",
+        expressDelivery: "Livraison Express",
+        expressDeliveryDesc: "Recevez vos chaussures en moins de 24 heures",
+        warrantyPlus: "Garantie Plus",
+        warrantyPlusDesc: "Garantie étendue de 2 ans sur tous les produits",
+        wishlistPremium: "Liste de Souhaits Premium",
+        wishlistPremiumDesc: "Notifications instantanées quand vos produits favoris sont disponibles",
+        exclusiveAccess: "Accès Exclusif",
+        exclusiveAccessDesc: "Premier accès aux nouvelles collections et lancements",
+        hotDeals: "Offres Chaudes",
+        hotDealsDesc: "Remises flash exclusives juste pour vous",
+        earlyBird: "Accès Anticipé",
+        earlyBirdDesc: "Achetez des produits avant tout le monde avec des remises spéciales",
+      },
     },
   },
 
@@ -1810,6 +1900,10 @@ const resources = {
         filters: "Filtros",
         all: "Todos",
         featuredProducts: "Produtos em Destaque",
+        priceAsc: "Preço: Menor a Maior",
+        priceDesc: "Preço: Maior a Menor",
+        nameAsc: "Nome: A-Z",
+        nameDesc: "Nome: Z-A",
         productsFound: "produtos encontrados",
       },
       product: "Produto",
@@ -2009,6 +2103,12 @@ const resources = {
       yes: "Sim",
       no: "Não",
       ok: "OK",
+
+      // Common UI elements
+      common: {
+        toggleMenu: "Alternar menu",
+        closeMenu: "Fechar menu",
+      },
 
       // Forms
       required: "Obrigatório",
@@ -2219,6 +2319,26 @@ const resources = {
         mobileTestimonial2: "Adoro a variedade de estilos disponíveis. Sempre encontro o que procuro e a qualidade é consistente.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Ver Todos os Depoimentos",
+      },
+
+      // Unique E-commerce Features
+      uniqueFeatures: {
+        vipStatus: "Status VIP",
+        vipStatusDesc: "Acesso exclusivo a produtos limitados e descontos especiais",
+        loyaltyPoints: "Pontos de Fidelidade",
+        loyaltyPointsDesc: "Ganhe pontos com cada compra e troque por produtos gratuitos",
+        expressDelivery: "Entrega Expressa",
+        expressDeliveryDesc: "Receba seus sapatos em menos de 24 horas",
+        warrantyPlus: "Garantia Plus",
+        warrantyPlusDesc: "Garantia estendida de 2 anos em todos os produtos",
+        wishlistPremium: "Lista de Desejos Premium",
+        wishlistPremiumDesc: "Notificações instantâneas quando seus produtos favoritos estão disponíveis",
+        exclusiveAccess: "Acesso Exclusivo",
+        exclusiveAccessDesc: "Primeiro acesso a novas coleções e lançamentos",
+        hotDeals: "Ofertas Quentes",
+        hotDealsDesc: "Descontos flash exclusivos apenas para você",
+        earlyBird: "Acesso Antecipado",
+        earlyBirdDesc: "Compre produtos antes de qualquer um com descontos especiais",
       },
     },
   },

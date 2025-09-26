@@ -255,11 +255,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   const getSortOptions = () => [
     { value: "", label: t("products.sortBy") },
-    { value: "price_asc", label: "Precio: Menor a Mayor" },
-    { value: "price_desc", label: "Precio: Mayor a Menor" },
-    { value: "name_asc", label: "Nombre: A-Z" },
-    { value: "name_desc", label: "Nombre: Z-A" },
-    { value: "newest", label: "Más Recientes" },
+    { value: "price_asc", label: t("products.priceAsc") },
+    { value: "price_desc", label: t("products.priceDesc") },
+    { value: "name_asc", label: t("products.nameAsc") },
+    { value: "name_desc", label: t("products.nameDesc") },
+    { value: "newest", label: t("products.newest") },
   ];
 
   return (

@@ -96,7 +96,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
       <button
         className="mobile-menu-toggle"
         onClick={toggleMenu}
-        aria-label="Toggle menu"
+        aria-label={t("common.toggleMenu")}
       >
         <div className={`hamburger ${isMenuOpen ? "active" : ""}`}>
           <span></span>
@@ -114,7 +114,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
         <button 
           className="mobile-close-btn"
           onClick={toggleMenu}
-          aria-label="Cerrar menú"
+          aria-label={t("common.closeMenu")}
         >
           <FaTimes />
         </button>
