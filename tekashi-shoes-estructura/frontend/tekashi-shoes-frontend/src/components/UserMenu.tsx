@@ -8,6 +8,7 @@ import {
   FaChevronUp,
   FaHome,
   FaPhone,
+  FaTimes,
 } from "react-icons/fa";
 import { useTranslation } from "../hooks/useTranslation";
 
@@ -109,6 +110,15 @@ const UserMenu: React.FC<UserMenuProps> = ({
 
       {/* Menú principal */}
       <div className={`user-menu ${isMenuOpen ? "active" : ""}`}>
+        {/* Botón de cerrar para móvil */}
+        <button 
+          className="mobile-close-btn"
+          onClick={toggleMenu}
+          aria-label="Cerrar menú"
+        >
+          <FaTimes />
+        </button>
+        
         {/* Navegación principal */}
         <nav className="main-navigation">
           {navigationItems.map((item) => {
