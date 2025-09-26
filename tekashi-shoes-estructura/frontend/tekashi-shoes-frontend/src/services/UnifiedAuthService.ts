@@ -20,7 +20,7 @@ class UnifiedAuthService {
   private listeners: Array<(user: UnifiedUser | null) => void> = [];
 
   constructor() {
-    this.initializeAuth();
+    // No inicializar automáticamente, se hará desde el AuthProvider
   }
 
   private getBackendUrl(): string {

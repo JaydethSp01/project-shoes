@@ -68,21 +68,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = async () => {
       try {
         setLoading(true);
+        console.log("🔐 Inicializando AuthProvider...");
 
         // Inicializar el servicio de autenticación
         await unifiedAuthService.initialize();
 
         // Suscribirse a cambios de autenticación
         unsubscribe = unifiedAuthService.subscribe((user) => {
+          console.log("👤 Usuario actualizado en AuthProvider:", user);
           if (isMounted) {
             setUser(user);
             setLoading(false);
           }
         });
+
+        console.log("✅ AuthProvider inicializado correctamente");
       } catch (error) {
-        console.error("Error inicializando autenticación:", error);
+        console.error("❌ Error inicializando autenticación:", error);
         if (isMounted) {
           setLoading(false);
+          setError({
+            code: "AUTH_INIT_ERROR",
+            message: "Error inicializando autenticación"
+          });
         }
       }
     };
