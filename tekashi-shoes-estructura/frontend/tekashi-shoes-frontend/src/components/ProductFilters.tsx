@@ -57,7 +57,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   useEffect(() => {
     loadFilterOptions();
-  }, []);
+  }, [t]);
 
   // Cleanup timeout al desmontar
   useEffect(() => {
@@ -280,12 +280,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onClick={applyFilters}
             disabled={isLoading}
           >
-            {isLoading ? "..." : (() => {
-              const translation = t("products.search");
-              console.log("🔍 ProductFilters - Translation result:", translation);
-              console.log("🔍 ProductFilters - Current language:", t.language);
-              return translation || "Buscar";
-            })()}
+            {isLoading ? "..." : t("products.search")}
           </button>
         </div>
 
