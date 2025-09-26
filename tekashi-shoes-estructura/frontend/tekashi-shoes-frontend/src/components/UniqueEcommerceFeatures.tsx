@@ -14,7 +14,7 @@ interface UniqueFeature {
 }
 
 const UniqueEcommerceFeatures: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const [features, setFeatures] = useState<UniqueFeature[]>([]);
   const [showFeatures, setShowFeatures] = useState(false);
 
