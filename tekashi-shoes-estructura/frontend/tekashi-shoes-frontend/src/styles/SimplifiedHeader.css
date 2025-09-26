@@ -49,6 +49,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.language-selector-left {
+  position: relative;
+  z-index: 1001;
 }
 
 .header-btn {

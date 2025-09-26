@@ -4,6 +4,12 @@
   z-index: 1000;
 }
 
+/* Posicionamiento más hacia la izquierda */
+.language-selector-left .language-selector {
+  margin-right: auto;
+  margin-left: 0;
+}
+
 .language-selector-button {
   display: flex;
   align-items: center;
@@ -61,7 +67,7 @@
 .language-dropdown {
   position: absolute;
   top: 100%;
-  left: 0;
+  left: 30px;
   right: 0;
   margin-top: 4px;
   background: white;

@@ -19,23 +19,9 @@ const SimplifiedHeader: React.FC = () => {
           <span className="brand-name">{t("header.brandName")}</span>
         </div>
 
-        <nav className="header-navigation">
-          <a href="/" className="nav-link">
-            <FaHome />
-            <span>Inicio</span>
-          </a>
-          <a href="/testimonials" className="nav-link">
-            <FaComments />
-            <span>Testimonios</span>
-          </a>
-          <a href="/features" className="nav-link">
-            <FaStar />
-            <span>Características</span>
-          </a>
-        </nav>
 
         <div className="header-actions">
-          <div className="mobile-language-selector">
+          <div className="language-selector-left">
             <LanguageSelector />
           </div>
         </div>
