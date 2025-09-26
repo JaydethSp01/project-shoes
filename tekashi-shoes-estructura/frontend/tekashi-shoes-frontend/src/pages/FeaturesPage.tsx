@@ -92,9 +92,6 @@ const FeaturesPage: React.FC = () => {
                 Descubre por qué miles de clientes eligen Tekashi Shoes
               </p>
               <div className="cta-buttons">
-                <Link to="/" className="btn btn-primary">
-                  Ver Colección
-                </Link>
                 <Link to="/" className="btn btn-secondary">
                   Crear Cuenta
                 </Link>

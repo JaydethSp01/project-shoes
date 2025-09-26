@@ -132,9 +132,6 @@ const TestimonialsPage: React.FC = () => {
                 elegimos Tekashi Shoes
               </p>
               <div className="cta-buttons">
-                <Link to="/" className="btn btn-primary">
-                  Ver Colección
-                </Link>
                 <Link to="/" className="btn btn-secondary">
                   Crear Cuenta
                 </Link>
