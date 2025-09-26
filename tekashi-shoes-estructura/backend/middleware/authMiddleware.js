@@ -406,9 +406,9 @@ const verificarAuth = async (req, res, next) => {
       console.log(
         "⚠️ Firebase no está inicializado - usando modo de desarrollo"
       );
-      // Modo de desarrollo: permitir acceso con token de prueba
-      if (token === "test-token" || token.length > 100) {
-        console.log("🔧 Modo desarrollo: permitiendo acceso");
+      // Modo de desarrollo: permitir acceso con token válido
+      if (token && token.length > 100) {
+        console.log("🔧 Modo desarrollo: permitiendo acceso con token válido");
         // Buscar usuario por ID del frontend
         const userId = req.params.userId;
         if (userId) {
@@ -419,6 +419,23 @@ const verificarAuth = async (req, res, next) => {
               "✅ Usuario encontrado en modo desarrollo:",
               usuario._id
             );
+            return next();
+          } else {
+            console.log(
+              "🔄 Usuario no encontrado, creando usuario en modo desarrollo"
+            );
+            // Crear usuario temporal para desarrollo
+            usuario = new Usuario({
+              firebaseUid: `dev-${userId}`,
+              nombre: "Usuario Desarrollo",
+              email: "dev@example.com",
+              rol: "CLIENTE",
+              activo: true,
+              fechaRegistro: new Date(),
+            });
+            await usuario.save();
+            req.usuario = usuario;
+            console.log("✅ Usuario creado en modo desarrollo:", usuario._id);
             return next();
           }
         }

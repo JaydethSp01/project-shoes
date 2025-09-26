@@ -117,7 +117,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin-right: 5px;
-
 }
 
 .search-btn:hover:not(:disabled) {
