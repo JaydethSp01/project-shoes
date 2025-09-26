@@ -95,6 +95,7 @@ class DashboardService {
       if (token) {
         headers.Authorization = `Bearer ${token}`;
         console.log("🔐 Enviando petición con token de autenticación");
+        console.log("🔐 Token completo (primeros 50 chars):", token.substring(0, 50) + "...");
       } else {
         console.warn("⚠️ Enviando petición SIN token de autenticación");
       }
