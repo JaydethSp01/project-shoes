@@ -7,6 +7,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 // import ProductForm from "../componets/ProductForm";
 // import { useProductForm } from "../hooks/useProductForm";
 import Chatbot from "../components/Chatbot";
@@ -54,6 +55,7 @@ import "../styles/Pagination.css";
 import "../styles/LocationBanner.css";
 import "../styles/ProductCards.css";
 import "../styles/HomeAnimations.css";
+import "../styles/MobileTestimonials.css";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -926,9 +928,49 @@ const Home = () => {
         onSkip={handleOnboardingClose}
       />
 
-      {/* Secciones removidas para evitar duplicidad - ahora están en páginas separadas */}
-      {/* <TestimonialsSection /> */}
-      {/* <FeaturesSection /> */}
+      {/* Sección de Testimonios para Móviles */}
+      <section className="mobile-testimonials-section">
+        <div className="container">
+          <div className="mobile-testimonials-header">
+            <h2 className="section-title">Lo que dicen nuestros clientes</h2>
+            <p className="section-subtitle">Descubre por qué miles de clientes confían en nosotros</p>
+          </div>
+          
+          <div className="mobile-testimonials-preview">
+            <div className="testimonial-preview-card">
+              <div className="testimonial-preview-content">
+                <div className="quote-icon">"</div>
+                <p className="testimonial-preview-text">
+                  "La calidad de los zapatos es excepcional. Llevo más de un año comprando aquí y nunca me han decepcionado."
+                </p>
+                <div className="testimonial-preview-author">
+                  <h4>María González</h4>
+                  <div className="rating">⭐⭐⭐⭐⭐</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="testimonial-preview-card">
+              <div className="testimonial-preview-content">
+                <div className="quote-icon">"</div>
+                <p className="testimonial-preview-text">
+                  "Me encanta la variedad de estilos disponibles. Siempre encuentro lo que busco y la calidad es consistente."
+                </p>
+                <div className="testimonial-preview-author">
+                  <h4>Carmen López</h4>
+                  <div className="rating">⭐⭐⭐⭐⭐</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mobile-testimonials-cta">
+            <Link to="/testimonials" className="btn btn-primary btn-lg">
+              Ver Todos los Testimonios
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <Footer />
