@@ -6,7 +6,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  display: none !important; /* Hidden by default - solo se usa en páginas específicas */
+  display: block !important; /* Mostrar en todas las páginas */
 }
 
 /* Show only on mobile devices */
