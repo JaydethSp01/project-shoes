@@ -496,22 +496,6 @@ const Home = () => {
               <p className="hero-subtitle">{t("hero.subtitle")}</p>
               <div className="hero-buttons">
                 <button
-                  className="btn btn-primary btn-lg"
-                  onClick={() => {
-                    const productsSection = document.querySelector(".products-section");
-                    if (productsSection) {
-                      productsSection.scrollIntoView({ 
-                        behavior: "smooth", 
-                        block: "start" 
-                      });
-                    } else {
-                      console.warn("Sección de productos no encontrada");
-                    }
-                  }}
-                >
-                  {t("hero.viewCollection")}
-                </button>
-                <button
                   className="btn btn-outline-light btn-lg"
                   onClick={() => {
                     document
