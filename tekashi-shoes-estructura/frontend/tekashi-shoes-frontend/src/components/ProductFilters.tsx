@@ -116,6 +116,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   const applyFilters = async () => {
+    console.log("🔍 Aplicando filtros:", filters);
     setIsLoading(true);
     try {
       // Verificar si hay filtros activos que requieran búsqueda en API
@@ -123,6 +124,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         filters.query || filters.minPrice || filters.maxPrice;
 
       if (hasComplexFilters) {
+        console.log("🌐 Usando API para búsqueda compleja");
         // Usar API para búsquedas complejas
         const searchFilters = {
           query: filters.query || undefined,
@@ -139,8 +141,10 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         };
 
         const result = await searchService.search(searchFilters as any);
+        console.log("📦 Resultados de API:", result.products.length);
         onFilterChange(result.products);
       } else {
+        console.log("🏠 Usando filtros locales");
         // Usar filtros locales para filtros simples
         let filtered = [...allProducts];
 
@@ -197,10 +201,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           }
         }
 
+        console.log("📦 Resultados locales:", filtered.length);
         onFilterChange(filtered);
       }
     } catch (error) {
-      console.error("Error applying filters:", error);
+      console.error("❌ Error applying filters:", error);
       // En caso de error, mostrar todos los productos
       onFilterChange(allProducts);
     } finally {
