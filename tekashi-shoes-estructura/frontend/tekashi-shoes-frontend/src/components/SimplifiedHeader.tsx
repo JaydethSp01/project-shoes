@@ -1,8 +1,6 @@
 import React from "react";
 import {
-  FaUser,
   FaHome,
-  FaShoppingBag,
   FaComments,
   FaStar,
 } from "react-icons/fa";
@@ -24,11 +22,7 @@ const SimplifiedHeader: React.FC = () => {
         <nav className="header-navigation">
           <a href="/" className="nav-link">
             <FaHome />
-            <span>{t("home")}</span>
-          </a>
-          <a href="#products" className="nav-link">
-            <FaShoppingBag />
-            <span>{t("productsNav")}</span>
+            <span>Inicio</span>
           </a>
           <a href="/testimonials" className="nav-link">
             <FaComments />
@@ -41,9 +35,6 @@ const SimplifiedHeader: React.FC = () => {
         </nav>
 
         <div className="header-actions">
-          <button className="header-btn user-btn" title={t("user")}>
-            <FaUser />
-          </button>
           <div className="mobile-language-selector">
             <LanguageSelector />
           </div>
