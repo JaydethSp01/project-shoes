@@ -61,16 +61,39 @@ export interface Notification {
 class DashboardService {
   private baseUrl = `${getBaseUrl()}/api`;
 
+  // Obtener token de autenticación
+  private async getAuthToken(): Promise<string | null> {
+    try {
+      // Intentar obtener token de Firebase
+      const { auth } = await import("../config/firebase");
+      const user = auth.currentUser;
+      if (user) {
+        return await user.getIdToken();
+      }
+      return null;
+    } catch (error) {
+      console.warn("No se pudo obtener token de autenticación:", error);
+      return null;
+    }
+  }
+
   // Obtener estadísticas del dashboard
   async getDashboardStats(userId: string): Promise<DashboardStats> {
     try {
+      const token = await this.getAuthToken();
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
         `${this.baseUrl}/dashboard/stats/${userId}`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
         }
       );
 
@@ -108,13 +131,20 @@ class DashboardService {
   // Obtener historial de compras
   async getPurchaseHistory(userId: string): Promise<Purchase[]> {
     try {
+      const token = await this.getAuthToken();
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
         `${this.baseUrl}/dashboard/purchases/${userId}`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
         }
       );
 
@@ -142,8 +172,21 @@ class DashboardService {
   // Obtener favoritos
   async getFavorites(userId: string): Promise<Favorite[]> {
     try {
+      const token = await this.getAuthToken();
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
-        `${getBaseUrl()}/api/favoritos/usuario/${userId}`
+        `${getBaseUrl()}/api/favoritos/usuario/${userId}`,
+        {
+          method: "GET",
+          headers,
+        }
       );
       if (!response.ok) {
         throw new Error("Error obteniendo favoritos");
@@ -219,8 +262,21 @@ class DashboardService {
   // Obtener listas de deseos
   async getWishlists(userId: string): Promise<Wishlist[]> {
     try {
+      const token = await this.getAuthToken();
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
-        `${getBaseUrl()}/api/wishlists/usuario/${userId}`
+        `${getBaseUrl()}/api/wishlists/usuario/${userId}`,
+        {
+          method: "GET",
+          headers,
+        }
       );
       if (!response.ok) {
         throw new Error("Error obteniendo listas de deseos");
@@ -316,8 +372,21 @@ class DashboardService {
   // Obtener notificaciones
   async getNotifications(userId: string): Promise<Notification[]> {
     try {
+      const token = await this.getAuthToken();
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
-        `${getBaseUrl()}/api/notificaciones/usuario/${userId}`
+        `${getBaseUrl()}/api/notificaciones/usuario/${userId}`,
+        {
+          method: "GET",
+          headers,
+        }
       );
       if (!response.ok) {
         throw new Error("Error obteniendo notificaciones");
