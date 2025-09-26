@@ -49,12 +49,18 @@ const resources = {
       products: {
         ourProducts: "Nuestros Productos",
         searchPlaceholder: "Buscar productos...",
+        search: "Buscar",
         allCategories: "Todas las categorías",
         allBrands: "Todas las marcas",
         sortBy: "Ordenar por...",
         filters: "Filtros",
         all: "Todos",
         featuredProducts: "Productos Destacados",
+        sportsSneakers: "Tenis Deportivos",
+        casualSneakers: "Zapatillas Casuales",
+        heels: "Tacones",
+        boots: "Botas",
+        loafers: "Mocasines",
         priceAsc: "Precio: Menor a Mayor",
         priceDesc: "Precio: Mayor a Menor",
         nameAsc: "Nombre: A-Z",
@@ -92,10 +98,13 @@ const resources = {
         customerPurchase4: "Compró: Tenis Casuales",
         // Testimonios móviles
         mobileTitle: "Lo que dicen nuestros clientes",
-        mobileSubtitle: "Descubre por qué miles de clientes confían en nosotros",
-        mobileTestimonial1: "La calidad de los zapatos es excepcional. Llevo más de un año comprando aquí y nunca me han decepcionado.",
+        mobileSubtitle:
+          "Descubre por qué miles de clientes confían en nosotros",
+        mobileTestimonial1:
+          "La calidad de los zapatos es excepcional. Llevo más de un año comprando aquí y nunca me han decepcionado.",
         mobileTestimonial1Author: "María González",
-        mobileTestimonial2: "Me encanta la variedad de estilos disponibles. Siempre encuentro lo que busco y la calidad es consistente.",
+        mobileTestimonial2:
+          "Me encanta la variedad de estilos disponibles. Siempre encuentro lo que busco y la calidad es consistente.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Ver Todos los Testimonios",
       },
@@ -103,21 +112,26 @@ const resources = {
       // Unique E-commerce Features
       uniqueFeatures: {
         vipStatus: "Estado VIP",
-        vipStatusDesc: "Acceso exclusivo a productos limitados y descuentos especiales",
+        vipStatusDesc:
+          "Acceso exclusivo a productos limitados y descuentos especiales",
         loyaltyPoints: "Puntos de Lealtad",
-        loyaltyPointsDesc: "Gana puntos con cada compra y canjéalos por productos gratis",
+        loyaltyPointsDesc:
+          "Gana puntos con cada compra y canjéalos por productos gratis",
         expressDelivery: "Entrega Express",
         expressDeliveryDesc: "Recibe tus zapatos en menos de 24 horas",
         warrantyPlus: "Garantía Plus",
         warrantyPlusDesc: "Garantía extendida de 2 años en todos los productos",
         wishlistPremium: "Lista de Deseos Premium",
-        wishlistPremiumDesc: "Notificaciones instantáneas cuando tus productos favoritos están disponibles",
+        wishlistPremiumDesc:
+          "Notificaciones instantáneas cuando tus productos favoritos están disponibles",
         exclusiveAccess: "Acceso Exclusivo",
-        exclusiveAccessDesc: "Primer acceso a nuevas colecciones y lanzamientos",
+        exclusiveAccessDesc:
+          "Primer acceso a nuevas colecciones y lanzamientos",
         hotDeals: "Ofertas Calientes",
         hotDealsDesc: "Descuentos flash exclusivos solo para ti",
         earlyBird: "Acceso Anticipado",
-        earlyBirdDesc: "Compra productos antes que nadie con descuentos especiales",
+        earlyBirdDesc:
+          "Compra productos antes que nadie con descuentos especiales",
       },
 
       // Features Section
@@ -726,12 +740,18 @@ const resources = {
       products: {
         ourProducts: "Our Products",
         searchPlaceholder: "Search products...",
+        search: "Search",
         allCategories: "All categories",
         allBrands: "All brands",
         sortBy: "Sort by...",
         filters: "Filters",
         all: "All",
         featuredProducts: "Featured Products",
+        sportsSneakers: "Sports Sneakers",
+        casualSneakers: "Casual Sneakers",
+        heels: "Heels",
+        boots: "Boots",
+        loafers: "Loafers",
         priceAsc: "Price: Low to High",
         priceDesc: "Price: High to Low",
         nameAsc: "Name: A-Z",
@@ -769,9 +789,11 @@ const resources = {
         // Mobile testimonials
         mobileTitle: "What our customers say",
         mobileSubtitle: "Discover why thousands of customers trust us",
-        mobileTestimonial1: "The quality of the shoes is exceptional. I've been buying here for over a year and they have never disappointed me.",
+        mobileTestimonial1:
+          "The quality of the shoes is exceptional. I've been buying here for over a year and they have never disappointed me.",
         mobileTestimonial1Author: "María González",
-        mobileTestimonial2: "I love the variety of styles available. I always find what I'm looking for and the quality is consistent.",
+        mobileTestimonial2:
+          "I love the variety of styles available. I always find what I'm looking for and the quality is consistent.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "View All Testimonials",
       },
@@ -779,15 +801,18 @@ const resources = {
       // Unique E-commerce Features
       uniqueFeatures: {
         vipStatus: "VIP Status",
-        vipStatusDesc: "Exclusive access to limited products and special discounts",
+        vipStatusDesc:
+          "Exclusive access to limited products and special discounts",
         loyaltyPoints: "Loyalty Points",
-        loyaltyPointsDesc: "Earn points with every purchase and redeem them for free products",
+        loyaltyPointsDesc:
+          "Earn points with every purchase and redeem them for free products",
         expressDelivery: "Express Delivery",
         expressDeliveryDesc: "Receive your shoes in less than 24 hours",
         warrantyPlus: "Plus Warranty",
         warrantyPlusDesc: "Extended 2-year warranty on all products",
         wishlistPremium: "Premium Wishlist",
-        wishlistPremiumDesc: "Instant notifications when your favorite products are available",
+        wishlistPremiumDesc:
+          "Instant notifications when your favorite products are available",
         exclusiveAccess: "Exclusive Access",
         exclusiveAccessDesc: "First access to new collections and launches",
         hotDeals: "Hot Deals",
@@ -1397,12 +1422,18 @@ const resources = {
       products: {
         ourProducts: "Nos Produits",
         searchPlaceholder: "Rechercher des produits...",
+        search: "Rechercher",
         allCategories: "Toutes les catégories",
         allBrands: "Toutes les marques",
         sortBy: "Trier par...",
         filters: "Filtres",
         all: "Tous",
         featuredProducts: "Produits Vedettes",
+        sportsSneakers: "Sneakers Sportifs",
+        casualSneakers: "Sneakers Décontractés",
+        heels: "Talons",
+        boots: "Bottes",
+        loafers: "Mocassins",
         priceAsc: "Prix: Bas à Élevé",
         priceDesc: "Prix: Élevé à Bas",
         nameAsc: "Nom: A-Z",
@@ -1797,32 +1828,40 @@ const resources = {
       // Testimonials Section
       testimonials: {
         title: "Ce que disent nos clients",
-        subtitle: "Des milliers de clients satisfaits nous font confiance pour leurs chaussures",
+        subtitle:
+          "Des milliers de clients satisfaits nous font confiance pour leurs chaussures",
         averageRating: "Note moyenne",
         satisfiedCustomers: "Clients satisfaits",
         recommendations: "Recommandations",
         customerName: "María González",
         customerLocation: "Bogotá, Colombie",
-        customerComment: "Les chaussures les plus confortables que j'aie portées. La qualité est exceptionnelle et la livraison a été super rapide. Je reviendrai certainement acheter !",
+        customerComment:
+          "Les chaussures les plus confortables que j'aie portées. La qualité est exceptionnelle et la livraison a été super rapide. Je reviendrai certainement acheter !",
         customerPurchase: "Acheté : Sneakers Sportifs",
         customerName2: "Carlos Rodríguez",
         customerLocation2: "Medellín, Colombie",
-        customerComment2: "Excellent service client et produits de première qualité. Les chaussures sont arrivées parfaites et juste à temps pour mon événement important.",
+        customerComment2:
+          "Excellent service client et produits de première qualité. Les chaussures sont arrivées parfaites et juste à temps pour mon événement important.",
         customerPurchase2: "Acheté : Chaussures Formelles",
         customerName3: "Ana Martínez",
         customerLocation3: "Cali, Colombie",
-        customerComment3: "La variété de styles est incroyable. J'ai trouvé exactement ce que je cherchais et la qualité dépasse mes attentes. Service client impeccable !",
+        customerComment3:
+          "La variété de styles est incroyable. J'ai trouvé exactement ce que je cherchais et la qualité dépasse mes attentes. Service client impeccable !",
         customerPurchase3: "Acheté : Bottes d'Hiver",
         customerName4: "Diego Herrera",
         customerLocation4: "Barranquilla, Colombie",
-        customerComment4: "Le processus d'achat était très facile et sécurisé. Les chaussures sont exactement comme montré sur les photos. Hautement recommandé !",
+        customerComment4:
+          "Le processus d'achat était très facile et sécurisé. Les chaussures sont exactement comme montré sur les photos. Hautement recommandé !",
         customerPurchase4: "Acheté : Sneakers Décontractés",
         // Témoignages mobiles
         mobileTitle: "Ce que disent nos clients",
-        mobileSubtitle: "Découvrez pourquoi des milliers de clients nous font confiance",
-        mobileTestimonial1: "La qualité des chaussures est exceptionnelle. J'achète ici depuis plus d'un an et elles ne m'ont jamais déçue.",
+        mobileSubtitle:
+          "Découvrez pourquoi des milliers de clients nous font confiance",
+        mobileTestimonial1:
+          "La qualité des chaussures est exceptionnelle. J'achète ici depuis plus d'un an et elles ne m'ont jamais déçue.",
         mobileTestimonial1Author: "María González",
-        mobileTestimonial2: "J'adore la variété de styles disponibles. Je trouve toujours ce que je cherche et la qualité est constante.",
+        mobileTestimonial2:
+          "J'adore la variété de styles disponibles. Je trouve toujours ce que je cherche et la qualité est constante.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Voir Tous les Témoignages",
       },
@@ -1830,21 +1869,26 @@ const resources = {
       // Unique E-commerce Features
       uniqueFeatures: {
         vipStatus: "Statut VIP",
-        vipStatusDesc: "Accès exclusif aux produits limités et remises spéciales",
+        vipStatusDesc:
+          "Accès exclusif aux produits limités et remises spéciales",
         loyaltyPoints: "Points de Fidélité",
-        loyaltyPointsDesc: "Gagnez des points à chaque achat et échangez-les contre des produits gratuits",
+        loyaltyPointsDesc:
+          "Gagnez des points à chaque achat et échangez-les contre des produits gratuits",
         expressDelivery: "Livraison Express",
         expressDeliveryDesc: "Recevez vos chaussures en moins de 24 heures",
         warrantyPlus: "Garantie Plus",
         warrantyPlusDesc: "Garantie étendue de 2 ans sur tous les produits",
         wishlistPremium: "Liste de Souhaits Premium",
-        wishlistPremiumDesc: "Notifications instantanées quand vos produits favoris sont disponibles",
+        wishlistPremiumDesc:
+          "Notifications instantanées quand vos produits favoris sont disponibles",
         exclusiveAccess: "Accès Exclusif",
-        exclusiveAccessDesc: "Premier accès aux nouvelles collections et lancements",
+        exclusiveAccessDesc:
+          "Premier accès aux nouvelles collections et lancements",
         hotDeals: "Offres Chaudes",
         hotDealsDesc: "Remises flash exclusives juste pour vous",
         earlyBird: "Accès Anticipé",
-        earlyBirdDesc: "Achetez des produits avant tout le monde avec des remises spéciales",
+        earlyBirdDesc:
+          "Achetez des produits avant tout le monde avec des remises spéciales",
       },
     },
   },
@@ -1894,12 +1938,18 @@ const resources = {
       products: {
         ourProducts: "Nossos Produtos",
         searchPlaceholder: "Buscar produtos...",
+        search: "Buscar",
         allCategories: "Todas as categorias",
         allBrands: "Todas as marcas",
         sortBy: "Ordenar por...",
         filters: "Filtros",
         all: "Todos",
         featuredProducts: "Produtos em Destaque",
+        sportsSneakers: "Tênis Esportivos",
+        casualSneakers: "Tênis Casuais",
+        heels: "Saltos",
+        boots: "Botas",
+        loafers: "Mocassins",
         priceAsc: "Preço: Menor a Maior",
         priceDesc: "Preço: Maior a Menor",
         nameAsc: "Nome: A-Z",
@@ -2291,32 +2341,39 @@ const resources = {
       // Testimonials Section
       testimonials: {
         title: "O que nossos clientes dizem",
-        subtitle: "Milhares de clientes satisfeitos confiam em nós para seus sapatos",
+        subtitle:
+          "Milhares de clientes satisfeitos confiam em nós para seus sapatos",
         averageRating: "Avaliação média",
         satisfiedCustomers: "Clientes satisfeitos",
         recommendations: "Recomendações",
         customerName: "María González",
         customerLocation: "Bogotá, Colômbia",
-        customerComment: "Os sapatos mais confortáveis que já usei. A qualidade é excepcional e o envio foi super rápido. Definitivamente voltarei a comprar!",
+        customerComment:
+          "Os sapatos mais confortáveis que já usei. A qualidade é excepcional e o envio foi super rápido. Definitivamente voltarei a comprar!",
         customerPurchase: "Comprou: Sneakers Esportivos",
         customerName2: "Carlos Rodríguez",
         customerLocation2: "Medellín, Colômbia",
-        customerComment2: "Excelente atendimento ao cliente e produtos de primeira qualidade. Os sapatos chegaram perfeitos e bem a tempo para meu evento importante.",
+        customerComment2:
+          "Excelente atendimento ao cliente e produtos de primeira qualidade. Os sapatos chegaram perfeitos e bem a tempo para meu evento importante.",
         customerPurchase2: "Comprou: Sapatos Formais",
         customerName3: "Ana Martínez",
         customerLocation3: "Cali, Colômbia",
-        customerComment3: "A variedade de estilos é incrível. Encontrei exatamente o que procurava e a qualidade supera minhas expectativas. Atendimento ao cliente impecável!",
+        customerComment3:
+          "A variedade de estilos é incrível. Encontrei exatamente o que procurava e a qualidade supera minhas expectativas. Atendimento ao cliente impecável!",
         customerPurchase3: "Comprou: Botas de Inverno",
         customerName4: "Diego Herrera",
         customerLocation4: "Barranquilla, Colômbia",
-        customerComment4: "O processo de compra foi muito fácil e seguro. Os sapatos são exatamente como mostrado nas fotos. Altamente recomendado!",
+        customerComment4:
+          "O processo de compra foi muito fácil e seguro. Os sapatos são exatamente como mostrado nas fotos. Altamente recomendado!",
         customerPurchase4: "Comprou: Sneakers Casuais",
         // Depoimentos móveis
         mobileTitle: "O que nossos clientes dizem",
         mobileSubtitle: "Descubra por que milhares de clientes confiam em nós",
-        mobileTestimonial1: "A qualidade dos sapatos é excepcional. Compro aqui há mais de um ano e nunca me decepcionaram.",
+        mobileTestimonial1:
+          "A qualidade dos sapatos é excepcional. Compro aqui há mais de um ano e nunca me decepcionaram.",
         mobileTestimonial1Author: "María González",
-        mobileTestimonial2: "Adoro a variedade de estilos disponíveis. Sempre encontro o que procuro e a qualidade é consistente.",
+        mobileTestimonial2:
+          "Adoro a variedade de estilos disponíveis. Sempre encontro o que procuro e a qualidade é consistente.",
         mobileTestimonial2Author: "Carmen López",
         mobileViewAll: "Ver Todos os Depoimentos",
       },
@@ -2324,21 +2381,25 @@ const resources = {
       // Unique E-commerce Features
       uniqueFeatures: {
         vipStatus: "Status VIP",
-        vipStatusDesc: "Acesso exclusivo a produtos limitados e descontos especiais",
+        vipStatusDesc:
+          "Acesso exclusivo a produtos limitados e descontos especiais",
         loyaltyPoints: "Pontos de Fidelidade",
-        loyaltyPointsDesc: "Ganhe pontos com cada compra e troque por produtos gratuitos",
+        loyaltyPointsDesc:
+          "Ganhe pontos com cada compra e troque por produtos gratuitos",
         expressDelivery: "Entrega Expressa",
         expressDeliveryDesc: "Receba seus sapatos em menos de 24 horas",
         warrantyPlus: "Garantia Plus",
         warrantyPlusDesc: "Garantia estendida de 2 anos em todos os produtos",
         wishlistPremium: "Lista de Desejos Premium",
-        wishlistPremiumDesc: "Notificações instantâneas quando seus produtos favoritos estão disponíveis",
+        wishlistPremiumDesc:
+          "Notificações instantâneas quando seus produtos favoritos estão disponíveis",
         exclusiveAccess: "Acesso Exclusivo",
         exclusiveAccessDesc: "Primeiro acesso a novas coleções e lançamentos",
         hotDeals: "Ofertas Quentes",
         hotDealsDesc: "Descontos flash exclusivos apenas para você",
         earlyBird: "Acesso Antecipado",
-        earlyBirdDesc: "Compre produtos antes de qualquer um com descontos especiais",
+        earlyBirdDesc:
+          "Compre produtos antes de qualquer um com descontos especiais",
       },
     },
   },
