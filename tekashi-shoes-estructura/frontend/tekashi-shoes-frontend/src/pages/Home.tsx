@@ -931,8 +931,8 @@ const Home = () => {
       <section className="mobile-testimonials-section">
         <div className="container">
           <div className="mobile-testimonials-header">
-            <h2 className="section-title">Lo que dicen nuestros clientes</h2>
-            <p className="section-subtitle">Descubre por qué miles de clientes confían en nosotros</p>
+            <h2 className="section-title">{t("testimonials.mobileTitle")}</h2>
+            <p className="section-subtitle">{t("testimonials.mobileSubtitle")}</p>
           </div>
           
           <div className="mobile-testimonials-preview">
@@ -940,10 +940,10 @@ const Home = () => {
               <div className="testimonial-preview-content">
                 <div className="quote-icon">"</div>
                 <p className="testimonial-preview-text">
-                  "La calidad de los zapatos es excepcional. Llevo más de un año comprando aquí y nunca me han decepcionado."
+                  "{t("testimonials.mobileTestimonial1")}"
                 </p>
                 <div className="testimonial-preview-author">
-                  <h4>María González</h4>
+                  <h4>{t("testimonials.mobileTestimonial1Author")}</h4>
                   <div className="rating">⭐⭐⭐⭐⭐</div>
                 </div>
               </div>
@@ -953,10 +953,10 @@ const Home = () => {
               <div className="testimonial-preview-content">
                 <div className="quote-icon">"</div>
                 <p className="testimonial-preview-text">
-                  "Me encanta la variedad de estilos disponibles. Siempre encuentro lo que busco y la calidad es consistente."
+                  "{t("testimonials.mobileTestimonial2")}"
                 </p>
                 <div className="testimonial-preview-author">
-                  <h4>Carmen López</h4>
+                  <h4>{t("testimonials.mobileTestimonial2Author")}</h4>
                   <div className="rating">⭐⭐⭐⭐⭐</div>
                 </div>
               </div>
@@ -965,7 +965,7 @@ const Home = () => {
           
           <div className="mobile-testimonials-cta">
             <Link to="/testimonials" className="btn btn-primary btn-lg">
-              Ver Todos los Testimonios
+              {t("testimonials.mobileViewAll")}
             </Link>
           </div>
         </div>
