@@ -6,17 +6,13 @@ import {
   User,
   updateProfile,
   sendPasswordResetEmail,
-  GoogleAuthProvider,
   signInWithPopup,
-  FacebookAuthProvider,
-  OAuthProvider,
-  TwitterAuthProvider,
   sendEmailVerification,
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { auth, googleProvider, facebookProvider, microsoftProvider } from "../config/firebase";
 
 export interface UserProfile {
   uid: string;
@@ -38,22 +34,12 @@ class FirebaseAuthService {
   private readonly SESSION_ID_KEY = "tekashi_session_id";
 
   // Proveedores de autenticación social
-  private googleProvider: GoogleAuthProvider;
-  private facebookProvider: FacebookAuthProvider;
-  private microsoftProvider: OAuthProvider;
+  private googleProvider = googleProvider;
+  private facebookProvider = facebookProvider;
+  private microsoftProvider = microsoftProvider;
 
   constructor() {
-    // Inicializar proveedores de autenticación social
-    this.googleProvider = new GoogleAuthProvider();
-    this.googleProvider.addScope("email");
-    this.googleProvider.addScope("profile");
-
-    this.facebookProvider = new FacebookAuthProvider();
-    this.facebookProvider.addScope("email");
-
-    this.microsoftProvider = new OAuthProvider("microsoft.com");
-    this.microsoftProvider.addScope("email");
-    this.microsoftProvider.addScope("profile");
+    // Los proveedores ya están configurados en firebase.ts
   }
 
   // Generar ID de sesión único
@@ -159,20 +145,27 @@ class FirebaseAuthService {
     try {
       console.log("🔐 Iniciando sesión con Google...");
 
-      // Configurar el popup para evitar problemas de CORS
-      const result = await signInWithPopup(this.auth, this.googleProvider, {
-        popupRedirectUri: window.location.origin,
-      });
+      // Verificar que el proveedor esté correctamente configurado
+      if (!this.googleProvider) {
+        throw new Error("Proveedor de Google no configurado correctamente");
+      }
+
+      // Configurar el popup sin opciones adicionales que puedan causar problemas
+      const result = await signInWithPopup(this.auth, this.googleProvider);
 
       console.log("✅ Usuario autenticado con Google:", result.user.email);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
       console.error("❌ Error en autenticación con Google:", error);
 
-      // Manejar errores específicos de CORS
+      // Manejar errores específicos
       if (error.code === "auth/popup-closed-by-user") {
         throw new Error(
           "La ventana de autenticación fue cerrada por el usuario"
+        );
+      } else if (error.code === "auth/popup-blocked") {
+        throw new Error(
+          "El popup fue bloqueado por el navegador. Por favor, permite popups para este sitio."
         );
       } else if (error.message?.includes("Cross-Origin-Opener-Policy")) {
         throw new Error(

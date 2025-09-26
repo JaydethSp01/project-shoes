@@ -34,6 +34,9 @@ export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope("email");
 googleProvider.addScope("profile");
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export const facebookProvider = new FacebookAuthProvider();
 facebookProvider.addScope("email");
