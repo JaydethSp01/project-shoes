@@ -83,16 +83,6 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
     }
   }, [shouldSearch, allProducts]);
 
-  // Generar sugerencias solo cuando el usuario escriba (sin búsqueda automática)
-  useEffect(() => {
-    if (searchTerm.trim()) {
-      generateSuggestions();
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  }, [searchTerm, allProducts]);
-
   // Actualizar estado de carga
   useEffect(() => {
     setIsLoading(isSearching);
@@ -207,11 +197,13 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
   };
 
   const handleSearch = () => {
+    triggerSearch();
     performSearch();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      triggerSearch();
       performSearch();
     } else if (e.key === "Escape") {
       setShowSuggestions(false);

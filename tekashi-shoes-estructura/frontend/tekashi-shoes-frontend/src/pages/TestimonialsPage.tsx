@@ -3,6 +3,7 @@ import { useTranslation } from "../hooks/useTranslation";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaStar, FaQuoteLeft } from "react-icons/fa";
 import TestimonialsSection from "../components/TestimonialsSection";
+import UniqueEcommerceFeatures from "../components/UniqueEcommerceFeatures";
 import SimplifiedHeader from "../components/SimplifiedHeader";
 import Footer from "../components/Footer";
 import "../styles/TestimonialsPage.css";
@@ -33,6 +34,11 @@ const TestimonialsPage: React.FC = () => {
         </div>
 
         <TestimonialsSection />
+
+        {/* Funcionalidades Únicas de Ecommerce */}
+        <div className="container">
+          <UniqueEcommerceFeatures />
+        </div>
 
         <section className="additional-testimonials">
           <div className="container">

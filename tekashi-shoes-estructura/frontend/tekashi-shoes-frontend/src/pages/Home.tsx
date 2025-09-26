@@ -40,14 +40,11 @@ import { notificationService } from "../services/NotificationService";
 import { useGeolocation } from "../hooks/useGeolocation";
 import OnboardingModal from "../components/OnboardingModal";
 import LoadingSpinner from "../components/LoadingSpinner";
-import QuickWishlist from "../components/QuickWishlist";
-import ProductComparator from "../components/ProductComparator";
 import TestimonialsSection from "../components/TestimonialsSection";
 import FeaturesSection from "../components/FeaturesSection";
 import "../styles/UserDashboard.css";
 import "../styles/UserMenu.css";
 import "../styles/AdminPanel.css";
-import "../styles/FloatingActions.css";
 import "../styles/AdvancedSearch.css";
 import "../styles/ProductFilters.css";
 import "../styles/CheckoutForm.css";
@@ -108,8 +105,6 @@ const Home = () => {
   const [showCart, setShowCart] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
-  const [showQuickWishlist, setShowQuickWishlist] = useState(false);
-  const [showProductComparator, setShowProductComparator] = useState(false);
 
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -931,52 +926,12 @@ const Home = () => {
         onSkip={handleOnboardingClose}
       />
 
-      {/* Quick Wishlist Modal */}
-      <QuickWishlist
-        isOpen={showQuickWishlist}
-        onClose={() => setShowQuickWishlist(false)}
-        onAddToCart={handleAddToCart}
-        onViewProduct={(product) => {
-          setSelectedProductForReview(product);
-          setShowReviews(true);
-        }}
-      />
-
-      {/* Product Comparator Modal */}
-      <ProductComparator
-        isOpen={showProductComparator}
-        onClose={() => setShowProductComparator(false)}
-        onAddToCart={handleAddToCart}
-        onAddToWishlist={(product) => {
-          // Simular agregar a wishlist
-          showSuccess(`¡${product.nombre} agregado a tu lista de deseos!`);
-        }}
-      />
-
       {/* Secciones removidas para evitar duplicidad - ahora están en páginas separadas */}
       {/* <TestimonialsSection /> */}
       {/* <FeaturesSection /> */}
 
       {/* Footer */}
       <Footer />
-
-      {/* Floating Action Buttons */}
-      <div className="floating-actions">
-        <button 
-          className="fab wishlist-fab"
-          onClick={() => setShowQuickWishlist(true)}
-          title="Lista de Deseos"
-        >
-          <FaHeart />
-        </button>
-        <button 
-          className="fab compare-fab"
-          onClick={() => setShowProductComparator(true)}
-          title="Comparar Productos"
-        >
-          ⚖️
-        </button>
-      </div>
     </div>
   );
 };

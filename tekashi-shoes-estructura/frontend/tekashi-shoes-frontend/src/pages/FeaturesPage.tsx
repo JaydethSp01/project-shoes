@@ -9,6 +9,7 @@ import {
   FaMobile,
 } from "react-icons/fa";
 import FeaturesSection from "../components/FeaturesSection";
+import UniqueEcommerceFeatures from "../components/UniqueEcommerceFeatures";
 import SimplifiedHeader from "../components/SimplifiedHeader";
 import Footer from "../components/Footer";
 import "../styles/FeaturesPage.css";
@@ -39,6 +40,11 @@ const FeaturesPage: React.FC = () => {
         </div>
 
         <FeaturesSection />
+
+        {/* Funcionalidades Únicas de Ecommerce */}
+        <div className="container">
+          <UniqueEcommerceFeatures />
+        </div>
 
         <section className="additional-features">
           <div className="container">
