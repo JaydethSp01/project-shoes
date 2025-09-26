@@ -9,10 +9,31 @@
   display: block !important; /* Mostrar en todas las páginas */
 }
 
-/* Show only on mobile devices */
-@media (max-width: 768px) {
+/* Show on all devices */
+.simplified-header {
+  display: block !important;
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
   .simplified-header {
-    display: block;
+    display: block !important;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .header-content {
+    max-width: 1400px;
+  }
+  
+  .brand-name {
+    font-size: 20px;
+  }
+  
+  .header-logo {
+    width: 40px;
+    height: 40px;
   }
 }
 

@@ -476,12 +476,14 @@ const Home = () => {
                 cartTotal={cartTotal}
               />
 
-              {/* Header específico según el rol */}
-              <SimplifiedHeader />
+              {/* Header específico según el rol - removido para evitar duplicación */}
             </div>
           </div>
         </nav>
       </header>
+
+      {/* Simplified Header para desktop */}
+      <SimplifiedHeader />
 
       {/* Hero Section */}
       <section className="hero-section">
@@ -494,9 +496,15 @@ const Home = () => {
                 <button
                   className="btn btn-primary btn-lg"
                   onClick={() => {
-                    document
-                      .querySelector(".products-section")
-                      ?.scrollIntoView({ behavior: "smooth" });
+                    const productsSection = document.querySelector(".products-section");
+                    if (productsSection) {
+                      productsSection.scrollIntoView({ 
+                        behavior: "smooth", 
+                        block: "start" 
+                      });
+                    } else {
+                      console.warn("Sección de productos no encontrada");
+                    }
                   }}
                 >
                   {t("hero.viewCollection")}
