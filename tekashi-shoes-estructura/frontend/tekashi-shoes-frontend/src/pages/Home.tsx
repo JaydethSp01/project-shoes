@@ -423,7 +423,7 @@ const Home = () => {
               </div>
               <div className="col-md-6 text-end">
                 <div className="header-links">
-                  <LanguageSelector />
+                  {/* LanguageSelector movido al navbar principal */}
                 </div>
               </div>
             </div>
@@ -449,6 +449,11 @@ const Home = () => {
               </div>
 
               {/* Búsqueda removida del header - se usa la de abajo */}
+
+              {/* Selector de idiomas */}
+              <div className="navbar-language-selector">
+                <LanguageSelector />
+              </div>
 
               {/* Nuevo Sistema de Menú */}
               <UserMenu
