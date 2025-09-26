@@ -349,8 +349,11 @@ const manejarErrorAuth = (error, req, res, next) => {
 const verificarAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    console.log("🔍 Auth header recibido:", authHeader ? "Presente" : "Ausente");
-    
+    console.log(
+      "🔍 Auth header recibido:",
+      authHeader ? "Presente" : "Ausente"
+    );
+
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       console.log("❌ No hay token de autorización");
       return res.status(401).json({
