@@ -63,7 +63,9 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
         return;
       }
 
-      const wishlistsData = await dashboardService.getWishlists(user.id);
+      const wishlistsData = await dashboardService.getWishlists(
+        String(user.id)
+      );
       setWishlists(wishlistsData);
     } catch (err) {
       setError("Error cargando listas de deseos");
@@ -81,7 +83,7 @@ const WishlistManager: React.FC<WishlistManagerProps> = ({
       if (!user) return;
 
       const newWishlist = await dashboardService.createWishlist(
-        user.id,
+        String(user.id),
         formData.name,
         formData.description
       );

@@ -14,13 +14,12 @@ import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 // 🔹 Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCmCGkyXuYn3WyMlMrLGXesHPZ1PkwFhTI",
-  authDomain: "login-a8833.firebaseapp.com",
-  projectId: "login-a8833",
-  storageBucket: "login-a8833.firebasestorage.app",
-  messagingSenderId: "39965371808",
-  appId: "1:39965371808:web:21dfe587edbbb2863088c5",
-  measurementId: "G-9ND1YRVZT7",
+  apiKey: "AIzaSyCYP_q7-sXQRJWj49SqZ-IpjywNUnHvtz0",
+  authDomain: "tekashi-shoes-ecommerce.firebaseapp.com",
+  projectId: "tekashi-shoes-ecommerce",
+  storageBucket: "tekashi-shoes-ecommerce.firebasestorage.app",
+  messagingSenderId: "165339423320",
+  appId: "1:165339423320:web:c00b0e19bc6b0236da202d",
 };
 
 // 🔹 Inicializar Firebase

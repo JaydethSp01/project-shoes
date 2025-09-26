@@ -14,6 +14,82 @@
   animation: fadeIn 0.3s ease;
 }
 
+/* Mobile optimizations for dashboard */
+@media (max-width: 768px) {
+  .user-dashboard-overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+  
+  .user-dashboard {
+    width: 100%;
+    height: calc(100vh - 20px);
+    max-width: none;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+  }
+  
+  .dashboard-content {
+    flex-direction: column;
+  }
+  
+  .dashboard-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  .dashboard-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 8px;
+  }
+  
+  .dashboard-nav .nav-item {
+    min-width: 120px;
+    flex-shrink: 0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  .dashboard-nav .nav-item .nav-text {
+    display: none;
+  }
+  
+  .dashboard-nav .nav-item .nav-icon {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .dashboard-main {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .stat-card h3 {
+    font-size: 20px;
+  }
+  
+  .stat-card p {
+    font-size: 12px;
+  }
+}
+
 .user-dashboard {
   width: 95%;
   max-width: 1400px;
@@ -80,6 +156,22 @@
   margin: 0;
   font-size: 24px;
   font-weight: 700;
+}
+
+.current-section {
+  margin: 8px 0;
+  padding: 6px 12px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.section-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
 }
 
 .user-badges {

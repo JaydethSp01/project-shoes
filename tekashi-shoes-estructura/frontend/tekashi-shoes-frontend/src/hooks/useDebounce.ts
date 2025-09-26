@@ -23,22 +23,43 @@ export function useDebounce<T>(value: T, delay: number): T {
 /**
  * Hook para búsqueda con debounce
  * Optimiza las búsquedas para evitar llamadas excesivas al API
+ * Modificado para NO buscar automáticamente - solo cuando el usuario presione Enter o haga clic en el botón
  */
 export function useSearchDebounce(searchTerm: string, delay: number = 500) {
   const debouncedSearchTerm = useDebounce(searchTerm, delay);
   const [isSearching, setIsSearching] = useState(false);
+  const [shouldSearch, setShouldSearch] = useState(false);
 
+  // NO buscar automáticamente - solo cuando se active manualmente
   useEffect(() => {
-    if (debouncedSearchTerm && debouncedSearchTerm.length >= 2) {
+    if (
+      shouldSearch &&
+      debouncedSearchTerm &&
+      debouncedSearchTerm.length >= 2
+    ) {
       setIsSearching(true);
     } else {
       setIsSearching(false);
     }
-  }, [debouncedSearchTerm]);
+  }, [shouldSearch, debouncedSearchTerm]);
+
+  const triggerSearch = () => {
+    if (searchTerm && searchTerm.length >= 2) {
+      setShouldSearch(true);
+    }
+  };
+
+  const resetSearch = () => {
+    setShouldSearch(false);
+    setIsSearching(false);
+  };
 
   return {
     debouncedSearchTerm,
     isSearching,
-    shouldSearch: debouncedSearchTerm && debouncedSearchTerm.length >= 2,
+    shouldSearch:
+      shouldSearch && debouncedSearchTerm && debouncedSearchTerm.length >= 2,
+    triggerSearch,
+    resetSearch,
   };
 }

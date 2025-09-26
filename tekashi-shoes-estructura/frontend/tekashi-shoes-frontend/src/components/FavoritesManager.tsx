@@ -49,7 +49,9 @@ const FavoritesManager: React.FC<FavoritesManagerProps> = ({
         return;
       }
 
-      const favoritesData = await dashboardService.getFavorites(user.id);
+      const favoritesData = await dashboardService.getFavorites(
+        String(user.id)
+      );
       setFavorites(favoritesData);
     } catch (err) {
       setError("Error cargando favoritos");
@@ -64,7 +66,7 @@ const FavoritesManager: React.FC<FavoritesManagerProps> = ({
       const user = authService.getCurrentUser();
       if (!user) return;
 
-      await dashboardService.removeFromFavorites(user.id, productId);
+      await dashboardService.removeFromFavorites(String(user.id), productId);
       setFavorites(favorites.filter((fav) => fav.productId !== productId));
     } catch (err) {
       console.error("Error removing favorite:", err);
@@ -100,7 +102,7 @@ const FavoritesManager: React.FC<FavoritesManagerProps> = ({
 
       // Crear la wishlist
       const wishlist = await dashboardService.createWishlist(
-        user.id,
+        String(user.id),
         newWishlistName,
         newWishlistDescription
       );
@@ -126,7 +128,7 @@ const FavoritesManager: React.FC<FavoritesManagerProps> = ({
       if (!user) return;
 
       for (const productId of selectedProducts) {
-        await dashboardService.removeFromFavorites(user.id, productId);
+        await dashboardService.removeFromFavorites(String(user.id), productId);
       }
 
       setFavorites(

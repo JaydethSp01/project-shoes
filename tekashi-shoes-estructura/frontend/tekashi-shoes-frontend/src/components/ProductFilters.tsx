@@ -68,12 +68,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     };
   }, [searchTimeout]);
 
-  useEffect(() => {
-    // Solo aplicar filtros si hay productos cargados
-    if (allProducts && allProducts.length > 0) {
-      applyFilters();
-    }
-  }, [filters, allProducts]);
+  // Removido el useEffect automático - ahora solo se ejecuta cuando el usuario hace clic en "Buscar"
+  // useEffect(() => {
+  //   // Solo aplicar filtros si hay productos cargados
+  //   if (allProducts && allProducts.length > 0) {
+  //     applyFilters();
+  //   }
+  // }, [filters, allProducts]);
 
   const loadFilterOptions = async () => {
     try {
@@ -214,22 +215,10 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     []
   );
 
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      // Limpiar timeout anterior
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
-
-      // Establecer nuevo timeout para debounce
-      const newTimeout = setTimeout(() => {
-        handleFilterChange("query", value);
-      }, 500); // 500ms de delay
-
-      setSearchTimeout(newTimeout);
-    },
-    [searchTimeout, handleFilterChange]
-  );
+  const handleSearchChange = useCallback((value: string) => {
+    // Solo actualizar el estado del input, NO ejecutar búsqueda automática
+    setFilters((prev) => ({ ...prev, query: value }));
+  }, []);
 
   const clearFilters = () => {
     setFilters({
@@ -279,7 +268,15 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             placeholder={t("products.searchPlaceholder")}
             value={filters.query}
             onChange={(e) => handleSearchChange(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && applyFilters()}
           />
+          <button
+            className="search-btn"
+            onClick={applyFilters}
+            disabled={isLoading}
+          >
+            {isLoading ? "..." : "Buscar"}
+          </button>
         </div>
 
         <div className="quick-filters">

@@ -77,6 +77,53 @@
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
 }
 
+/* Enhanced modern spinner */
+.spinner.enhanced {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(102, 126, 234, 0.1);
+  border-top: 3px solid #667eea;
+  border-right: 3px solid #764ba2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 30px rgba(102, 126, 234, 0.4);
+  position: relative;
+}
+
+.spinner.enhanced::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border: 2px solid transparent;
+  border-top: 2px solid rgba(102, 126, 234, 0.3);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+/* Gradient spinner */
+.spinner.gradient {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #667eea, #764ba2, #667eea);
+  animation: spin 1s linear infinite;
+  position: relative;
+}
+
+.spinner.gradient::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+}
+
 /* Pulse animation for text */
 @keyframes pulse {
   0%, 100% {

@@ -181,11 +181,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     try {
+      console.log("🚪 Iniciando proceso de logout...");
       setError(null);
       setLoading(true);
       await unifiedAuthService.signOut();
+      console.log("✅ Logout completado exitosamente");
       // El estado se actualizará automáticamente a través de la suscripción
     } catch (error) {
+      console.error("❌ Error durante logout:", error);
       handleError(error);
     } finally {
       setLoading(false);

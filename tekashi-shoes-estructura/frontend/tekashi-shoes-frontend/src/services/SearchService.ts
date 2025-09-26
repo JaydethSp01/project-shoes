@@ -39,7 +39,7 @@ class SearchService {
   ];
   private cachedProducts: Product[] = [];
   private cacheTimestamp: number = 0;
-  private CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+  private CACHE_DURATION = 30 * 1000; // 30 segundos (reducido para evitar uso excesivo de caché)
 
   // Obtener productos desde caché o API
   private async getCachedProducts(): Promise<Product[]> {
@@ -54,7 +54,8 @@ class SearchService {
       this.cachedProducts = await ConexionApiBackend.obtenerProductos();
       this.cacheTimestamp = now;
     } else {
-      console.log("📦 Usando productos desde caché");
+      // Comentado para reducir logs excesivos
+      // console.log("📦 Usando productos desde caché");
     }
 
     return this.cachedProducts;
@@ -63,20 +64,11 @@ class SearchService {
   // Realizar búsqueda completa
   async search(filters: SearchFilters): Promise<SearchResult> {
     try {
-      console.log("Realizando búsqueda con filtros:", filters);
+      // Comentado para reducir logs excesivos
+      // console.log("Realizando búsqueda con filtros:", filters);
 
-      // Solo hacer llamada al API si hay filtros complejos o query específica
-      const hasComplexFilters = filters.query && filters.query.length >= 3;
-
-      let allProducts;
-
-      if (hasComplexFilters) {
-        // Hacer llamada al API solo para búsquedas específicas
-        allProducts = await ConexionApiBackend.obtenerProductos();
-      } else {
-        // Usar cache local para filtros simples
-        allProducts = await this.getCachedProducts();
-      }
+      // Siempre usar caché local para evitar llamadas excesivas a la API
+      const allProducts = await this.getCachedProducts();
 
       // Aplicar filtros localmente
       let filteredProducts = this.applyFilters(allProducts, filters);

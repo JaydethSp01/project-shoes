@@ -13,6 +13,7 @@ import {
 import { authService } from "../services/AuthService";
 import BeautifulAlert from "./BeautifulAlert";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
+import { useTranslation } from "../hooks/useTranslation";
 import "../styles/UserProfileModal.css";
 
 interface UserProfileModalProps {
@@ -40,9 +41,12 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  
+
   // Hook para alertas bonitas
   const { alertState, showError, hideAlert } = useBeautifulAlert();
+
+  // Hook para traducciones
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (user && isOpen) {
@@ -158,7 +162,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
         <div className="profile-header">
           <h2>
             <FaUser className="profile-icon" />
-            Mi Perfil
+            {t("myProfile")}
           </h2>
           <button className="close-btn" onClick={onClose}>
             <FaTimes />
@@ -183,28 +187,28 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="form-group">
                 <label>
                   <FaUser className="input-icon" />
-                  Nombre Completo
+                  {t("name")}
                 </label>
                 <input
                   type="text"
                   value={profileData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   disabled={!isEditing}
-                  placeholder="Tu nombre completo"
+                  placeholder={t("name")}
                 />
               </div>
 
               <div className="form-group">
                 <label>
                   <FaEnvelope className="input-icon" />
-                  Email
+                  {t("email")}
                 </label>
                 <input
                   type="email"
                   value={profileData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   disabled={!isEditing}
-                  placeholder="tu@email.com"
+                  placeholder={t("auth.emailPlaceholder")}
                 />
               </div>
             </div>
@@ -213,7 +217,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="form-group">
                 <label>
                   <FaPhone className="input-icon" />
-                  Teléfono
+                  {t("phone")}
                 </label>
                 <input
                   type="tel"
@@ -227,7 +231,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div className="form-group">
                 <label>
                   <FaMapMarkerAlt className="input-icon" />
-                  Ciudad
+                  {t("city")}
                 </label>
                 <input
                   type="text"
@@ -242,7 +246,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <div className="form-group full-width">
               <label>
                 <FaMapMarkerAlt className="input-icon" />
-                Dirección
+                {t("address")}
               </label>
               <textarea
                 value={profileData.address}
@@ -254,7 +258,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </div>
 
             <div className="form-group">
-              <label>Código Postal</label>
+              <label>{t("postalCode")}</label>
               <input
                 type="text"
                 value={profileData.postalCode}

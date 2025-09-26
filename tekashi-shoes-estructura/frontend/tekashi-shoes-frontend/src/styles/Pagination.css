@@ -351,3 +351,95 @@
     transform: translateY(-2px);
   }
 }
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+  .pagination-container {
+    margin: 20px 0;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .pagination-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .items-info {
+    font-size: 13px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .items-per-page {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .items-per-page label {
+    font-size: 13px;
+  }
+
+  .pagination-select {
+    font-size: 13px;
+    padding: 6px 10px;
+    min-width: 70px;
+  }
+
+  .pagination-controls {
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .pagination-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-width: 40px;
+    justify-content: center;
+  }
+
+  .pagination-btn .btn-text {
+    display: none;
+  }
+
+  .pagination-btn .btn-icon {
+    margin: 0;
+  }
+
+  .pagination-number {
+    min-width: 35px;
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .pagination-dots {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination-container {
+    padding: 12px;
+    margin: 15px 0;
+  }
+
+  .pagination-controls {
+    gap: 4px;
+  }
+
+  .pagination-btn {
+    padding: 8px 10px;
+    min-width: 35px;
+  }
+
+  .pagination-number {
+    min-width: 30px;
+    padding: 8px;
+  }
+
+  .pagination-dots {
+    padding: 8px 6px;
+  }
+}

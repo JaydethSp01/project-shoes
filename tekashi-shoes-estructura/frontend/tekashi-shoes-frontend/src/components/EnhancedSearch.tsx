@@ -40,10 +40,13 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
   // Implementar debounce para optimizar búsquedas
-  const { debouncedSearchTerm, isSearching, shouldSearch } = useSearchDebounce(
-    searchTerm,
-    500
-  );
+  const {
+    debouncedSearchTerm,
+    isSearching,
+    shouldSearch,
+    triggerSearch,
+    resetSearch,
+  } = useSearchDebounce(searchTerm, 500);
 
   useEffect(() => {
     // Cargar búsquedas recientes desde localStorage
@@ -70,7 +73,7 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [allProducts]);
 
-  // Usar debounce para evitar llamadas excesivas al API
+  // Solo generar sugerencias cuando se active la búsqueda manualmente
   useEffect(() => {
     if (shouldSearch) {
       generateSuggestions();
@@ -78,7 +81,17 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [debouncedSearchTerm, allProducts]);
+  }, [shouldSearch, allProducts]);
+
+  // Generar sugerencias solo cuando el usuario escriba (sin búsqueda automática)
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      generateSuggestions();
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchTerm, allProducts]);
 
   // Actualizar estado de carga
   useEffect(() => {
@@ -202,6 +215,7 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({
       performSearch();
     } else if (e.key === "Escape") {
       setShowSuggestions(false);
+      resetSearch();
     }
   };
 

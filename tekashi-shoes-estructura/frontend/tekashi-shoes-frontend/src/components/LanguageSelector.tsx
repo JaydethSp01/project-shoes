@@ -11,41 +11,54 @@ interface Language {
 }
 
 const LanguageSelector: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, changeLanguage, getCurrentLanguage } = useTranslation();
 
-  const languages: Language[] = [
-    {
-      code: "es",
-      name: t("additional.spanish"),
-      flag: "🇪🇸",
-      nativeName: t("additional.spanish"),
-    },
-    {
-      code: "en",
-      name: t("additional.english"),
-      flag: "🇺🇸",
-      nativeName: t("additional.english"),
-    },
-    {
-      code: "fr",
-      name: t("additional.french"),
-      flag: "🇫🇷",
-      nativeName: t("additional.french"),
-    },
-    {
-      code: "pt",
-      name: t("additional.portuguese"),
-      flag: "🇵🇹",
-      nativeName: t("additional.portuguese"),
-    },
-  ];
+  const [languages, setLanguages] = useState<Language[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState<Language>(
-    languages[0]
-  );
-  const { changeLanguage, getCurrentLanguage } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState<Language | null>(null);
+
+  // Función para manejar clicks fuera del selector
+  const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Element;
+    if (!target.closest(".language-selector")) {
+      setIsOpen(false);
+    }
+  };
+
+  // Inicializar las lenguas de forma estática para evitar problemas de hooks
+  useEffect(() => {
+    const langs: Language[] = [
+      {
+        code: "es",
+        name: "Español",
+        flag: "🇪🇸",
+        nativeName: "Español",
+      },
+      {
+        code: "en",
+        name: "English",
+        flag: "🇺🇸",
+        nativeName: "English",
+      },
+      {
+        code: "fr",
+        name: "Français",
+        flag: "🇫🇷",
+        nativeName: "Français",
+      },
+      {
+        code: "pt",
+        name: "Português",
+        flag: "🇵🇹",
+        nativeName: "Português",
+      },
+    ];
+    setLanguages(langs);
+  }, []);
 
   useEffect(() => {
+    if (languages.length === 0) return;
+
     // Obtener el idioma actual del localStorage
     const savedLang = localStorage.getItem("preferred-language") || "es";
     const lang = languages.find((l) => l.code === savedLang) || languages[0];
@@ -55,7 +68,45 @@ const LanguageSelector: React.FC = () => {
     if (savedLang !== getCurrentLanguage()) {
       changeLanguage(savedLang);
     }
-  }, [changeLanguage, getCurrentLanguage]);
+  }, [languages, changeLanguage, getCurrentLanguage]);
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // No renderizar si no hay lenguas cargadas
+  if (languages.length === 0 || !currentLanguage) {
+    return (
+      <div className="language-selector">
+        <button
+          className="language-selector-button"
+          disabled
+          style={{
+            position: "relative",
+            zIndex: 1001,
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            borderRadius: "12px",
+            padding: "8px 12px",
+            color: "rgba(255, 255, 255, 0.8)",
+            cursor: "not-allowed",
+            transition: "all 0.3s ease",
+            backdropFilter: "blur(10px)",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            minWidth: "120px",
+          }}
+        >
+          <FaGlobe className="language-icon" />
+          <span className="language-name">{t("loading")}</span>
+        </button>
+      </div>
+    );
+  }
 
   const handleLanguageChange = (language: Language) => {
     setCurrentLanguage(language);
@@ -76,19 +127,6 @@ const LanguageSelector: React.FC = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as Element;
-    if (!target.closest(".language-selector")) {
-      setIsOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <div

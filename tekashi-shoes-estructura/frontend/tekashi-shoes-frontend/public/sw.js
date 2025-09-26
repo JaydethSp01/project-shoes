@@ -144,18 +144,21 @@ self.addEventListener("fetch", (event) => {
         return cache.match(request).then((cachedResponse) => {
           if (cachedResponse) {
             console.log("🌐 API desde cache:", request.url);
-            // Actualizar en background
-            fetch(request).then((response) => {
-              if (response.status === 200) {
-                cache.put(request, response.clone());
-              }
-            });
+            // Actualizar en background solo para requests GET
+            if (request.method === "GET") {
+              fetch(request).then((response) => {
+                if (response.status === 200) {
+                  cache.put(request, response.clone());
+                }
+              });
+            }
             return cachedResponse;
           }
 
           return fetch(request)
             .then((response) => {
-              if (response.status === 200) {
+              // Solo cachear requests GET exitosos
+              if (response.status === 200 && request.method === "GET") {
                 try {
                   cache.put(request, response.clone());
                 } catch (error) {

@@ -789,7 +789,7 @@ Puedes probar con:
     if (type) {
       filteredProducts = filteredProducts.filter(
         (p) =>
-          p.tipo.toLowerCase().includes(type) ||
+          p.tipoProductoId?.toString().toLowerCase().includes(type) ||
           p.descripcion.toLowerCase().includes(type)
       );
     }
@@ -798,7 +798,7 @@ Puedes probar con:
       filteredProducts = filteredProducts.filter(
         (p) =>
           p.descripcion.toLowerCase().includes(color) ||
-          p.colores.some((c) => c.toLowerCase().includes(color))
+          p.color.toLowerCase().includes(color)
       );
     }
 

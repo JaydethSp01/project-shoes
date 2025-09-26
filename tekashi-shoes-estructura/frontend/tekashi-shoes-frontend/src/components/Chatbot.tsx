@@ -310,7 +310,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onToggle }) => {
             className="chatbot-input-field"
           />
           <button
-            onClick={handleSendMessage}
+            onClick={() => handleSendMessage()}
             disabled={!inputText.trim() || isTyping}
             className="chatbot-send-btn"
           >

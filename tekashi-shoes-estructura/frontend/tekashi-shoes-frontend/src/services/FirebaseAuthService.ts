@@ -158,11 +158,28 @@ class FirebaseAuthService {
   async signInWithGoogle(): Promise<UserProfile> {
     try {
       console.log("🔐 Iniciando sesión con Google...");
-      const result = await signInWithPopup(this.auth, this.googleProvider);
+
+      // Configurar el popup para evitar problemas de CORS
+      const result = await signInWithPopup(this.auth, this.googleProvider, {
+        popupRedirectUri: window.location.origin,
+      });
+
       console.log("✅ Usuario autenticado con Google:", result.user.email);
       return this.mapUserToProfile(result.user);
     } catch (error: any) {
       console.error("❌ Error en autenticación con Google:", error);
+
+      // Manejar errores específicos de CORS
+      if (error.code === "auth/popup-closed-by-user") {
+        throw new Error(
+          "La ventana de autenticación fue cerrada por el usuario"
+        );
+      } else if (error.message?.includes("Cross-Origin-Opener-Policy")) {
+        throw new Error(
+          "Error de configuración del navegador. Por favor, desactiva el bloqueador de popups y vuelve a intentar."
+        );
+      }
+
       throw this.mapFirebaseError(error);
     }
   }

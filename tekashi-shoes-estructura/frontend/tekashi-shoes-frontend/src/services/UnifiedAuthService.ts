@@ -32,22 +32,65 @@ class UnifiedAuthService {
   }
 
   async getAuthToken(): Promise<string | null> {
-    // Verificar si hay token de Firebase
-    if (this.currentUser?.isFirebaseUser) {
-      try {
-        const firebaseToken = await firebaseAuthService.getIdToken();
+    console.log("🔍 Obteniendo token de autenticación...");
+    console.log("👤 Usuario actual:", this.currentUser);
+
+    // Primero intentar obtener token de Firebase directamente
+    try {
+      const firebaseToken = await firebaseAuthService.getIdToken();
+      if (firebaseToken) {
+        console.log(
+          "✅ Token de Firebase obtenido:",
+          firebaseToken.substring(0, 20) + "..."
+        );
         return firebaseToken;
-      } catch (error) {
-        console.warn("No se pudo obtener token de Firebase:", error);
       }
+    } catch (error) {
+      console.warn("❌ No se pudo obtener token de Firebase:", error);
     }
 
-    // Verificar si hay token del backend
-    if (this.currentUser?.isBackendUser) {
-      const backendToken = localStorage.getItem("tekashi_backend_token");
+    // Intentar obtener token del backend directamente
+    const backendToken = localStorage.getItem("tekashi_backend_token");
+    if (backendToken) {
+      console.log(
+        "✅ Token del backend obtenido:",
+        backendToken.substring(0, 20) + "..."
+      );
       return backendToken;
     }
 
+    // Verificar si hay token de Firebase en el usuario actual
+    if (this.currentUser?.isFirebaseUser) {
+      try {
+        const firebaseToken = await firebaseAuthService.getIdToken();
+        if (firebaseToken) {
+          console.log(
+            "✅ Token de Firebase del usuario actual:",
+            firebaseToken.substring(0, 20) + "..."
+          );
+          return firebaseToken;
+        }
+      } catch (error) {
+        console.warn(
+          "❌ No se pudo obtener token de Firebase del usuario:",
+          error
+        );
+      }
+    }
+
+    // Verificar si hay token del backend en el usuario actual
+    if (this.currentUser?.isBackendUser) {
+      const backendToken = localStorage.getItem("tekashi_backend_token");
+      if (backendToken) {
+        console.log(
+          "✅ Token del backend del usuario actual:",
+          backendToken.substring(0, 20) + "..."
+        );
+        return backendToken;
+      }
+    }
+
+    console.log("❌ No se pudo obtener ningún token");
     return null;
   }
 

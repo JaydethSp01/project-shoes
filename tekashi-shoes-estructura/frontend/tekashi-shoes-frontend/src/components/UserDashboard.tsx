@@ -77,7 +77,27 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const { alertState, showSuccess, showError, hideAlert } = useBeautifulAlert();
 
   // Hook para traducciones
-  // const { t } = useTranslation(); // Comentado temporalmente
+  const { t } = useTranslation();
+
+  // Función para obtener el nombre de la sección actual
+  const getCurrentSectionName = () => {
+    switch (activeTab) {
+      case "overview":
+        return t("userDashboard.overview");
+      case "purchases":
+        return t("userDashboard.purchases");
+      case "favorites":
+        return t("userDashboard.favorites");
+      case "wishlists":
+        return t("userDashboard.wishlists");
+      case "notifications":
+        return t("userDashboard.notifications");
+      case "profile":
+        return t("userDashboard.profile");
+      default:
+        return t("userDashboard.overview");
+    }
+  };
 
   useEffect(() => {
     if (isOpen && user) {
@@ -102,11 +122,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
         wishlistsData,
         notificationsData,
       ] = await Promise.all([
-        dashboardService.getDashboardStats(userId),
-        dashboardService.getPurchaseHistory(userId),
-        dashboardService.getFavorites(userId),
-        dashboardService.getWishlists(Number(userId)),
-        dashboardService.getNotifications(Number(userId)),
+        dashboardService.getDashboardStats(String(userId)),
+        dashboardService.getPurchaseHistory(String(userId)),
+        dashboardService.getFavorites(String(userId)),
+        dashboardService.getWishlists(String(userId)),
+        dashboardService.getNotifications(String(userId)),
       ]);
 
       console.log("Datos cargados:", {
@@ -123,7 +143,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       setWishlists(wishlistsData);
       setNotifications(notificationsData);
     } catch (err) {
-      setError("Error cargando datos del dashboard. Verifica tu conexión.");
+      setError(t("errorLoadingDashboard"));
       console.error("Error loading dashboard:", err);
 
       // Establecer datos vacíos en caso de error
@@ -149,31 +169,25 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const handleRemoveFavorite = async (productId: number) => {
     try {
       console.log("Removiendo favorito:", productId);
-      await dashboardService.removeFromFavorites(user.id, productId);
+      await dashboardService.removeFromFavorites(String(user.id), productId);
       setFavorites(favorites.filter((fav) => fav.productId !== productId));
       console.log("Favorito removido exitosamente");
     } catch (err) {
       console.error("Error removing favorite:", err);
-      showError(
-        "❌ Error",
-        "Error al remover de favoritos. Intenta nuevamente."
-      );
+      showError("❌ Error", t("errorRemovingFavorite"));
     }
   };
 
   const handleCreateWishlist = async () => {
     if (!newWishlistName.trim()) {
-      showError(
-        "❌ Campo Requerido",
-        "Por favor ingresa un nombre para la lista de deseos"
-      );
+      showError("❌ Campo Requerido", t("pleaseEnterListName"));
       return;
     }
 
     try {
       console.log("Creando lista de deseos:", newWishlistName);
       const newWishlist = await dashboardService.createWishlist(
-        Number(user.id),
+        String(user.id),
         newWishlistName,
         newWishlistDescription
       );
@@ -182,13 +196,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       setNewWishlistDescription("");
       setShowNewWishlistForm(false);
       console.log("Lista de deseos creada exitosamente");
-      showSuccess("✅ Lista Creada", "Lista de deseos creada exitosamente");
+      showSuccess("✅ Lista Creada", t("wishlistCreatedSuccessfully"));
     } catch (err) {
       console.error("Error creating wishlist:", err);
-      showError(
-        "❌ Error",
-        "Error al crear la lista de deseos. Intenta nuevamente."
-      );
+      showError("❌ Error", t("errorCreatingWishlist"));
     }
   };
 
@@ -204,7 +215,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
       console.log("Notificación marcada como leída");
     } catch (err) {
       console.error("Error marking notification as read:", err);
-      showError("❌ Error", "Error al marcar la notificación como leída.");
+      showError("❌ Error", t("errorMarkingNotification"));
     }
   };
 
@@ -231,15 +242,15 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const getStatusText = (estado: string) => {
     switch (estado) {
       case "delivered":
-        return "Entregado";
+        return t("delivered");
       case "shipped":
-        return "Enviado";
+        return t("shipped");
       case "pending":
-        return "Pendiente";
+        return t("pending");
       case "cancelled":
-        return "Cancelado";
+        return t("cancelled");
       default:
-        return "Desconocido";
+        return t("unknown");
     }
   };
 
@@ -261,39 +272,39 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const tabs = [
     {
       id: "overview",
-      label: "Resumen",
+      label: t("userDashboard.overview"),
       icon: FaUser,
-      description: "Vista general de tu cuenta",
+      description: t("userDashboard.overviewDescription"),
     },
     {
       id: "purchases",
-      label: "Compras",
+      label: t("userDashboard.purchases"),
       icon: FaShoppingBag,
-      description: "Historial de tus compras",
+      description: t("userDashboard.purchasesDescription"),
     },
     {
       id: "favorites",
-      label: "Favoritos",
+      label: t("userDashboard.favorites"),
       icon: FaHeart,
-      description: "Productos que te gustan",
+      description: t("userDashboard.favoritesDescription"),
     },
     {
       id: "wishlists",
-      label: "Listas de Deseos",
+      label: t("userDashboard.wishlists"),
       icon: FaStar,
-      description: "Tus listas de productos deseados",
+      description: t("userDashboard.wishlistsDescription"),
     },
     {
       id: "notifications",
-      label: "Notificaciones",
+      label: t("userDashboard.notifications"),
       icon: FaBell,
-      description: "Alertas y mensajes",
+      description: t("userDashboard.notificationsDescription"),
     },
     {
       id: "profile",
-      label: "Perfil",
+      label: t("userDashboard.profile"),
       icon: FaCog,
-      description: "Configuración de tu cuenta",
+      description: t("userDashboard.profileDescription"),
     },
   ];
 
@@ -308,7 +319,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               <FaUser />
             </div>
             <div className="user-details">
-              <h2>¡Hola, {user?.name || "Usuario"}!</h2>
+              <h2>
+                {t("userDashboard.welcome", { name: user?.name || t("user") })}
+              </h2>
+              <div className="current-section">
+                <span className="section-name">{getCurrentSectionName()}</span>
+              </div>
               <div className="user-badges">
                 <span className="badge badge-bronze">
                   <FaGem />
@@ -316,7 +332,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                 </span>
                 <span className="badge badge-points">
                   <FaFire />
-                  {stats?.loyaltyPoints || 0} pts
+                  {stats?.loyaltyPoints || 0} {t("loyaltyPoints")}
                 </span>
               </div>
             </div>
@@ -365,7 +381,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
             {loading && (
               <div className="loading-spinner">
                 <FaSpinner className="spinning" />
-                <p>Cargando datos...</p>
+                <p>{t("loading")}</p>
               </div>
             )}
 
@@ -373,7 +389,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               <div className="error-message">
                 <p>{error}</p>
                 <button onClick={loadDashboardData} className="retry-btn">
-                  Reintentar
+                  {t("retry")}
                 </button>
               </div>
             )}
@@ -389,7 +405,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                         </div>
                         <div className="stat-content">
                           <h3>{stats.totalPurchases}</h3>
-                          <p>Compras Totales</p>
+                          <p>{t("totalPurchases")}</p>
                         </div>
                       </div>
 
@@ -399,7 +415,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                         </div>
                         <div className="stat-content">
                           <h3>${stats.totalSpent.toLocaleString()}</h3>
-                          <p>Total Gastado</p>
+                          <p>{t("totalSpent")}</p>
                         </div>
                       </div>
 
@@ -409,7 +425,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                         </div>
                         <div className="stat-content">
                           <h3>{stats.loyaltyPoints}</h3>
-                          <p>Puntos de Fidelidad</p>
+                          <p>{t("loyaltyPoints")}</p>
                         </div>
                       </div>
 
@@ -419,13 +435,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                         </div>
                         <div className="stat-content">
                           <h3>{stats.activeDiscount}</h3>
-                          <p>Descuento Activo</p>
+                          <p>{t("activeDiscount")}</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="recent-activity">
-                      <h3>Actividad Reciente</h3>
+                      <h3>{t("recentActivity")}</h3>
                       <div className="activity-list">
                         {stats.recentActivity.map((activity) => (
                           <div key={activity.id} className="activity-item">
@@ -453,20 +469,18 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                 {activeTab === "purchases" && (
                   <div className="purchases-section">
                     <div className="section-header">
-                      <h3>Historial de Compras</h3>
+                      <h3>{t("purchaseHistory")}</h3>
                       <button className="export-btn">
                         <FaDownload />
-                        Exportar
+                        {t("export")}
                       </button>
                     </div>
                     <div className="purchases-list">
                       {purchases.length === 0 ? (
                         <div className="empty-state">
                           <FaShoppingBag className="empty-icon" />
-                          <h4>No tienes compras aún</h4>
-                          <p>
-                            ¡Explora nuestra colección y haz tu primera compra!
-                          </p>
+                          <h4>{t("noPurchasesYet")}</h4>
+                          <p>{t("exploreCollection")}</p>
                         </div>
                       ) : (
                         purchases.map((purchase) => (
@@ -497,16 +511,16 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                             <div className="purchase-actions">
                               <button className="action-btn">
                                 <FaEye />
-                                Ver Detalles
+                                {t("viewDetails")}
                               </button>
                               <button className="action-btn">
                                 <FaDownload />
-                                Factura
+                                {t("invoice")}
                               </button>
                               {purchase.status === "shipped" && (
                                 <button className="action-btn">
                                   <FaTruck />
-                                  Rastrear
+                                  {t("track")}
                                 </button>
                               )}
                             </div>
@@ -520,18 +534,18 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                 {activeTab === "favorites" && (
                   <div className="favorites-section">
                     <div className="section-header">
-                      <h3>Mis Favoritos</h3>
+                      <h3>{t("myFavorites")}</h3>
                       <div className="header-actions">
                         <button
                           className="manage-btn"
                           onClick={() => setShowFavorites(true)}
                         >
                           <FaEye />
-                          Gestionar
+                          {t("manage")}
                         </button>
                         <button className="share-btn">
                           <FaShare />
-                          Compartir
+                          {t("share")}
                         </button>
                       </div>
                     </div>
@@ -539,11 +553,8 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                       {favorites.length === 0 ? (
                         <div className="empty-state">
                           <FaHeart className="empty-icon" />
-                          <h4>No tienes favoritos aún</h4>
-                          <p>
-                            Agrega productos a tus favoritos para encontrarlos
-                            fácilmente
-                          </p>
+                          <h4>{t("noFavoritesYet")}</h4>
+                          <p>{t("addToFavorites")}</p>
                         </div>
                       ) : (
                         favorites.map((favorite) => (
@@ -572,14 +583,14 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                 {activeTab === "wishlists" && (
                   <div className="wishlists-section">
                     <div className="section-header">
-                      <h3>Listas de Deseos</h3>
+                      <h3>{t("wishlists")}</h3>
                       <div className="header-actions">
                         <button
                           className="manage-btn"
                           onClick={() => setShowWishlists(true)}
                         >
                           <FaEye />
-                          Gestionar
+                          {t("manage")}
                         </button>
                         <button
                           className="create-btn"
@@ -588,7 +599,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                           }
                         >
                           <FaPlus />
-                          Nueva Lista
+                          {t("newList")}
                         </button>
                       </div>
                     </div>
@@ -598,14 +609,14 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                         <div className="form-group">
                           <input
                             type="text"
-                            placeholder="Nombre de la lista"
+                            placeholder={t("listName")}
                             value={newWishlistName}
                             onChange={(e) => setNewWishlistName(e.target.value)}
                           />
                         </div>
                         <div className="form-group">
                           <textarea
-                            placeholder="Descripción (opcional)"
+                            placeholder={t("descriptionOptional")}
                             value={newWishlistDescription}
                             onChange={(e) =>
                               setNewWishlistDescription(e.target.value)
@@ -617,13 +628,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                             onClick={handleCreateWishlist}
                             className="btn-primary"
                           >
-                            Crear Lista
+                            {t("createList")}
                           </button>
                           <button
                             onClick={() => setShowNewWishlistForm(false)}
                             className="btn-secondary"
                           >
-                            Cancelar
+                            {t("cancel")}
                           </button>
                         </div>
                       </div>
@@ -652,20 +663,24 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                             </p>
                           )}
                           <div className="wishlist-stats">
-                            <span>{wishlist.products.length} productos</span>
+                            <span>
+                              {wishlist.products.length} {t("products")}
+                            </span>
                             <span>•</span>
-                            <span>Creada {wishlist.createdAt}</span>
+                            <span>
+                              {t("created")} {wishlist.createdAt}
+                            </span>
                           </div>
                           <div className="wishlist-visibility">
                             {wishlist.isPublic ? (
                               <span className="public">
                                 <FaEye />
-                                Pública
+                                {t("public")}
                               </span>
                             ) : (
                               <span className="private">
                                 <FaLock />
-                                Privada
+                                {t("private")}
                               </span>
                             )}
                           </div>
@@ -678,9 +693,9 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                 {activeTab === "notifications" && (
                   <div className="notifications-section">
                     <div className="section-header">
-                      <h3>Notificaciones</h3>
+                      <h3>{t("notifications")}</h3>
                       <button className="mark-all-read-btn">
-                        Marcar todas como leídas
+                        {t("markAllAsRead")}
                       </button>
                     </div>
                     <div className="notifications-list">
@@ -716,13 +731,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                 {activeTab === "profile" && (
                   <div className="profile-section">
                     <div className="section-header">
-                      <h3>Mi Perfil</h3>
+                      <h3>{t("myProfile")}</h3>
                       <button
                         className="manage-btn"
                         onClick={() => setShowProfileModal(true)}
                       >
                         <FaEdit />
-                        Gestionar Perfil
+                        {t("manageProfile")}
                       </button>
                     </div>
                     <div className="profile-preview">
@@ -731,8 +746,8 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                           <FaUser className="avatar-icon" />
                         </div>
                         <div className="profile-details">
-                          <h4>{currentUser?.name || "Usuario"}</h4>
-                          <p>{currentUser?.email || "No especificado"}</p>
+                          <h4>{currentUser?.name || t("user")}</h4>
+                          <p>{currentUser?.email || t("notSpecified")}</p>
                           <span className="user-level">
                             {stats?.userLevel || "Bronze"}
                           </span>
@@ -741,20 +756,22 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                       <div className="profile-stats">
                         <div className="stat-item">
                           <span className="stat-label">
-                            Puntos de Fidelidad
+                            {t("loyaltyPoints")}
                           </span>
                           <span className="stat-value">
-                            {stats?.loyaltyPoints || 0} pts
+                            {stats?.loyaltyPoints || 0} {t("points")}
                           </span>
                         </div>
                         <div className="stat-item">
-                          <span className="stat-label">Total Compras</span>
+                          <span className="stat-label">
+                            {t("totalPurchases")}
+                          </span>
                           <span className="stat-value">
                             {stats?.totalPurchases || 0}
                           </span>
                         </div>
                         <div className="stat-item">
-                          <span className="stat-label">Monto Total</span>
+                          <span className="stat-label">{t("totalAmount")}</span>
                           <span className="stat-value">
                             {internationalizationService.formatCurrency(
                               stats?.totalSpent || 0
@@ -769,7 +786,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                         onClick={() => setShowProfileModal(true)}
                       >
                         <FaEdit />
-                        Editar Perfil Completo
+                        {t("editCompleteProfile")}
                       </button>
                     </div>
                   </div>

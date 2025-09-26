@@ -70,13 +70,8 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      loadSuggestions();
-    } else {
-      setSuggestions(popularSearches);
-    }
-  }, [searchQuery]);
+  // Removed automatic search on query change
+  // Now search only happens when user clicks search button
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -128,6 +123,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 
     setIsLoading(true);
     try {
+      // Cargar sugerencias solo cuando se hace clic en buscar
+      await loadSuggestions();
+
       const searchFilters: SearchFilters = {
         ...filters,
         query: searchQuery.trim() || undefined,
@@ -225,10 +223,14 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  setFilters((prev) => ({ ...prev, query: e.target.value }));
-                  setShowSuggestions(true);
+                  // No mostrar sugerencias automáticamente, solo cuando el usuario haga clic en buscar
                 }}
-                onFocus={() => setShowSuggestions(true)}
+                onFocus={() => {
+                  // Solo mostrar sugerencias si hay texto escrito
+                  if (searchQuery.trim()) {
+                    setShowSuggestions(true);
+                  }
+                }}
                 onKeyPress={handleKeyPress}
               />
               <button

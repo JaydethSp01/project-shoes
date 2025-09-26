@@ -57,27 +57,28 @@
 .transaction-success-modal h4,
 .transaction-success-modal h5,
 .transaction-success-modal h6 {
-  color: #000 !important;
+  color: #00ff88 !important;
 }
 
 .transaction-success-modal p,
 .transaction-success-modal span,
 .transaction-success-modal div {
-  color: #333 !important;
+  color: #fff !important;
 }
 
 .transaction-success-modal {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%) !important;
   border-radius: 24px !important;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 255, 136, 0.1) !important;
   max-width: 600px !important;
   width: 100% !important;
   max-height: 90vh !important;
   overflow-y: auto !important;
   position: relative !important;
   animation: slideUp 0.4s ease-out !important;
-  color: #000 !important;
+  color: #fff !important;
   z-index: 100000 !important;
+  border: 2px solid rgba(0, 255, 136, 0.4) !important;
 }
 
 /* Header Section */

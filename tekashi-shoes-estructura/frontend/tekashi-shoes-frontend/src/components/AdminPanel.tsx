@@ -17,7 +17,7 @@ const getAuthHeaders = async () => {
       headers.Authorization = `Bearer ${token}`;
     }
   } catch (error) {
-    console.warn("No se pudo obtener token de autenticación", error);
+    console.error("Error obteniendo token de autenticación:", error);
   }
 
   return headers;
@@ -46,8 +46,10 @@ import { Product } from "../modelos/productTypes";
 import { ConexionApiBackend } from "../services/ConexionApiBackend";
 import ProductManagementModal from "./ProductManagementModal";
 import BeautifulAlert from "./BeautifulAlert";
+import AdminHeader from "./AdminHeader";
 import { useBeautifulAlert } from "../hooks/useBeautifulAlert";
 import { useTranslation } from "../hooks/useTranslation";
+import { validateEndpoints } from "../utils/endpointValidator";
 import "../styles/AdminPanelEnhanced.css";
 
 interface AdminPanelProps {
@@ -113,7 +115,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     if (isOpen) {
       loadAdminData();
     }
-  }, [isOpen]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Abrir modal de gestión cuando se selecciona un producto
   useEffect(() => {
@@ -148,40 +150,78 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const loadUsers = async (): Promise<AdminUser[]> => {
     try {
+      const headers = await getAuthHeaders();
+      console.log("🔍 Cargando usuarios con headers:", headers);
+
       const response = await fetch(`${getBaseUrl()}/api/usuarios`, {
         method: "GET",
-        headers: await getAuthHeaders(),
+        headers,
       });
+
+      console.log(
+        "📡 Respuesta de usuarios:",
+        response.status,
+        response.statusText
+      );
 
       if (response.ok) {
         const data = await response.json();
-        return data.map((user: any) => ({
-          id: user.id.toString(),
-          name: user.nombre,
-          email: user.email,
-          role: user.rol,
-          registrationDate: user.fechaRegistro,
-          status: user.estado === "activo" ? "active" : "inactive",
-          totalPurchases: user.totalCompras || 0,
-        }));
+        console.log("✅ Usuarios cargados:", data);
+        return data.map(
+          (user: {
+            id: number;
+            nombre: string;
+            email: string;
+            rol: string;
+            fechaRegistro: string;
+            estado: string;
+            totalCompras?: number;
+          }) => ({
+            id: user.id.toString(),
+            name: user.nombre,
+            email: user.email,
+            role: user.rol,
+            registrationDate: user.fechaRegistro,
+            status: user.estado === "activo" ? "active" : "inactive",
+            totalPurchases: user.totalCompras || 0,
+          })
+        );
       } else {
-        throw new Error("Error al obtener usuarios");
+        const errorText = await response.text();
+        console.error(
+          "❌ Error en respuesta de usuarios:",
+          response.status,
+          errorText
+        );
+        throw new Error(
+          `Error al obtener usuarios: ${response.status} - ${errorText}`
+        );
       }
     } catch (error) {
-      console.error("Error loading users:", error);
-      throw error; // Re-lanzar el error para manejo de loading
+      console.error("❌ Error loading users:", error);
+      throw error;
     }
   };
 
   const loadAdminStats = async (): Promise<AdminStats> => {
     try {
+      const headers = await getAuthHeaders();
+      console.log("🔍 Cargando estadísticas con headers:", headers);
+
       const response = await fetch(`${getBaseUrl()}/api/admin/dashboard`, {
         method: "GET",
-        headers: await getAuthHeaders(),
+        headers,
       });
+
+      console.log(
+        "📡 Respuesta de estadísticas:",
+        response.status,
+        response.statusText
+      );
 
       if (response.ok) {
         const data = await response.json();
+        console.log("✅ Estadísticas cargadas:", data);
         // El backend devuelve los datos en data.data
         const stats = data.data || data;
         return {
@@ -258,21 +298,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     } catch (err) {
       console.error("Error saving product:", err);
     }
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
-    setProductForm({
-      nombre: product.nombre || "",
-      descripcion: product.descripcion || "",
-      precio: product.precio?.toString() || "",
-      stock: product.stock?.toString() || "",
-      tipoProductoId: product.tipoProductoId?.toString() || "",
-      marca: product.marca || "",
-      color: product.color || "",
-      talla: product.talla || "",
-    });
-    setShowProductManagement(true);
   };
 
   // Funciones para gestión de base de datos
@@ -493,7 +518,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         const logs = await response.json();
         const logInfo = logs
           .slice(0, 10)
-          .map((log: any) => `${log.timestamp}: ${log.message}`)
+          .map(
+            (log: { timestamp: string; message: string }) =>
+              `${log.timestamp}: ${log.message}`
+          )
           .join("\n");
         showSuccess("📋 Logs del Sistema", logInfo);
       } else {
@@ -505,6 +533,44 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     } catch (error) {
       console.error("Error accessing logs:", error);
       showError("❌ Error", "Funcionalidad de ver logs - En desarrollo");
+    }
+  };
+
+  // Nueva función para validar endpoints
+  const handleValidateEndpoints = async () => {
+    try {
+      showSuccess(
+        "🔍 Validando Endpoints",
+        "Iniciando validación de todos los endpoints..."
+      );
+
+      const results = await validateEndpoints();
+      const successRate =
+        (results.filter((r) => r.status === "success").length /
+          results.length) *
+        100;
+
+      const summary = results
+        .map((result) => {
+          const statusIcon =
+            result.status === "success"
+              ? "✅"
+              : result.status === "unauthorized"
+              ? "🔒"
+              : result.status === "forbidden"
+              ? "🚫"
+              : "❌";
+          return `${statusIcon} ${result.method} ${result.endpoint} - ${result.statusCode}`;
+        })
+        .join("\n");
+
+      showSuccess(
+        `📊 Validación Completada (${successRate.toFixed(1)}% éxito)`,
+        `Resultados:\n\n${summary}`
+      );
+    } catch (error) {
+      console.error("Error validating endpoints:", error);
+      showError("❌ Error", "Error al validar endpoints");
     }
   };
 
@@ -637,7 +703,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       if (response.ok) {
         const tipos = await response.json();
         const tiposInfo = tipos
-          .map((tipo: any) => `- ${tipo.nombre} (ID: ${tipo.idTipoProducto})`)
+          .map(
+            (tipo: { nombre: string; idTipoProducto: number }) =>
+              `- ${tipo.nombre} (ID: ${tipo.idTipoProducto})`
+          )
           .join("\n");
 
         const action = prompt(
@@ -846,11 +915,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   );
 
   const tabs = [
-    { id: "dashboard", label: t("admin.dashboard"), icon: FaChartLine },
-    { id: "products", label: t("admin.products"), icon: FaProductHunt },
-    { id: "users", label: t("admin.users"), icon: FaUsers },
-    { id: "orders", label: t("admin.orders"), icon: FaShoppingCart },
-    { id: "settings", label: t("admin.settings"), icon: FaCog },
+    {
+      id: "dashboard",
+      label: t("adminPanel.dashboard.overview"),
+      icon: FaChartLine,
+    },
+    {
+      id: "products",
+      label: t("adminPanel.productManagement.management"),
+      icon: FaProductHunt,
+    },
+    { id: "users", label: t("adminPanel.users.management"), icon: FaUsers },
+    {
+      id: "orders",
+      label: t("adminPanel.orders.management"),
+      icon: FaShoppingCart,
+    },
+    {
+      id: "settings",
+      label: t("adminPanel.settings.systemConfig"),
+      icon: FaCog,
+    },
   ];
 
   // Función para manejar click en overlay
@@ -885,15 +970,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     <>
       <div className="admin-panel-overlay" onClick={handleOverlayClick}>
         <div className="admin-panel" onClick={(e) => e.stopPropagation()}>
-          <div className="admin-header">
-            <div className="admin-title">
-              <h1>{t("admin.title")}</h1>
-              <p>{t("admin.subtitle")}</p>
-            </div>
-            <button className="close-btn" onClick={onClose}>
-              <FaTimes />
-            </button>
-          </div>
+          <AdminHeader onClose={onClose} />
 
           <div className="admin-content">
             <div className="admin-sidebar">
@@ -937,7 +1014,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <>
                   {activeTab === "dashboard" && stats && (
                     <div className="dashboard-section">
-                      <h2>{t("admin.dashboard.overview")}</h2>
+                      <h2>{t("adminPanel.dashboard.overview")}</h2>
                       <div className="stats-grid">
                         <div className="stat-card">
                           <div className="stat-icon">
@@ -945,10 +1022,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>{stats.totalUsers.toLocaleString()}</h3>
-                            <p>{t("admin.dashboard.totalUsers")}</p>
+                            <p>{t("adminPanel.dashboard.totalUsers")}</p>
                             <span className="stat-change positive">
                               +{stats.newUsersToday}{" "}
-                              {t("admin.dashboard.today")}
+                              {t("adminPanel.dashboard.today")}
                             </span>
                           </div>
                         </div>
@@ -959,9 +1036,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>{stats.totalProducts}</h3>
-                            <p>{t("admin.dashboard.products")}</p>
+                            <p>{t("adminPanel.dashboard.products")}</p>
                             <span className="stat-change">
-                              {t("admin.dashboard.inCatalog")}
+                              {t("adminPanel.dashboard.inCatalog")}
                             </span>
                           </div>
                         </div>
@@ -972,9 +1049,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>{stats.totalOrders.toLocaleString()}</h3>
-                            <p>{t("admin.dashboard.orders")}</p>
+                            <p>{t("adminPanel.dashboard.orders")}</p>
                             <span className="stat-change positive">
-                              +{stats.ordersToday} {t("admin.dashboard.today")}
+                              +{stats.ordersToday}{" "}
+                              {t("adminPanel.dashboard.today")}
                             </span>
                           </div>
                         </div>
@@ -985,44 +1063,48 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
                           <div className="stat-content">
                             <h3>${stats.totalRevenue.toLocaleString()}</h3>
-                            <p>{t("admin.dashboard.revenue")}</p>
+                            <p>{t("adminPanel.dashboard.revenue")}</p>
                             <span className="stat-change positive">
-                              +12% {t("admin.dashboard.vsLastMonth")}
+                              +12% {t("adminPanel.dashboard.vsLastMonth")}
                             </span>
                           </div>
                         </div>
                       </div>
 
                       <div className="quick-actions">
-                        <h3>{t("admin.dashboard.quickActions")}</h3>
+                        <h3>{t("adminPanel.dashboard.quickActions")}</h3>
                         <div className="actions-grid">
                           <button
                             className="action-card"
                             onClick={handleCreateProduct}
                           >
                             <FaPlus />
-                            <span>{t("admin.dashboard.addProduct")}</span>
+                            <span>{t("adminPanel.dashboard.addProduct")}</span>
                           </button>
                           <button
                             className="action-card"
                             onClick={() => setActiveTab("users")}
                           >
                             <FaUserPlus />
-                            <span>{t("admin.dashboard.viewUsers")}</span>
+                            <span>{t("adminPanel.dashboard.viewUsers")}</span>
                           </button>
                           <button
                             className="action-card"
                             onClick={handleExportCatalog}
                           >
                             <FaDownload />
-                            <span>{t("admin.dashboard.exportReports")}</span>
+                            <span>
+                              {t("adminPanel.dashboard.exportReports")}
+                            </span>
                           </button>
                           <button
                             className="action-card"
                             onClick={handleImportProducts}
                           >
                             <FaUpload />
-                            <span>{t("admin.dashboard.importProducts")}</span>
+                            <span>
+                              {t("adminPanel.dashboard.importProducts")}
+                            </span>
                           </button>
                         </div>
                       </div>
@@ -1032,7 +1114,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeTab === "products" && (
                     <div className="products-section">
                       <div className="section-header">
-                        <h2>{t("admin.products.management")}</h2>
+                        <h2>{t("adminPanel.products.management")}</h2>
                         <div className="header-actions">
                           <div className="search-box">
                             <FaSearch />
@@ -1050,7 +1132,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             onClick={() => setShowProductManagement(true)}
                           >
                             <FaPlus />
-                            {t("admin.products.newProduct")}
+                            {t("adminPanel.products.newProduct")}
                           </button>
                         </div>
                       </div>
@@ -1059,13 +1141,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <table>
                           <thead>
                             <tr>
-                              <th>{t("admin.products.image")}</th>
-                              <th>{t("admin.products.name")}</th>
-                              <th>{t("admin.products.brand")}</th>
-                              <th>{t("admin.products.price")}</th>
-                              <th>{t("admin.products.stock")}</th>
-                              <th>{t("admin.products.status")}</th>
-                              <th>{t("admin.products.actions")}</th>
+                              <th>{t("adminPanel.products.image")}</th>
+                              <th>{t("adminPanel.products.name")}</th>
+                              <th>{t("adminPanel.products.brand")}</th>
+                              <th>{t("adminPanel.products.price")}</th>
+                              <th>{t("adminPanel.products.stock")}</th>
+                              <th>{t("adminPanel.products.status")}</th>
+                              <th>{t("adminPanel.products.actions")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1108,8 +1190,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                     }`}
                                   >
                                     {product.stock && product.stock > 0
-                                      ? t("admin.products.active")
-                                      : t("admin.products.inactive")}
+                                      ? t("adminPanel.products.active")
+                                      : t("adminPanel.products.inactive")}
                                   </span>
                                 </td>
                                 <td>
@@ -1144,12 +1226,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeTab === "users" && (
                     <div className="users-section">
                       <div className="section-header">
-                        <h2>{t("admin.users.management")}</h2>
+                        <h2>{t("adminPanel.users.management")}</h2>
                         <div className="search-box">
                           <FaSearch />
                           <input
                             type="text"
-                            placeholder={t("admin.users.searchPlaceholder")}
+                            placeholder={t(
+                              "adminPanel.users.searchPlaceholder"
+                            )}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                           />
@@ -1160,13 +1244,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <table>
                           <thead>
                             <tr>
-                              <th>{t("admin.users.user")}</th>
-                              <th>{t("admin.users.email")}</th>
-                              <th>{t("admin.users.role")}</th>
-                              <th>{t("admin.users.registration")}</th>
-                              <th>{t("admin.users.purchases")}</th>
-                              <th>{t("admin.users.status")}</th>
-                              <th>{t("admin.users.actions")}</th>
+                              <th>{t("adminPanel.users.user")}</th>
+                              <th>{t("adminPanel.users.email")}</th>
+                              <th>{t("adminPanel.users.role")}</th>
+                              <th>{t("adminPanel.users.registration")}</th>
+                              <th>{t("adminPanel.users.purchases")}</th>
+                              <th>{t("adminPanel.users.status")}</th>
+                              <th>{t("adminPanel.users.actions")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1231,12 +1315,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                   {activeTab === "orders" && (
                     <div className="orders-section">
                       <div className="section-header">
-                        <h2>{t("admin.orders.management")}</h2>
+                        <h2>{t("adminPanel.orders.management")}</h2>
                         <div className="search-box">
                           <FaSearch />
                           <input
                             type="text"
-                            placeholder={t("admin.orders.searchPlaceholder")}
+                            placeholder={t(
+                              "adminPanel.orders.searchPlaceholder"
+                            )}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                           />
@@ -1247,12 +1333,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <table>
                           <thead>
                             <tr>
-                              <th>{t("admin.orders.orderId")}</th>
-                              <th>{t("admin.orders.customer")}</th>
-                              <th>{t("admin.orders.date")}</th>
-                              <th>{t("admin.orders.total")}</th>
-                              <th>{t("admin.orders.status")}</th>
-                              <th>{t("admin.orders.actions")}</th>
+                              <th>{t("adminPanel.orders.orderId")}</th>
+                              <th>{t("adminPanel.orders.customer")}</th>
+                              <th>{t("adminPanel.orders.date")}</th>
+                              <th>{t("adminPanel.orders.total")}</th>
+                              <th>{t("adminPanel.orders.status")}</th>
+                              <th>{t("adminPanel.orders.actions")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1306,124 +1392,138 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
                   {activeTab === "settings" && (
                     <div className="settings-section">
-                      <h2>{t("admin.settings.systemConfig")}</h2>
+                      <h2>{t("adminPanel.settings.systemConfig")}</h2>
                       <div className="settings-grid">
                         <div className="setting-card">
-                          <h3>{t("admin.settings.databaseManagement")}</h3>
-                          <p>{t("admin.settings.databaseDescription")}</p>
+                          <h3>{t("adminPanel.settings.databaseManagement")}</h3>
+                          <p>{t("adminPanel.settings.databaseDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={() => handleBackupDatabase()}
                             >
-                              {t("admin.settings.backupDatabase")}
+                              {t("adminPanel.settings.backupDatabase")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={() => handleOptimizeDatabase()}
                             >
-                              {t("admin.settings.optimizeDatabase")}
+                              {t("adminPanel.settings.optimizeDatabase")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={() => handleViewDatabaseStats()}
                             >
-                              {t("admin.settings.viewStats")}
+                              {t("adminPanel.settings.viewStats")}
                             </button>
                           </div>
                         </div>
                         <div className="setting-card">
-                          <h3>{t("admin.settings.userManagement")}</h3>
-                          <p>{t("admin.settings.userDescription")}</p>
+                          <h3>{t("adminPanel.settings.userManagement")}</h3>
+                          <p>{t("adminPanel.settings.userDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={handleCreateUser}
                             >
-                              {t("admin.settings.createUser")}
+                              {t("adminPanel.settings.createUser")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleManageRoles}
                             >
-                              {t("admin.settings.manageRoles")}
+                              {t("adminPanel.settings.manageRoles")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleViewLogs}
                             >
-                              {t("admin.settings.viewLogs")}
+                              {t("adminPanel.settings.viewLogs")}
+                            </button>
+                            <button
+                              className="btn-secondary"
+                              onClick={handleValidateEndpoints}
+                            >
+                              🔍 Validar Endpoints
                             </button>
                           </div>
                         </div>
                         <div className="setting-card">
-                          <h3>{t("admin.settings.productManagement")}</h3>
-                          <p>{t("admin.settings.productDescription")}</p>
+                          <h3>{t("adminPanel.settings.productManagement")}</h3>
+                          <p>{t("adminPanel.settings.productDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={handleImportProducts}
                             >
-                              {t("admin.settings.importProducts")}
+                              {t("adminPanel.settings.importProducts")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleExportCatalog}
                             >
-                              {t("admin.settings.exportCatalog")}
+                              {t("adminPanel.settings.exportCatalog")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleManageTypes}
                             >
-                              {t("admin.settings.manageTypes")}
+                              {t("adminPanel.settings.manageTypes")}
                             </button>
                           </div>
                         </div>
                         <div className="setting-card">
-                          <h3>{t("admin.settings.systemConfiguration")}</h3>
-                          <p>{t("admin.settings.systemDescription")}</p>
+                          <h3>
+                            {t("adminPanel.settings.systemConfiguration")}
+                          </h3>
+                          <p>{t("adminPanel.settings.systemDescription")}</p>
                           <div className="setting-actions">
                             <button
                               className="btn-secondary"
                               onClick={handleConfigureEmail}
                             >
-                              {t("admin.settings.configureEmail")}
+                              {t("adminPanel.settings.configureEmail")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleConfigurePayments}
                             >
-                              {t("admin.settings.configurePayments")}
+                              {t("adminPanel.settings.configurePayments")}
                             </button>
                             <button
                               className="btn-secondary"
                               onClick={handleConfigureShipping}
                             >
-                              {t("admin.settings.configureShipping")}
+                              {t("adminPanel.settings.configureShipping")}
                             </button>
                           </div>
                         </div>
                       </div>
 
                       <div className="system-info">
-                        <h3>{t("admin.settings.systemInfo")}</h3>
+                        <h3>{t("adminPanel.settings.systemInfo")}</h3>
                         <div className="info-grid">
                           <div className="info-item">
-                            <label>{t("admin.settings.systemVersion")}:</label>
+                            <label>
+                              {t("adminPanel.settings.systemVersion")}:
+                            </label>
                             <span>1.0.0</span>
                           </div>
                           <div className="info-item">
-                            <label>{t("admin.settings.lastBackup")}:</label>
+                            <label>
+                              {t("adminPanel.settings.lastBackup")}:
+                            </label>
                             <span>2024-01-15 14:30:00</span>
                           </div>
                           <div className="info-item">
-                            <label>{t("admin.settings.activeUsers")}:</label>
+                            <label>
+                              {t("adminPanel.settings.activeUsers")}:
+                            </label>
                             <span>{stats?.totalUsers || 0}</span>
                           </div>
                           <div className="info-item">
                             <label>
-                              {t("admin.settings.productsInCatalog")}:
+                              {t("adminPanel.settings.productsInCatalog")}:
                             </label>
                             <span>{stats?.totalProducts || 0}</span>
                           </div>
@@ -1443,8 +1543,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="modal-header">
                   <h3>
                     {editingProduct
-                      ? t("admin.products.editProduct")
-                      : t("admin.products.newProduct")}
+                      ? t("adminPanel.products.editProduct")
+                      : t("adminPanel.products.newProduct")}
                   </h3>
                   <button
                     className="close-btn"
@@ -1459,7 +1559,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <div className="modal-content">
                   <div className="form-grid">
                     <div className="form-group">
-                      <label>{t("admin.products.productName")}</label>
+                      <label>{t("adminPanel.products.productName")}</label>
                       <input
                         type="text"
                         value={productForm.nombre}
@@ -1469,11 +1569,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             nombre: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.productNamePlaceholder")}
+                        placeholder={t(
+                          "adminPanel.products.productNamePlaceholder"
+                        )}
                       />
                     </div>
                     <div className="form-group">
-                      <label>{t("admin.products.brand")}</label>
+                      <label>{t("adminPanel.products.brand")}</label>
                       <input
                         type="text"
                         value={productForm.marca}
@@ -1483,11 +1585,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             marca: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.brandPlaceholder")}
+                        placeholder={t("adminPanel.products.brandPlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>{t("admin.products.price")}</label>
+                      <label>{t("adminPanel.products.price")}</label>
                       <input
                         type="number"
                         value={productForm.precio}
@@ -1497,11 +1599,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             precio: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.pricePlaceholder")}
+                        placeholder={t("adminPanel.products.pricePlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>{t("admin.products.stock")}</label>
+                      <label>{t("adminPanel.products.stock")}</label>
                       <input
                         type="number"
                         value={productForm.stock}
@@ -1511,11 +1613,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             stock: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.stockPlaceholder")}
+                        placeholder={t("adminPanel.products.stockPlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>{t("admin.products.color")}</label>
+                      <label>{t("adminPanel.products.color")}</label>
                       <input
                         type="text"
                         value={productForm.color}
@@ -1525,11 +1627,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             color: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.colorPlaceholder")}
+                        placeholder={t("adminPanel.products.colorPlaceholder")}
                       />
                     </div>
                     <div className="form-group">
-                      <label>{t("admin.products.size")}</label>
+                      <label>{t("adminPanel.products.size")}</label>
                       <input
                         type="text"
                         value={productForm.talla}
@@ -1539,11 +1641,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             talla: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.sizePlaceholder")}
+                        placeholder={t("adminPanel.products.sizePlaceholder")}
                       />
                     </div>
                     <div className="form-group full-width">
-                      <label>{t("admin.products.description")}</label>
+                      <label>{t("adminPanel.products.description")}</label>
                       <textarea
                         value={productForm.descripcion}
                         onChange={(e) =>
@@ -1552,7 +1654,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                             descripcion: e.target.value,
                           })
                         }
-                        placeholder={t("admin.products.descriptionPlaceholder")}
+                        placeholder={t(
+                          "adminPanel.products.descriptionPlaceholder"
+                        )}
                         rows={4}
                       />
                     </div>
@@ -1574,7 +1678,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                     {editingProduct
                       ? t("common.update")
                       : t("common.create")}{" "}
-                    {t("admin.products.product")}
+                    {t("adminPanel.products.product")}
                   </button>
                 </div>
               </div>

@@ -16,6 +16,31 @@
   pointer-events: auto;
 }
 
+.close-admin-panel-btn {
+  background: rgba(255, 0, 0, 0.2);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  color: #ff4444;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.close-admin-panel-btn:hover {
+  background: rgba(255, 0, 0, 0.3);
+  border-color: rgba(255, 0, 0, 0.5);
+  transform: scale(1.05);
+}
+
+.close-admin-panel-btn:active {
+  transform: scale(0.95);
+}
+
 /* Botón de notificaciones para admin */
 .admin-notification-btn {
   position: relative;

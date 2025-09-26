@@ -10,7 +10,10 @@ import "./styles/Chatbot.css";
 import "./styles/ModernAlert.css"; // Modern alert styles
 import "./styles/ErrorBoundary.css"; // Error boundary styles
 import "./config/i18n"; // Importar configuración de i18n
+import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
+import TestimonialsPage from "./pages/TestimonialsPage";
+import FeaturesPage from "./pages/FeaturesPage";
 // import PWAStatus from "./components/PWAStatus"; // Comentado para quitar banner molesto
 import { AlertProvider } from "./contexts/AlertContext";
 import { AuthProvider } from "./hooks/useAuth";
@@ -21,7 +24,11 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <AlertProvider>
-          <Home />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/testimonials" element={<TestimonialsPage />} />
+            <Route path="/features" element={<FeaturesPage />} />
+          </Routes>
           {/* <PWAStatus /> Comentado para quitar banner molesto */}
         </AlertProvider>
       </AuthProvider>

@@ -114,7 +114,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           name: user.name || "",
           email: user.email || "",
           phone: user.phone || "",
+          address: user.address || "",
+          city: "",
+          postalCode: "",
         }));
+
+        // También autocompletar el nombre del titular de la tarjeta
+        setPaymentInfo((prev) => ({
+          ...prev,
+          cardholderName: user.name || "",
+        }));
+
+        // Datos del usuario autocompletados
       }
     }
   }, [isOpen]);
@@ -380,12 +391,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       setShowSuccessModal(true);
       setPaymentSuccess(true);
       onOrderComplete(order);
-      
+
       console.log("🎉 Modal de éxito configurado");
-      
+
       // Verificar estado después de un momento
       setTimeout(() => {
-        console.log("🔍 Estado después de configurar:", { showSuccessModal, orderData });
+        console.log("🔍 Estado después de configurar:", {
+          showSuccessModal,
+          orderData,
+        });
       }, 100);
     } catch (err: unknown) {
       console.error("Error de Pago:", err);
@@ -1531,7 +1545,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       )}
 
       {/* Transaction Success Modal */}
-      {console.log("🔍 Estado del modal:", { showSuccessModal, orderData })}
       <TransactionSuccessModal
         isOpen={showSuccessModal}
         onClose={handleSuccessModalClose}
