@@ -41,6 +41,8 @@ const resources = {
           "Descubre nuestra colección premium de zapatos para cada ocasión",
         viewCollection: "Ver Colección",
         specialOffers: "Ofertas Especiales",
+        viewTestimonials: "Ver Testimonios",
+        viewFeatures: "Nuestras Características",
       },
 
       // Productos
@@ -678,6 +680,8 @@ const resources = {
         subtitle: "Discover our premium collection of shoes for every occasion",
         viewCollection: "View Collection",
         specialOffers: "Special Offers",
+        viewTestimonials: "View Testimonials",
+        viewFeatures: "Our Features",
       },
 
       // Products
@@ -1309,6 +1313,8 @@ const resources = {
           "Découvrez notre collection premium de chaussures pour chaque occasion",
         viewCollection: "Voir la Collection",
         specialOffers: "Offres Spéciales",
+        viewTestimonials: "Voir les Témoignages",
+        viewFeatures: "Nos Caractéristiques",
       },
 
       // Products
@@ -1741,6 +1747,8 @@ const resources = {
         subtitle: "Descubra nossa coleção premium de sapatos para cada ocasião",
         viewCollection: "Ver Coleção",
         specialOffers: "Ofertas Especiais",
+        viewTestimonials: "Ver Depoimentos",
+        viewFeatures: "Nossas Características",
       },
 
       // Products

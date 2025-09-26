@@ -10,56 +10,6 @@ const {
   verificarPropietario,
 } = require("../middleware/authMiddleware");
 
-// Endpoint de prueba para verificar Firebase
-router.get("/test-firebase", async (req, res) => {
-  try {
-    const { initializeFirebase } = require("../middleware/authMiddleware");
-    initializeFirebase();
-    
-    res.json({
-      success: true,
-      message: "Firebase test endpoint",
-      timestamp: new Date().toISOString(),
-      firebaseConfig: {
-        projectId: process.env.FIREBASE_PROJECT_ID ? "Configurado" : "No configurado",
-        privateKey: process.env.FIREBASE_PRIVATE_KEY ? "Configurado" : "No configurado",
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL ? "Configurado" : "No configurado"
-      }
-    });
-  } catch (error) {
-    res.json({
-      success: false,
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-// Endpoint de prueba para verificar autenticación
-router.get("/test-auth", async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader ? authHeader.split(" ")[1] : null;
-    
-    res.json({
-      success: true,
-      message: "Auth test endpoint",
-      timestamp: new Date().toISOString(),
-      auth: {
-        header: authHeader ? "Presente" : "Ausente",
-        token: token ? `${token.substring(0, 20)}...` : "No token",
-        tokenLength: token ? token.length : 0
-      }
-    });
-  } catch (error) {
-    res.json({
-      success: false,
-      error: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
 // GET /api/dashboard/stats/:userId - Obtener estadísticas del dashboard
 router.get("/stats/:userId", verificarAuth, async (req, res, next) => {
   try {

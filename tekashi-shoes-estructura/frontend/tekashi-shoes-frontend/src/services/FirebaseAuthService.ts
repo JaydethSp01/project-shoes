@@ -207,9 +207,16 @@ class FirebaseAuthService {
     }
   }
 
-  // Iniciar sesión con Twitter (deshabilitado temporalmente)
+  // Iniciar sesión con Twitter
   async signInWithTwitter(): Promise<UserProfile> {
-    throw new Error("Twitter authentication is not available");
+    try {
+      const provider = new TwitterAuthProvider();
+
+      const result = await signInWithPopup(this.auth, provider);
+      return this.mapUserToProfile(result.user);
+    } catch (error: any) {
+      throw this.mapFirebaseError(error);
+    }
   }
 
   // Cerrar sesión

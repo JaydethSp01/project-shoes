@@ -366,7 +366,10 @@ const verificarAuth = async (req, res, next) => {
     console.log("🔍 Token recibido:", token.substring(0, 20) + "...");
     console.log("🔍 Longitud del token:", token.length);
     console.log("🔍 Firebase inicializado:", firebaseInitialized);
-    console.log("🔍 Token completo (primeros 50 chars):", token.substring(0, 50) + "...");
+    console.log(
+      "🔍 Token completo (primeros 50 chars):",
+      token.substring(0, 50) + "..."
+    );
 
     // Intentar verificar como token de Firebase primero
     if (firebaseInitialized) {
@@ -374,9 +377,12 @@ const verificarAuth = async (req, res, next) => {
         console.log("🔐 Verificando token con Firebase...");
         const decodedToken = await admin.auth().verifyIdToken(token);
         console.log("✅ Token de Firebase válido:", decodedToken.uid);
-        
+
         usuario = await Usuario.findOne({ firebaseUid: decodedToken.uid });
-        console.log("👤 Usuario encontrado en BD:", usuario ? usuario._id : "No encontrado");
+        console.log(
+          "👤 Usuario encontrado en BD:",
+          usuario ? usuario._id : "No encontrado"
+        );
 
         if (usuario) {
           req.usuario = usuario;
@@ -399,47 +405,14 @@ const verificarAuth = async (req, res, next) => {
           return next();
         }
       } catch (firebaseError) {
-        console.log("❌ Error verificando token de Firebase:", firebaseError.message);
+        console.log(
+          "❌ Error verificando token de Firebase:",
+          firebaseError.message
+        );
         console.log("❌ Código de error:", firebaseError.code);
       }
     } else {
-      console.log(
-        "⚠️ Firebase no está inicializado - usando modo de desarrollo"
-      );
-      // Modo de desarrollo: permitir acceso con token válido
-      if (token && token.length > 100) {
-        console.log("🔧 Modo desarrollo: permitiendo acceso con token válido");
-        // Buscar usuario por ID del frontend
-        const userId = req.params.userId;
-        if (userId) {
-          usuario = await Usuario.findById(userId);
-          if (usuario) {
-            req.usuario = usuario;
-            console.log(
-              "✅ Usuario encontrado en modo desarrollo:",
-              usuario._id
-            );
-            return next();
-          } else {
-            console.log(
-              "🔄 Usuario no encontrado, creando usuario en modo desarrollo"
-            );
-            // Crear usuario temporal para desarrollo
-            usuario = new Usuario({
-              firebaseUid: `dev-${userId}`,
-              nombre: "Usuario Desarrollo",
-              email: "dev@example.com",
-              rol: "CLIENTE",
-              activo: true,
-              fechaRegistro: new Date(),
-            });
-            await usuario.save();
-            req.usuario = usuario;
-            console.log("✅ Usuario creado en modo desarrollo:", usuario._id);
-            return next();
-          }
-        }
-      }
+      console.log("⚠️ Firebase no está inicializado");
     }
 
     // Si no es token de Firebase, intentar como token del backend

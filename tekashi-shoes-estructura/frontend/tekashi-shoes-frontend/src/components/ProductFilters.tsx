@@ -280,7 +280,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onClick={applyFilters}
             disabled={isLoading}
           >
-            {isLoading ? "..." : "Buscar"}
+            {isLoading ? "..." : t("products.search")}
           </button>
         </div>
 

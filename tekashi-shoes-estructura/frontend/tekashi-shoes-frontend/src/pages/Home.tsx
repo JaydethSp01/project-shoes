@@ -516,7 +516,7 @@ const Home = () => {
                     window.location.href = "/testimonials";
                   }}
                 >
-                  Ver Testimonios
+                  {t("hero.viewTestimonials")}
                 </button>
                 <button
                   className="btn btn-info btn-lg"
@@ -524,7 +524,7 @@ const Home = () => {
                     window.location.href = "/features";
                   }}
                 >
-                  Nuestras Características
+                  {t("hero.viewFeatures")}
                 </button>
               </div>
             </div>
