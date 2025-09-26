@@ -280,7 +280,12 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             onClick={applyFilters}
             disabled={isLoading}
           >
-            {isLoading ? "..." : t("products.search")}
+            {isLoading ? "..." : (() => {
+              const translation = t("products.search");
+              console.log("🔍 ProductFilters - Translation result:", translation);
+              console.log("🔍 ProductFilters - Current language:", t.language);
+              return translation || "Buscar";
+            })()}
           </button>
         </div>
 
