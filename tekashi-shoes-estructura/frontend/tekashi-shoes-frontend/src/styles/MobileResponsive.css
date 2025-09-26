@@ -144,6 +144,18 @@
     margin: 0 !important;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     min-height: auto;
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  .hero-content {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  
+  .hero-text {
+    display: block !important;
+    visibility: visible !important;
   }
 
   .hero-content {
@@ -180,6 +192,26 @@
     padding: 12px 20px;
     font-size: 16px;
     font-weight: 600;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Asegurar que todos los botones hero sean visibles */
+  .hero-buttons .btn-secondary,
+  .hero-buttons .btn-info {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  }
+  
+  .hero-buttons .btn-secondary:hover,
+  .hero-buttons .btn-info:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
   }
 
   /* Products section optimizations */
