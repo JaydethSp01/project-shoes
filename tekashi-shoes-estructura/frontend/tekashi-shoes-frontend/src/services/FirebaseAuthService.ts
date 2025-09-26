@@ -171,6 +171,10 @@ class FirebaseAuthService {
         throw new Error(
           "Error de configuración del navegador. Por favor, desactiva el bloqueador de popups y vuelve a intentar."
         );
+      } else if (error.message?.includes("INTERNAL ASSERTION FAILED")) {
+        throw new Error(
+          "Error interno de Firebase. Por favor, recarga la página e intenta nuevamente."
+        );
       }
 
       throw this.mapFirebaseError(error);

@@ -30,22 +30,16 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// 🔹 Configurar proveedores de autenticación
+// 🔹 Configurar proveedores de autenticación de forma más simple
 export const googleProvider = new GoogleAuthProvider();
+// Configuración mínima para evitar errores
 googleProvider.addScope("email");
-googleProvider.addScope("profile");
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
 
 export const facebookProvider = new FacebookAuthProvider();
 facebookProvider.addScope("email");
-facebookProvider.addScope("public_profile");
 
 export const microsoftProvider = new OAuthProvider("microsoft.com");
 microsoftProvider.addScope("email");
-microsoftProvider.addScope("profile");
-microsoftProvider.addScope("openid");
 
 // 🔹 Configurar persistencia en localStorage
 setPersistence(auth, browserLocalPersistence)
