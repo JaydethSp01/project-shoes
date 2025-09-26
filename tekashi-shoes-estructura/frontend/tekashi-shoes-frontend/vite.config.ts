@@ -10,4 +10,19 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "unsafe-none",
     },
   },
+  optimizeDeps: {
+    force: true, // Forzar re-optimización de dependencias
+    include: ['react', 'react-dom', 'react-router-dom', 'react-icons/fa']
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          icons: ['react-icons/fa']
+        }
+      }
+    }
+  }
 });
